@@ -1,0 +1,99 @@
+{
+    "Actor": {
+        "types": ["character"],
+        "character": {
+            "notes": "",
+            "health": {
+                "value": 20,
+                "min": 0,
+                "max": 20
+            },
+            "energy": {
+                "value": 100,
+                "min": 0,
+                "max": 100
+            },
+            "stats": {
+                "total": {
+                    "value": 0,
+                    "label": "Total"
+                },
+                "physique": {
+                    "value": 0,
+                    "label": "Physique"
+                },
+                "cunning": {
+                    "value": 0,
+                    "label": "Cunning"
+                }
+            },
+            "attributes": {
+                "agility": {
+                    "value": 10,
+                    "label": "Agility",
+                    "stat": "physique"
+                },
+                "endurance": {
+                    "value": 10,
+                    "label": "Endurance",
+                    "stat": "physique"
+                },
+                "power": {
+                    "value": 10,
+                    "label": "Power",
+                    "stat": "physique"
+                },
+                "charisma": {
+                    "value": 10,
+                    "label": "Charisma",
+                    "stat": "cunning"
+                },
+                "memory": {
+                    "value": 10,
+                    "label": "Memory",
+                    "stat": "cunning"
+                },
+                "perception": {
+                    "value": 10,
+                    "label": "Perception",
+                    "stat": "cunning"
+                }
+            },
+            "skills": {
+                "artifice": {
+                    "value": 0,
+                    "label": "Artifice"
+                },
+                "melee": {
+                    "value": 0,
+                    "label": "Melee Combat"
+                },
+                "ranged": {
+                    "value": 0,
+                    "label": "Ranged Combat"
+                },
+                "smithing": {
+                    "value": 0,
+                    "label": "Smithing"
+                },
+                "stealth": {
+                    "value": 0,
+                    "label": "Stealth"
+                }
+            }
+        }
+    },
+    "Item": {
+        "types": ["item", "ability"],
+        "item": {
+            "notes": "",
+            "description": "",
+            "template": {}
+        },
+        "ability": {
+            "notes": "",
+            "description": "",
+            "template": {}
+        }
+    }
+}
