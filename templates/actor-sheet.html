@@ -6,14 +6,28 @@
         <div class="header-fields">
             <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
             <div class="resource">
+                <img src="systems/lightbearer/resources/hp_icon.svg" title="hp" width"24" height="24"/>
                 <input type="text" name="data.health.value" value="{{data.health.value}}" data-dtype="Number"/>
                 <span> / </span>
                 <input type="text" name="data.health.max" value="{{data.health.max}}" data-dtype="Number"/>
             </div>
             <div class="resource">
+                <img src="systems/lightbearer/resources/energy_icon.svg" title="energy" width"24" height="24"/>
                 <input type="text" name="data.energy.value" value="{{data.energy.value}}" data-dtype="Number"/>
                 <span> / </span>
                 <input type="text" name="data.energy.max" value="{{data.energy.max}}" data-dtype="Number"/>
+            </div>
+            <div class="resource">
+                <img src="systems/lightbearer/resources/action_icon.svg" title="actions" width"24" height="24"/>
+                <input type="text" name="data.actions.value" value="{{data.actions.value}}" data-dtype="Number"/>
+                <span> / </span>
+                <input type="text" name="data.actions.max" value="{{data.actions.max}}" data-dtype="Number"/>
+            </div>
+            <div class="resource">
+                <img src="systems/lightbearer/resources/reaction_icon.svg" title="reactions" width"24" height="24"/>
+                <input type="text" name="data.reactions.value" value="{{data.reactions.value}}" data-dtype="Number"/>
+                <span> / </span>
+                <input type="text" name="data.reactions.max" value="{{data.reactions.max}}" data-dtype="Number"/>
             </div>
         </div>
     </header>
@@ -41,6 +55,12 @@
             {{#each abilities as |ability id|}}
                 <li class="ability flexrow" data-item-id="{{ability._id}}">
                     <img class="ability-icon" src="{{ability.img}}" title="{{ability.name}}" width="24" height="24"/>
+                    {{#if ability.data.action}}
+                        <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg" title="Action" width="24" height="24"/>
+                    {{/if}}
+                    {{#if ability.data.reaction}}
+                        <img class="ability-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg" title="Reaction" width="24" height="24"/>
+                    {{/if}}
                     <h4 class="ability-name">{{ability.name}}</h4>
                     <div class="ability-controls">
                         <a class="ability-control ability-edit" title="Edit Ability"><i class="fas fa-edit"></i></a>
@@ -57,6 +77,12 @@
             {{#each inventory as |item id|}}
                 <li class="item flexrow" data-item-id="{{item._id}}">
                     <img class="item-icon" src="{{item.img}}" title="{{item.name}}" width="24" height="24"/>
+                    {{#if item.data.action}}
+                        <img class="item-icon action" src="systems/lightbearer/resources/action_icon.svg" title="Action" width="24" height="24"/>
+                    {{/if}}
+                    {{#if item.data.reaction}}
+                        <img class="item-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg" title="Reaction" width="24" height="24"/>
+                    {{/if}}
                     <h4 class="item-name">{{item.name}}</h4>
                     <div class="item-controls">
                         <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>

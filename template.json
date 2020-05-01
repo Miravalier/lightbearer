@@ -3,6 +3,16 @@
         "types": ["character"],
         "character": {
             "notes": "",
+            "actions": {
+                "value": 0,
+                "max": 1,
+                "previous": 0
+            },
+            "reactions": {
+                "value": 0,
+                "max": 3,
+                "previous": 0
+            },
             "health": {
                 "value": 20,
                 "min": 0,
@@ -88,12 +98,16 @@
         "item": {
             "notes": "",
             "description": "",
-            "template": {}
+            "template": {},
+            "action": true,
+            "reaction": false
         },
         "ability": {
             "notes": "",
             "description": "",
-            "template": {}
+            "template": {},
+            "action": true,
+            "reaction": false
         }
     }
 }

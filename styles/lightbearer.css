@@ -9,7 +9,6 @@
     overflow-y: hidden;
 }
 .lightbearer .sheet-header {
-    height: 100px;
     overflow: hidden;
     display: flex;
     flex-direction: row;
@@ -17,14 +16,47 @@
     justify-content: flex-start;
     margin-bottom: 10px;
 }
+.lightbearer.actor .sheet-header {
+    height: 154px;
+}
+.lightbearer.item .sheet-header {
+    height: 100px;
+}
+.lightbearer .sheet-header .resource img {
+    border: none;
+    margin: 0;
+    height: 28px;
+    width: 28px;
+    flex: none;
+}
+.lightbearer .sheet-header img {
+    height: 24px;
+}
 .lightbearer .sheet-header .profile-img {
     flex: 0 0 100px;
     height: 100px;
     margin-right: 10px;
+    border: none;
 }
-.lightbearer .sheet-header .header-fields {
+.lightbearer.actor .sheet-header .header-fields {
+    flex: 1;
+    height: 154px;
+}
+.lightbearer.item .sheet-header .header-fields {
     flex: 1;
     height: 100px;
+}
+.lightbearer.item .sheet-header .header-input-list {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    height: 48px;
+}
+.lightbearer.item .sheet-header .header-input {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    height: 48px;
 }
 .lightbearer .sheet-header h1.charname {
     height: 50px;
@@ -39,13 +71,20 @@
 }
 .lightbearer .resource {
     width: 50%;
-    height: 40px;
     margin-top: 10px;
     float: left;
     text-align: center;
+    line-height: 28px;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+}
+.lightbearer .resource > * {
+    margin: 2px;
 }
 .lightbearer .resource input {
-    width: 100px;
+    width: 80px;
     height: 28px;
 }
 .lightbearer .tabs {
@@ -88,10 +127,14 @@
     padding: 3px 0;
     border-bottom: 1px solid #BBB;
 }
-.lightbearer .abilities-list .ability img {
+.lightbearer img.ability-icon {
     flex: 0 0 24px;
     margin-right: 5px;
     cursor: pointer;
+}
+.lightbearer img.ability-icon.action,
+.lightbearer img.ability-icon.reaction {
+    border: none;
 }
 .lightbearer .abilities-list .ability-name {
     margin: 0;
@@ -111,10 +154,14 @@
     padding: 3px 0;
     border-bottom: 1px solid #BBB;
 }
-.lightbearer .items-list .item img {
+.lightbearer img.item-icon {
     flex: 0 0 24px;
     margin-right: 5px;
     cursor: pointer;
+}
+.lightbearer img.item-icon.action,
+.lightbearer img.item-icon.reaction {
+    border: none;
 }
 .lightbearer .items-list .item-name {
     margin: 0;
@@ -223,4 +270,10 @@
 }
 .chat-template.item {
     border-bottom: 2px solid rgba(120, 120, 120, 0.5);
+}
+div.lightbearer.error {
+    color: white;
+    background: rgba(180, 0, 0, 1);
+    padding: 2px;
+    border-radius: 4px;
 }

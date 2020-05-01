@@ -51,4 +51,58 @@ export class LightbearerActor extends Actor {
     sendTemplate(template, buttons) {
         new ChatTemplate(this, template, buttons).send()
     }
+
+    // Called when a new round begins
+    startRound(combat) {
+        const actorData = this.data
+        const data = actorData.data;
+
+        if (actorData.type !== "character")
+            return;
+
+        this.update({"data.actions.previous": data.actions.value});
+        this.update({"data.reactions.previous": data.reactions.value});
+        this.update({"data.actions.value": data.actions.max});
+        this.update({"data.reactions.value": data.reactions.max});
+    }
+
+    // Called when a round is reset
+    undoRound(combat) {
+        const actorData = this.data
+        const data = actorData.data;
+
+        if (actorData.type !== "character")
+            return;
+
+        this.update({"data.actions.value": data.actions.previous});
+        this.update({"data.reactions.value": data.reactions.previous});
+    }
+
+    useAction() {
+        let actions = this.data.data.actions.value;
+        if (actions <= 0) {
+            ChatMessage.create({
+                user: game.user._id,
+                speaker: ChatMessage.getSpeaker(),
+                content: '<div class="lightbearer error">Not enough actions.</div>'
+            });
+        }
+        else {
+            this.update({"data.actions.value": actions - 1})
+        }
+    }
+
+    useReaction() {
+        let reactions = this.data.data.reactions.value;
+        if (reactions <= 0) {
+            ChatMessage.create({
+                user: game.user._id,
+                speaker: ChatMessage.getSpeaker(),
+                content: '<div class="lightbearer error">Not enough reactions.</div>'
+            });
+        }
+        else {
+            this.update({"data.reactions.value": reactions - 1})
+        }
+    }
 }
