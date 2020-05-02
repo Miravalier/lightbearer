@@ -29,6 +29,12 @@
     width: 28px;
     flex: none;
 }
+.lightbearer .sheet-header span.sheet-type {
+    line-height: 48px;
+    height: 48px;
+    font-weight: bold;
+    font-size: 16px;
+}
 .lightbearer .sheet-header img {
     height: 24px;
 }
@@ -245,6 +251,8 @@
     flex-flow: row wrap;
     align-items: center;
     justify-content: space-between;
+    cursor: pointer;
+    font-weight: bold;
 }
 .chat-template.caption > * {
     margin: 4px;
@@ -252,24 +260,50 @@
 .chat-template.caption > img {
     border-radius: 4px;
 }
-.chat-template.label {
-    font-weight: bold;
-}
-.chat-template.centered-row {
+.chat-template.item {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-flow: row wrap;
     justify-content: center;
+    align-items: center;
+    border-bottom: 2px solid rgba(120, 120, 120, 0.5);
 }
-.chat-template.centered-row > * {
+.chat-template.item > * {
     margin: 4px;
 }
 .chat-template.list {
     border-radius: 5px;
     background-color: rgba(200, 200, 200, 0.5);
 }
-.chat-template.item {
-    border-bottom: 2px solid rgba(120, 120, 120, 0.5);
+.chat-template.label {
+    margin: 0;
+    font-weight: bold;
+    width: 50%;
+    text-align: center;
+}
+.chat-template.roll {
+    margin: 0;
+    display: flex;
+    width: 50%;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+}
+.chat-template.roll .chat-template.formula {
+    width: 100%;
+    text-align: center;
+    padding: 4px;
+    color: rgba(128, 128, 128, 0.75);
+    display: none;
+}
+.chat-template.roll .chat-template.total {
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    padding: 4px;
+    background-color: rgba(120, 120, 120, 0.1);
+    font-weight: bold;
+    border: 2px solid rgba(120, 120, 120, 0.5);
+    border-radius: 4px;
 }
 div.lightbearer.error {
     color: white;

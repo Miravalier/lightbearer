@@ -1,4 +1,8 @@
-import { ChatTemplate } from "./utils.js";
+import { ChatTemplate } from "./chat.js";
+
+const ATTRIBUTES = ["agility", "endurance", "power", "charisma", "memory", "perception"];
+const STATS = ["physique", "cunning", "total"];
+const SKILLS = ["artifice", "melee", "ranged", "smithing", "stealth"];
 
 /**
  * Base Actor class
@@ -9,6 +13,28 @@ export class LightbearerActor extends Actor {
     /** @override */
     getRollData() {
         const data = super.getRollData();
+        data['health'] = data.health.value;
+        data['maxHealth'] = data.health.max;
+        data['hp'] = data.health.value;
+        data['maxHp'] = data.health.max;
+        data['energy'] = data.energy.value;
+        data['maxEnergy'] = data.energy.max;
+        data['actions'] = data.actions.value;
+        data['maxActions'] = data.actions.max;
+        data['reactions'] = data.reactions.value;
+        data['maxReactions'] = data.reactions.max;
+        for (let attribute of ATTRIBUTES)
+        {
+            data[attribute] = data.attributes[attribute].value;
+        }
+        for (let stat of STATS)
+        {
+            data[stat] = data.stats[stat].value;
+        }
+        for (let skill of SKILLS)
+        {
+            data[skill] = data.skills[skill].value;
+        }
         return data;
     }
 

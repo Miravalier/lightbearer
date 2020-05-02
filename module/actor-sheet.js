@@ -69,26 +69,23 @@ export class LightbearerActorSheet extends ActorSheet {
 
         // Stat rolls
         html.find('.stat-roll-icon').click(ev => {
-            const li = $(ev.currentTarget).parents(".attribute");
-            const stat = this.actor.data.data.stats[li.data('attribute')];
-            const percentage = (1 + (stat.value / 30)).toPrecision(3);
-            this.actor.sendTemplate({"A": {"label": stat.label, "roll": `2d6 * ${percentage}`}});
+            const stat = $(ev.currentTarget).parents(".attribute").data('attribute');
+            const label = this.actor.data.data.stats[stat].label;
+            this.actor.sendTemplate({"CHECK": {"label": label, "roll": `2d6 * (@${stat} / 30)`}});
         });
 
         // Attribute rolls
         html.find('.attribute-roll-icon').click(ev => {
-            const li = $(ev.currentTarget).parents(".attribute");
-            const attribute = this.actor.data.data.attributes[li.data('attribute')];
-            const percentage = (1 + attribute.value / 10).toPrecision(3);
-            this.actor.sendTemplate({"A": {"label": attribute.label, "roll": `2d6 * ${percentage}`}});
+            const attribute = $(ev.currentTarget).parents(".attribute").data('attribute');
+            const label = this.actor.data.data.attributes[attribute].label;
+            this.actor.sendTemplate({"CHECK": {"label": attribute.label, "roll": `2d6 * (@${attribute} / 10)`}});
         });
 
         // Skill rolls
         html.find('.skill-roll-icon').click(ev => {
-            const li = $(ev.currentTarget).parents(".skill");
-            const skill = this.actor.data.data.skills[li.data('skill')];
-            const percentage = (1 + skill.value / 100).toPrecision(3);
-            this.actor.sendTemplate({"A": {"label": skill.label, "roll": `2d6 * ${percentage}`}});
+            const skill = $(ev.currentTarget).parents(".skill").data('skill');
+            const label = this.actor.data.data.skills[skill].label;
+            this.actor.sendTemplate({"CHECK": {"label": skill.label, "roll": `2d6 * (1 + @${skill} / 100)`}});
         });
 
         // Use Inventory Item
@@ -100,7 +97,7 @@ export class LightbearerActorSheet extends ActorSheet {
         html.find('.item-name').click(ev => {
             const li = $(ev.currentTarget).parents(".item");
             const item = this.actor.getOwnedItem(li.data("itemId"));
-            item.use();
+            item.sheet.render(true);
         });
 
         // Update Inventory Item
@@ -127,7 +124,7 @@ export class LightbearerActorSheet extends ActorSheet {
         html.find('.ability-name').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
-            ability.use();
+            ability.sheet.render(true);
         });
 
         // Update Ability

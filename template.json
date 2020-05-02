@@ -100,14 +100,18 @@
             "description": "",
             "template": {},
             "action": true,
-            "reaction": false
+            "reaction": false,
+            "isAbility": false,
+            "isItem": true
         },
         "ability": {
             "notes": "",
             "description": "",
             "template": {},
             "action": true,
-            "reaction": false
+            "reaction": false,
+            "isAbility": true,
+            "isItem": false
         }
     }
 }

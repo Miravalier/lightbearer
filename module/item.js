@@ -1,10 +1,17 @@
-import { ChatTemplate } from "./utils.js";
+import { ChatTemplate } from "./chat.js";
 
 /**
  * Base Item class
  * @extends {Item}
  */
 export class LightbearerItem extends Item {
+
+    /** @override */
+    prepareData() {
+        // Retrieve data
+        super.prepareData();
+    }
+
     // Public extensions
     use() {
         if (this.actor)
@@ -20,4 +27,6 @@ export class LightbearerItem extends Item {
         }
         new ChatTemplate(this).send()
     }
+
 }
+

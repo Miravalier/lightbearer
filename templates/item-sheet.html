@@ -4,6 +4,12 @@
         <div class="header-fields">
             <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
             <div class="header-input-list">
+                {{#if data.isAbility}}
+                    <span class="sheet-type">Ability</span>
+                {{/if}}
+                {{#if data.isItem}}
+                    <span class="sheet-type">Item</span>
+                {{/if}}
                 <div class="header-input">
                     <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg" title="Action" width="24" height="24"/>
                     <input type="checkbox" name="data.action" {{checked data.action}}/>
