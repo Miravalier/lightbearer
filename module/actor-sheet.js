@@ -78,14 +78,14 @@ export class LightbearerActorSheet extends ActorSheet {
         html.find('.attribute-roll-icon').click(ev => {
             const attribute = $(ev.currentTarget).parents(".attribute").data('attribute');
             const label = this.actor.data.data.attributes[attribute].label;
-            this.actor.sendTemplate({"CHECK": {"label": attribute.label, "roll": `2d6 * (@${attribute} / 10)`}});
+            this.actor.sendTemplate({"CHECK": {"label": label, "roll": `2d6 * (@${attribute} / 10)`}});
         });
 
         // Skill rolls
         html.find('.skill-roll-icon').click(ev => {
             const skill = $(ev.currentTarget).parents(".skill").data('skill');
             const label = this.actor.data.data.skills[skill].label;
-            this.actor.sendTemplate({"CHECK": {"label": skill.label, "roll": `2d6 * (1 + @${skill} / 100)`}});
+            this.actor.sendTemplate({"CHECK": {"label": label, "roll": `2d6 * (1 + @${skill} / 100)`}});
         });
 
         // Use Inventory Item
