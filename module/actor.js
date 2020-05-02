@@ -50,19 +50,23 @@ export class LightbearerActor extends Actor {
             return;
 
         // Set derived attributes
-        data.stats.physique.value = (
+        data.stats.physique.value = Math.round((
             Number(data.attributes.agility.value)
             + Number(data.attributes.endurance.value)
             + Number(data.attributes.power.value)
-        );
-        data.stats.cunning.value = (
+        ) / 3);
+        data.stats.cunning.value = Math.round((
             Number(data.attributes.charisma.value)
             + Number(data.attributes.memory.value)
             + Number(data.attributes.perception.value)
-        );
+        ) / 3);
         data.stats.total.value = (
-            Number(data.stats.physique.value)
-            + Number(data.stats.cunning.value)
+            Number(data.attributes.agility.value)
+            + Number(data.attributes.endurance.value)
+            + Number(data.attributes.power.value)
+            + Number(data.attributes.charisma.value)
+            + Number(data.attributes.memory.value)
+            + Number(data.attributes.perception.value)
         );
 
         // Update token

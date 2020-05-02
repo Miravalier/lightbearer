@@ -71,7 +71,7 @@ export class LightbearerActorSheet extends ActorSheet {
         html.find('.stat-roll-icon').click(ev => {
             const stat = $(ev.currentTarget).parents(".attribute").data('attribute');
             const label = this.actor.data.data.stats[stat].label;
-            this.actor.sendTemplate({"CHECK": {"label": label, "roll": `2d6 * (@${stat} / 30)`}});
+            this.actor.sendTemplate({"CHECK": {"label": label, "roll": `2d6 * (@${stat} / 10)`}});
         });
 
         // Attribute rolls
