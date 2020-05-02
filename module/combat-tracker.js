@@ -1,5 +1,7 @@
 export function onUpdateCombat(combat, update, options, userId)
 {
+    if (!game.user.isGM) return;
+
     if (combat.current.round > combat.previous.round)
     {
         for (let token of combat.combatants)

@@ -97,7 +97,7 @@ export class LightbearerActorSheet extends ActorSheet {
         html.find('.item-name').click(ev => {
             const li = $(ev.currentTarget).parents(".item");
             const item = this.actor.getOwnedItem(li.data("itemId"));
-            item.sheet.render(true);
+            item.use();
         });
 
         // Update Inventory Item
@@ -124,7 +124,7 @@ export class LightbearerActorSheet extends ActorSheet {
         html.find('.ability-name').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
-            ability.sheet.render(true);
+            ability.use();
         });
 
         // Update Ability

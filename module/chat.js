@@ -9,7 +9,6 @@ async function onChatTemplateTotalClicked(event)
 {
     event.preventDefault();
     let formula = $(event.currentTarget).siblings(".chat-template.formula");
-    console.log(formula);
     if (formula.css("display") === "none")
     {
         formula.css("display", "block");
