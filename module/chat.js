@@ -152,7 +152,7 @@ export class ChatTemplate {
                 output += '<div class="chat-template item">';
                     output += `<div class="chat-template label">${value.label}</div>`;
                     output += `<div class="chat-template roll">`;
-                        output += `<div class="chat-template total">${roll.total}</div>`;
+                        output += `<div class="chat-template total">${Math.round(roll.total)}</div>`;
                         output += `<div class="chat-template formula">${value.roll}</div>`;
                     output += '</div>';
                 output += '</div>';
