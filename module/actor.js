@@ -1,4 +1,4 @@
-import { ChatTemplate } from "./chat.js";
+import { ChatTemplate, ErrorMessage } from "./chat.js";
 
 const ATTRIBUTES = ["agility", "endurance", "power", "charisma", "memory", "perception"];
 const STATS = ["physique", "cunning", "total"];
@@ -68,18 +68,62 @@ export class LightbearerActor extends Actor {
             + Number(data.attributes.memory.value)
             + Number(data.attributes.perception.value)
         );
-
-        // Update token
-        if (actorData.token)
-        {
-            actorData.token.img = actorData.img.replace('Portraits', 'Tokens');
-            actorData.token.name = actorData.name;
-        }
     }
 
     // Public extensions
     sendTemplate(template, buttons) {
         new ChatTemplate(this, template, buttons).send()
+    }
+
+    // Actor Defaults
+    async setDefaults(uid) {
+        // Make sure only the GM sets values
+        if (!game.user.isGM) return;
+        const user = game.users.get(uid);
+        console.log("New Character by " + user.name);
+
+        // Wait for the sheet to compile
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Set player defaults
+        if (this.isPC)
+        {
+            let permissions = {'default': ENTITY_PERMISSIONS.LIMITED};
+            permissions[user.id] = ENTITY_PERMISSIONS.OWNER;
+            this.update({
+                "permissions": permissions,
+                "name": `${user.name}`,
+                "token.name": `${user.name}`,
+                "token.actorLink": true,
+                "token.displayBars": TOKEN_DISPLAY_MODES.HOVER,
+                "token.displayName": TOKEN_DISPLAY_MODES.HOVER,
+                "token.disposition": TOKEN_DISPOSITIONS.FRIENDLY,
+                "token.dimLight": 30,
+                "token.brightLight": 15,
+                "token.vision": true,
+                "token.bar1": {"attribute": "health"},
+                "token.bar2": {"attribute": "reactions"},
+                "img": "Players/default_image.svg",
+                "token.img": "Players/default_image.svg"
+            });
+        }
+        // Set npc defaults
+        else
+        {
+            this.update({
+                "permissions.default": ENTITY_PERMISSIONS.NONE,
+                "name": "New Character",
+                "token.name": "New Character",
+                "token.actorLink": false,
+                "token.displayBars": TOKEN_DISPLAY_MODES.OWNER_HOVER,
+                "token.displayName": TOKEN_DISPLAY_MODES.HOVER,
+                "token.disposition": TOKEN_DISPOSITIONS.FRIENDLY,
+                "token.bar1": {"attribute": "health"},
+                "token.bar2": {"attribute": "reactions"},
+                "img": "Entities/default_image.svg",
+                "token.img": "Entities/default_image.svg"
+            });
+        }
     }
 
     // Called when a new round begins
@@ -94,6 +138,8 @@ export class LightbearerActor extends Actor {
         this.update({"data.reactions.previous": data.reactions.value});
         this.update({"data.actions.value": data.actions.max});
         this.update({"data.reactions.value": data.reactions.max});
+
+        this.items.forEach(item => item.update({"data.cooldown": false}));
     }
 
     // Called when a round is reset
@@ -111,11 +157,7 @@ export class LightbearerActor extends Actor {
     useAction() {
         let actions = this.data.data.actions.value;
         if (actions <= 0) {
-            ChatMessage.create({
-                user: game.user._id,
-                speaker: ChatMessage.getSpeaker(),
-                content: '<div class="lightbearer error">Not enough actions.</div>'
-            });
+            ErrorMessage("Not enough actions.");
         }
         else {
             this.update({"data.actions.value": actions - 1})
@@ -125,11 +167,7 @@ export class LightbearerActor extends Actor {
     useReaction() {
         let reactions = this.data.data.reactions.value;
         if (reactions <= 0) {
-            ChatMessage.create({
-                user: game.user._id,
-                speaker: ChatMessage.getSpeaker(),
-                content: '<div class="lightbearer error">Not enough reactions.</div>'
-            });
+            ErrorMessage("Not enough reactions.");
         }
         else {
             this.update({"data.reactions.value": reactions - 1})

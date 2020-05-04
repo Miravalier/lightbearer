@@ -1,4 +1,4 @@
-import { ChatTemplate } from "./chat.js";
+import { ChatTemplate, ErrorMessage } from "./chat.js";
 
 /**
  * Base Item class
@@ -12,6 +12,19 @@ export class LightbearerItem extends Item {
         super.prepareData();
     }
 
+    // Item Defaults
+    async setDefaults(uid) {
+        // Make sure only the gm sets values
+        if (!game.user.isGM) return;
+
+        // Wait for the sheet to compile
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        this.update({
+            "img": "Entities/default_image.svg"
+        });
+    }
+
     // Public extensions
     use() {
         if (this.actor)
@@ -23,6 +36,14 @@ export class LightbearerItem extends Item {
             if (this.data.data.reaction)
             {
                 this.actor.useReaction();
+                if (this.data.data.cooldown)
+                {
+                    ErrorMessage(`${this.name} is on cooldown.`);
+                }
+                else
+                {
+                    this.update({"data.cooldown": true});
+                }
             }
         }
         new ChatTemplate(this).send()

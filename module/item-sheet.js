@@ -85,10 +85,16 @@ export class LightbearerItemSheet extends ItemSheet {
     _updateObject(event, formData) {
         const expanded = expandObject(formData);
 
-        // If no template exists, fallback to standard behaviour
-        if (!expanded.data || !expanded.data.template)
+        // If no data exists, fallback to standard behaviour
+        if (!expanded.data)
         {
+            console.log("Falling back on item edit, no data.");
             return super._updateObject(event, formData);
+        }
+
+        if (!expanded.data.template)
+        {
+            expanded.data.template = {};
         }
 
         // Remove attributes which are no longer used

@@ -11,13 +11,24 @@
                     <span class="sheet-type">Item</span>
                 {{/if}}
                 <div class="header-input">
-                    <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg" title="Action" width="24" height="24"/>
+                    <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg"
+                        title="Action" width="24" height="24"/>
                     <input type="checkbox" name="data.action" {{checked data.action}}/>
                 </div>
                 <div class="header-input">
-                    <img class="ability-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg" title="Reaction" width="24" height="24"/>
+                    <img class="ability-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg"
+                        title="Reaction" width="24" height="24"/>
                     <input type="checkbox" name="data.reaction" {{checked data.reaction}}/>
                 </div>
+                {{#if data.isAbility}}
+                {{#if data.reaction}}
+                    <div class="header-input">
+                        <img class="ability-icon cooldown" src="systems/lightbearer/resources/cooldown_icon.svg"
+                            title="Cooldown" width="24" height="24"/>
+                        <input type="checkbox" name="data.cooldown" {{checked data.cooldown}}/>
+                    </div>
+                {{/if}}
+                {{/if}}
             </div>
         </div>
     </header>
@@ -53,8 +64,10 @@
             <ol class="template-list">
             {{#each data.template as |item key|}}
                 <li class="template flexrow" data-key="{{key}}">
-                    <input class="template-label" type="text" name="data.template.{{key}}.label" value="{{item.label}}" data-dtype="String" />
-                    <input class="template-roll" type="text" name="data.template.{{key}}.roll" value="{{item.roll}}" data-dtype="String" />
+                    <input class="template-label" type="text" name="data.template.{{key}}.label"
+                        value="{{item.label}}" data-dtype="String" />
+                    <input class="template-roll" type="text" name="data.template.{{key}}.roll"
+                        value="{{item.roll}}" data-dtype="String" />
                     <a class="template-control" data-action="delete"><i class="fas fa-trash"></i></a>
                 </li>
             {{/each}}

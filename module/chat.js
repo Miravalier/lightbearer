@@ -1,4 +1,63 @@
+export function ErrorMessage(content)
+{
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: ChatMessage.getSpeaker(),
+        content: `<div class="lightbearer error">${content}</div>`
+    });
+}
+
 // Chat Message Creation Hook
+export function onChatExport()
+{
+    let date = new Date().toDateString().replace(/\s/g, "-");
+    let output = "<!DOCTYPE html>";
+
+    // File header
+    output += `<html>`;
+    output += `<head>`;
+    output += `<title>${date} Chat Log</title>`;
+    output += `<link href="https://nonsense.page/systems/lightbearer/styles/lightbearer.css" rel="stylesheet" type="text/css">`;
+    output += `<link href="https://nonsense.page/css/style.css" rel="stylesheet" type="text/css">`;
+    output += `<style>`;
+    output += `img {display: none}`;
+    output += `</style>`;
+    output += `</head>`;
+    output += `<body>`;
+
+    // Chat log header
+    output += `<ol id="chat-log">`;
+
+    // Chat log body
+    for (let message of game.messages.entities)
+    {
+        output += `<li class="message flexcol">`;
+
+        output += `<div class="message-header flexrow">`;
+        output += `<h4 class="message-sender">${message.alias}</h4>`;
+        output += `<span class="message-metadata">`;
+        output += `<time class="message-timestamp">${new Date(message.data.timestamp)}</time>`;
+        output += `</span>`;
+        output += `</div>`;
+
+        output += `<div class="message-content">`;
+        output += message.data.content;
+        output += `</div>`;
+
+        output += `</li>`;
+    }
+
+    // Chat log footer
+    output += `</ol>`;
+
+    // File footer
+    output += `</body>`;
+    output += `</html>`;
+
+    // Save file
+    saveDataToFile(output, "text/html", `chat-log-${date}.html`);
+}
+
 export async function onCreateChatMessage(html, data)
 {
     html.on('click', '.chat-template.caption', onChatTemplateCaptionClicked);

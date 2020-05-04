@@ -55,6 +55,9 @@
             {{#each abilities as |ability id|}}
                 <li class="ability flexrow" data-item-id="{{ability._id}}">
                     <img class="ability-icon" src="{{ability.img}}" title="{{ability.name}}" width="24" height="24"/>
+                    {{#if ability.data.cooldown}}
+                        <img class="ability-icon cooldown" src="systems/lightbearer/resources/cooldown_icon.svg" title="Cooldown" width="24" height="24"/>
+                    {{/if}}
                     {{#if ability.data.action}}
                         <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg" title="Action" width="24" height="24"/>
                     {{/if}}

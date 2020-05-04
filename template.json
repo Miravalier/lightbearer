@@ -101,6 +101,7 @@
             "template": {},
             "action": true,
             "reaction": false,
+            "cooldown": false,
             "isAbility": false,
             "isItem": true
         },
@@ -110,6 +111,7 @@
             "template": {},
             "action": true,
             "reaction": false,
+            "cooldown": false,
             "isAbility": true,
             "isItem": false
         }

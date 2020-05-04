@@ -11,6 +11,8 @@ import { LightbearerItemSheet } from "./item-sheet.js";
 import { LightbearerActorSheet } from "./actor-sheet.js";
 import { onUpdateCombat } from "./combat-tracker.js";
 import { onCreateChatMessage } from "./chat.js";
+import { onChatExport } from "./chat.js";
+import { ErrorMessage } from "./chat.js";
 
 /* -------------------------------------------- */
 /*    Foundry VTT Initialization                */
@@ -54,6 +56,10 @@ Hooks.once("ready", function() {
     Hooks.on("updateCombat", onUpdateCombat);
     Hooks.on("hotbarDrop", (bar, data, slot) => createLightbearerMacro(data, slot));
     Hooks.on("renderChatMessage", (app, html, data) => onCreateChatMessage(html, data));
+    Hooks.on("createActor", (actor, options, uid) => actor.setDefaults(uid));
+    Hooks.on("createItem", (item, options, uid) => item.setDefaults(uid));
+    // Hook game members
+    Messages.prototype.export = onChatExport;
 });
 
 async function createLightbearerMacro(data, slot) {

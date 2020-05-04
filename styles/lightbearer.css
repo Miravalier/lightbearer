@@ -137,9 +137,6 @@
     flex: 0 0 24px;
     margin-right: 5px;
     cursor: pointer;
-}
-.lightbearer img.ability-icon.action,
-.lightbearer img.ability-icon.reaction {
     border: none;
 }
 .lightbearer .abilities-list .ability-name {
@@ -164,9 +161,6 @@
     flex: 0 0 24px;
     margin-right: 5px;
     cursor: pointer;
-}
-.lightbearer img.item-icon.action,
-.lightbearer img.item-icon.reaction {
     border: none;
 }
 .lightbearer .items-list .item-name {
