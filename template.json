@@ -86,6 +86,10 @@
                     "value": 0,
                     "label": "Smithing"
                 },
+                "spellwork": {
+                    "value": 0,
+                    "label": "Spellwork"
+                },
                 "stealth": {
                     "value": 0,
                     "label": "Stealth"
