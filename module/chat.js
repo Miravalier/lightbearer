@@ -1,3 +1,13 @@
+function spongebobCase(s)
+{
+    let capital = true;
+    return s.replace(/[a-z]/gi, letter => {
+        capital = !capital;
+        if (capital) return letter.toUpperCase();
+        else return letter.toLowerCase();
+    });
+}
+
 const NUMBER_WORDS = [
     "Zero", "One", "Two", "Three", "Four", "Five",
     "Six", "Seven", "Eight", "Nine", "Ten"
@@ -8,6 +18,21 @@ function numberToWords(x)
         return NUMBER_WORDS[x];
     }
     return x.toString();
+}
+
+function memoteCommand(args)
+{
+    let speaker = ChatMessage.getSpeaker();
+    let alias = speaker.alias;
+    speaker.alias = game.user.name;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
+        content: `<div class="lightbearer emote">
+            <img class="inline-img" src="Players/GM/spongebob.png" width=36 height=36/>
+            ${spongebobCase(alias)} ${spongebobCase(args)}
+        </div>`
+    });
 }
 
 function emoteCommand(args)
@@ -49,7 +74,8 @@ const COMMANDS = {
     "m": emoteCommand,
     "em": emoteCommand,
     "emote": emoteCommand,
-    "me": emoteCommand,
+    "me": memoteCommand,
+    "memote": memoteCommand,
     "n": narrateCommand,
     "narrate": narrateCommand,
     "narration": narrateCommand,

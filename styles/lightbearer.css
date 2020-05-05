@@ -335,3 +335,9 @@ div.lightbearer.story {
     color: crimson;
     text-shadow: 1px 1px 0 black;
 }
+img.inline-img {
+    display: inline;
+    margin: 0 5px;
+    vertical-align: middle;
+    border: none;
+}
