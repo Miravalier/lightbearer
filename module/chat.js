@@ -1,8 +1,158 @@
-export function ErrorMessage(content)
+const NUMBER_WORDS = [
+    "Zero", "One", "Two", "Three", "Four", "Five",
+    "Six", "Seven", "Eight", "Nine", "Ten"
+];
+function numberToWords(x)
 {
+    if (x >= 0 && x <= 10) {
+        return NUMBER_WORDS[x];
+    }
+    return x.toString();
+}
+
+function emoteCommand(args)
+{
+    let speaker = ChatMessage.getSpeaker();
+    let alias = speaker.alias;
+    speaker.alias = game.user.name;
     ChatMessage.create({
         user: game.user._id,
-        speaker: ChatMessage.getSpeaker(),
+        speaker: speaker,
+        content: `<div class="lightbearer emote">${alias} ${args}</div>`
+    });
+}
+
+function storyCommand(args)
+{
+    let speaker = ChatMessage.getSpeaker();
+    speaker.alias = game.user.name;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
+        content: `<div class="lightbearer story">${args}</div>`
+    });
+}
+
+function narrateCommand(args)
+{
+    let speaker = ChatMessage.getSpeaker();
+    speaker.alias = game.user.name;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
+        content: `<div class="lightbearer narrate">${args}</div>`
+    });
+}
+
+const COMMANDS = {
+    "e": emoteCommand,
+    "m": emoteCommand,
+    "em": emoteCommand,
+    "emote": emoteCommand,
+    "me": emoteCommand,
+    "n": narrateCommand,
+    "narrate": narrateCommand,
+    "narration": narrateCommand,
+    "narate": narrateCommand,
+    "naratte": narrateCommand,
+    "desc": storyCommand,
+    "d": storyCommand,
+    "story": storyCommand,
+    "s": storyCommand
+};
+
+const CMD_PATTERN = /^[\/!]([a-z0-9_-]+)\s*(.*)/si;
+export function preChatMessage(chatLog, message, chatData)
+{
+    // Replace italics and bold
+    let modified = false;
+    message = message.replace(/\*\*\*([^*]+)\*\*\*/, (_, m) => {
+        modified = true;
+        return `<span style="font-weight: bold; font-style: italic;">${m}</span>`;
+    });
+    message = message.replace(/\*\*([^*]+)\*\*/, (_, m) => {
+        modified = true;
+        return `<span style="font-weight: bold;">${m}</span>`;
+    });
+    message = message.replace(/\*([^*]+)\*/, (_, m) => {
+        modified = true;
+        return `<span style="font-style: italic;">${m}</span>`;
+    });
+
+    // Check for a command pattern
+    const match = message.match(CMD_PATTERN);
+    if (match)
+    {
+        const command = match[1];
+
+        // Dispatch command
+        const command_function = COMMANDS[command];
+        if (command_function)
+        {
+            const args = match[2];
+            command_function(args);
+            return false;
+        }
+    }
+
+    // Send a regular chat message
+    if (modified)
+    {
+        ChatMessage.create({
+            user: game.user._id,
+            speaker: ChatMessage.getSpeaker(),
+            content: message
+        });
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+export function RoundUpdateMessage(round, alias)
+{
+    let speaker = ChatMessage.getSpeaker();
+    speaker.alias = alias;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
+        content: `<div class="lightbearer round-update">Round ${numberToWords(round)}</div>`
+    });
+}
+
+export function TurnUpdateMessage(actor, alias)
+{
+    let speaker = ChatMessage.getSpeaker();
+    speaker.alias = alias;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
+        content: `<div class="lightbearer turn-update"
+            style="color: ${actor.player.data.color}; border: 2px solid ${actor.player.data.color};"
+            >${actor.name}</div>`
+    });
+}
+
+export function SystemMessage(content, source)
+{
+    let speaker = ChatMessage.getSpeaker();
+    if (source) speaker.alias = source;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
+        content: `<div class="lightbearer system">${content}</div>`
+    });
+}
+
+export function ErrorMessage(content, source)
+{
+    let speaker = ChatMessage.getSpeaker();
+    if (source) speaker.alias = source;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
         content: `<div class="lightbearer error">${content}</div>`
     });
 }

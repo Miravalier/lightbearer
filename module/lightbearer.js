@@ -12,6 +12,7 @@ import { LightbearerActorSheet } from "./actor-sheet.js";
 import { onUpdateCombat } from "./combat-tracker.js";
 import { onCreateChatMessage } from "./chat.js";
 import { onChatExport } from "./chat.js";
+import { preChatMessage } from "./chat.js";
 import { ErrorMessage } from "./chat.js";
 
 /* -------------------------------------------- */
@@ -25,7 +26,7 @@ Hooks.once("init", async function() {
     game.lightbearer = {
         ItemMacro,
         ActorMacro,
-        ActorOwnedItemMacro
+        ActorOwnedItemMacro,
     };
 
 	/**
@@ -52,12 +53,15 @@ Hooks.once("init", async function() {
 });
 
 Hooks.once("ready", function() {
+    // Link in other namespace items after initialization
+    game.lightbearer.gm = game.users.entities.find(u => u.isGM);
     // Register hooks
     Hooks.on("updateCombat", onUpdateCombat);
     Hooks.on("hotbarDrop", (bar, data, slot) => createLightbearerMacro(data, slot));
     Hooks.on("renderChatMessage", (app, html, data) => onCreateChatMessage(html, data));
     Hooks.on("createActor", (actor, options, uid) => actor.setDefaults(uid));
     Hooks.on("createItem", (item, options, uid) => item.setDefaults(uid));
+    Hooks.on("chatMessage", (chatLog, message, chatData) => preChatMessage(chatLog, message, chatData));
     // Hook game members
     Messages.prototype.export = onChatExport;
 });

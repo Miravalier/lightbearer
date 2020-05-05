@@ -305,3 +305,33 @@ div.lightbearer.error {
     padding: 2px;
     border-radius: 4px;
 }
+div.lightbearer.system {
+    color: #aaaaaa;
+    background-color: rgba(100, 100, 100, 0.5);
+    padding: 2px;
+    border-radius: 4px;
+}
+div.lightbearer.turn-update {
+    text-align: center;
+    font-size: 36px;
+    padding: 2px;
+    border-radius: 4px;
+    color: black;
+    border: 2px solid black;
+    text-shadow: 1px 1px 0 black;
+    box-shadow: 2px 2px 1px black;
+}
+div.lightbearer.round-update {
+    text-align: center;
+    font-size: 24px;
+    color: grey;
+}
+div.lightbearer.emote,
+div.lightbearer.narrate {
+    color: green;
+    font-style: italic;
+}
+div.lightbearer.story {
+    color: crimson;
+    text-shadow: 1px 1px 0 black;
+}

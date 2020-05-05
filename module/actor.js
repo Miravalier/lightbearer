@@ -71,6 +71,17 @@ export class LightbearerActor extends Actor {
     }
 
     // Public extensions
+    get player() {
+        if (this.isPC)
+        {
+            return game.users.get(Object.keys(this.data.permission).find(p => p !== "default"));
+        }
+        else
+        {
+            return game.lightbearer.gm;
+        }
+    }
+
     sendTemplate(template, buttons) {
         new ChatTemplate(this, template, buttons).send()
     }
