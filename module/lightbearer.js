@@ -5,6 +5,7 @@
  */
 
 // Import Modules
+import { LightbearerScene } from "./scene.js";
 import { LightbearerActor } from "./actor.js";
 import { LightbearerItem } from "./item.js";
 import { LightbearerItemSheet } from "./item-sheet.js";
@@ -27,6 +28,9 @@ Hooks.once("init", async function() {
         ItemMacro,
         ActorMacro,
         ActorOwnedItemMacro,
+        LightbearerScene,
+        distances: {},
+        locations: {}
     };
 
 	/**
@@ -35,10 +39,11 @@ Hooks.once("init", async function() {
 	 */
 	CONFIG.Combat.initiative = {
 	    formula: "1d20",
-        decimals: 2
+        decimals: 0
     };
 
 	// Define custom Entity classes
+    CONFIG.Scene.entityClass = LightbearerScene;
     CONFIG.Actor.entityClass = LightbearerActor;
     CONFIG.Item.entityClass = LightbearerItem;
 
@@ -62,6 +67,7 @@ Hooks.once("ready", function() {
     Hooks.on("createActor", (actor, options, uid) => actor.setDefaults(uid));
     Hooks.on("createItem", (item, options, uid) => item.setDefaults(uid));
     Hooks.on("chatMessage", (chatLog, message, chatData) => preChatMessage(chatLog, message, chatData));
+    Hooks.on("updateToken", (scene, token) => (new LightbearerScene(scene.data)).onTokenUpdate(token));
     // Hook game members
     Messages.prototype.export = onChatExport;
 });
