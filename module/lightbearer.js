@@ -13,6 +13,7 @@ import { onUpdateCombat } from "./combat-tracker.js";
 import { onUpdateToken } from "./combat-tracker.js";
 import { forceMovementModeRefresh } from "./combat-tracker.js";
 import { forceStandardModeRefresh } from "./combat-tracker.js";
+import { forceModeRefresh } from "./combat-tracker.js";
 import { onCreateChatMessage } from "./chat.js";
 import { onChatExport } from "./chat.js";
 import { preChatMessage } from "./chat.js";
@@ -90,7 +91,11 @@ Hooks.once("init", async function() {
         COMBAT_MODE,
         forceMovementModeRefresh,
         forceStandardModeRefresh,
-        forceModeRefresh
+        forceModeRefresh,
+        playerCharacters: {},
+        emoji: {
+            'think': '/systems/lightbearer/emoji/think.gif'
+        }
     };
     game.lightbearer.mode = game.lightbearer.STANDARD_MODE;
 
@@ -120,6 +125,11 @@ Hooks.once("init", async function() {
 Hooks.once("ready", function() {
     // Link in other namespace items after initialization
     game.lightbearer.gm = game.users.entities.find(u => u.isGM);
+    for (let actor of game.actors.entities.filter(a => a.isPC))
+    {
+        game.lightbearer.playerCharacters[actor.player.id] = actor.id;
+    }
+
     // Register hooks
     Hooks.on("updateCombat", onUpdateCombat);
     Hooks.on("hotbarDrop", (bar, data, slot) => createLightbearerMacro(data, slot));

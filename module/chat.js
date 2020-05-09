@@ -35,6 +35,17 @@ function memoteCommand(args)
     });
 }
 
+function oocCommand(args)
+{
+    let speaker = ChatMessage.getSpeaker();
+    speaker.alias = game.user.name;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
+        content: `<div class="lightbearer ooc">${args}</div>`
+    });
+}
+
 function emoteCommand(args)
 {
     let speaker = ChatMessage.getSpeaker();
@@ -76,6 +87,10 @@ const COMMANDS = {
     "emote": emoteCommand,
     "me": memoteCommand,
     "memote": memoteCommand,
+    "o": oocCommand,
+    "oc": oocCommand,
+    "oo": oocCommand,
+    "ooc": oocCommand,
     "n": narrateCommand,
     "narrate": narrateCommand,
     "narration": narrateCommand,
@@ -87,54 +102,66 @@ const COMMANDS = {
     "s": storyCommand
 };
 
-const CMD_PATTERN = /^[\/!]([a-z0-9_-]+)\s*(.*)/si;
+const CMD_PATTERN = /^[\/!]([a-z0-9_-]+)\s*/i;
 export function preChatMessage(chatLog, message, chatData)
 {
     // Replace italics and bold
-    let modified = false;
     message = message.replace(/\*\*\*([^*]+)\*\*\*/, (_, m) => {
-        modified = true;
         return `<span style="font-weight: bold; font-style: italic;">${m}</span>`;
     });
     message = message.replace(/\*\*([^*]+)\*\*/, (_, m) => {
-        modified = true;
         return `<span style="font-weight: bold;">${m}</span>`;
     });
     message = message.replace(/\*([^*]+)\*/, (_, m) => {
-        modified = true;
         return `<span style="font-style: italic;">${m}</span>`;
+    });
+    message = message.replace(/\:([0-9a-zA-Z_-]+)\:/, (_, m) => {
+        let img = game.lightbearer.emoji[m];
+        if (img)
+        {
+            return `<img class="lightbearer emoji" src="${img}" width=24 height=24/>`;
+        }
+        else
+        {
+            return `:${m}:`;
+        }
     });
 
     // Check for a command pattern
-    const match = message.match(CMD_PATTERN);
-    if (match)
+    let command = null;
+    message = message.replace(CMD_PATTERN, (_, m) => {
+        command = m;
+        return "";
+    });
+    if (command)
     {
-        const command = match[1];
-
         // Dispatch command
         const command_function = COMMANDS[command];
         if (command_function)
         {
-            const args = match[2];
-            command_function(args);
+            command_function(message);
+            return false;
+        }
+        else
+        {
+            ErrorMessage(`Unknown command '${command}'.`, "System");
             return false;
         }
     }
 
     // Send a regular chat message
-    if (modified)
+    let speaker = ChatMessage.getSpeaker();
+    let actorId = game.lightbearer.playerCharacters[game.user.id];
+    if (actorId)
     {
-        ChatMessage.create({
-            user: game.user._id,
-            speaker: ChatMessage.getSpeaker(),
-            content: message
-        });
-        return false;
+        speaker.alias = game.actors.get(actorId).name;
     }
-    else
-    {
-        return true;
-    }
+    ChatMessage.create({
+        user: game.user.id,
+        speaker: speaker,
+        content: message
+    });
+    return false;
 }
 
 export function RoundUpdateMessage(round, alias)

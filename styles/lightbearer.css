@@ -335,9 +335,27 @@ div.lightbearer.story {
     color: crimson;
     text-shadow: 1px 1px 0 black;
 }
+div.lightbearer.ooc {
+    color: grey;
+    background: lightgrey;
+    border-radius: 4px;
+    padding: 2px;
+}
 img.inline-img {
     display: inline;
     margin: 0 5px;
     vertical-align: middle;
     border: none;
+}
+img.lightbearer.emoji {
+    display: inline;
+    margin: 2px;
+    vertical-align: middle;
+    border: none;
+}
+#chat-controls div.roll-type-select select {
+    display: none;
+}
+#chat-controls div.roll-type-select i {
+    display: none;
 }
