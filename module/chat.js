@@ -151,10 +151,10 @@ export function preChatMessage(chatLog, message, chatData)
 
     // Send a regular chat message
     let speaker = ChatMessage.getSpeaker();
-    let actorId = game.lightbearer.playerCharacters[game.user.id];
-    if (actorId)
+    let character = game.user.character;
+    if (character)
     {
-        speaker.alias = game.actors.get(actorId).name;
+        speaker.alias = character.name;
     }
     ChatMessage.create({
         user: game.user.id,

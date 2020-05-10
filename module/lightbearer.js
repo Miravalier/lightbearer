@@ -92,7 +92,6 @@ Hooks.once("init", async function() {
         forceMovementModeRefresh,
         forceStandardModeRefresh,
         forceModeRefresh,
-        playerCharacters: {},
         emoji: {
             'think': '/systems/lightbearer/emoji/think.gif'
         }
@@ -125,10 +124,6 @@ Hooks.once("init", async function() {
 Hooks.once("ready", function() {
     // Link in other namespace items after initialization
     game.lightbearer.gm = game.users.entities.find(u => u.isGM);
-    for (let actor of game.actors.entities.filter(a => a.isPC))
-    {
-        game.lightbearer.playerCharacters[actor.player.id] = actor.id;
-    }
 
     // Register hooks
     Hooks.on("updateCombat", onUpdateCombat);
