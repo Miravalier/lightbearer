@@ -2,7 +2,6 @@ import { ChatTemplate, ErrorMessage } from "./chat.js";
 
 const ATTRIBUTES = ["agility", "endurance", "power", "charisma", "memory", "perception"];
 const STATS = ["physique", "cunning", "total"];
-const SKILLS = ["artifice", "melee", "ranged", "smithing", "stealth"];
 
 /**
  * Base Actor class
@@ -31,7 +30,7 @@ export class LightbearerActor extends Actor {
         {
             data[stat] = data.stats[stat].value;
         }
-        for (let skill of SKILLS)
+        for (let skill of Object.keys(data.skills))
         {
             data[skill] = data.skills[skill].value;
         }

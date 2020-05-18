@@ -43,6 +43,7 @@
     height: 100px;
     margin-right: 10px;
     border: none;
+    object-fit: contain;
 }
 .lightbearer.actor .sheet-header .header-fields {
     flex: 1;
