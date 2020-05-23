@@ -80,6 +80,74 @@ function narrateCommand(args)
     });
 }
 
+function UserLookup(name)
+{
+    name = name.toLowerCase();
+    let user = game.users.entities.find(u => (u.name.toLowerCase() === name || u.charname.toLowerCase() === name));
+    if (user)
+    {
+        return user.id;
+    }
+
+    return null;
+}
+
+const WHISPER_PATTERN = /^\s*("[^"]*"|[a-z0-9_-]+)\s*/i;
+function whisperCommand(args)
+{
+    // Extract target
+    let target = null;
+    args = args.replace(CMD_PATTERN, (_, m) => {
+        target = m;
+        return "";
+    });
+    if (!target)
+    {
+        ErrorMessage("No whisper recipient specified.");
+        return;
+    }
+
+    // Trim quotation
+    target = target.replace(/^"|"$/g, '');
+
+    // Lookup target
+    let targetId = UserLookup(target);
+    if (!targetId)
+    {
+        ErrorMessage(`User ${target} does not exist.`);
+        return;
+    }
+
+    // Send chat message
+    let speaker = ChatMessage.getSpeaker();
+    speaker.alias = game.user.name;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
+        content: `<div class="lightbearer whisper">${args}</div>`,
+        whisper: targetId
+    });
+}
+
+function helpCommand(args)
+{
+}
+
+function sendRegularMessage(message)
+{
+    let speaker = ChatMessage.getSpeaker();
+    let character = game.user.character;
+    if (character)
+    {
+        speaker.alias = character.name;
+    }
+    ChatMessage.create({
+        user: game.user.id,
+        speaker: speaker,
+        content: message
+    });
+}
+
 const COMMANDS = {
     "e": emoteCommand,
     "m": emoteCommand,
@@ -99,10 +167,15 @@ const COMMANDS = {
     "desc": storyCommand,
     "d": storyCommand,
     "story": storyCommand,
-    "s": storyCommand
+    "s": storyCommand,
+    "w": whisperCommand,
+    "whisper": whisperCommand,
+    "?": helpCommand,
+    "help": helpCommand,
+    "h": helpCommand
 };
 
-const CMD_PATTERN = /^[\/!]([a-z0-9_-]+)\s*/i;
+const CMD_PATTERN = /^\s*[\/!]([a-z0-9_-]+)\s*/i;
 export function preChatMessage(chatLog, message, chatData)
 {
     // Replace italics and bold
@@ -144,23 +217,13 @@ export function preChatMessage(chatLog, message, chatData)
         }
         else
         {
-            ErrorMessage(`Unknown command '${command}'.`, "System");
+            ErrorMessage(`Unknown command '${command}'.`, game.user.name);
             return false;
         }
     }
 
     // Send a regular chat message
-    let speaker = ChatMessage.getSpeaker();
-    let character = game.user.character;
-    if (character)
-    {
-        speaker.alias = character.name;
-    }
-    ChatMessage.create({
-        user: game.user.id,
-        speaker: speaker,
-        content: message
-    });
+    sendRegularMessage(message);
     return false;
 }
 
@@ -206,7 +269,8 @@ export function ErrorMessage(content, source)
     ChatMessage.create({
         user: game.user._id,
         speaker: speaker,
-        content: `<div class="lightbearer error">${content}</div>`
+        content: `<div class="lightbearer error">${content}</div>`,
+        whisper: game.user._id
     });
 }
 
