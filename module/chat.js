@@ -82,8 +82,7 @@ function narrateCommand(args)
 
 function UserLookup(name)
 {
-    name = name.toLowerCase();
-    let user = game.users.entities.find(u => (u.name.toLowerCase() === name || u.charname.toLowerCase() === name));
+    let user = game.users.entities.find(u => (u.name === name || u.charname === name));
     if (user)
     {
         return user.id;
@@ -92,45 +91,18 @@ function UserLookup(name)
     return null;
 }
 
-const WHISPER_PATTERN = /^\s*("[^"]*"|[a-z0-9_-]+)\s*/i;
-function whisperCommand(args)
-{
-    // Extract target
-    let target = null;
-    args = args.replace(CMD_PATTERN, (_, m) => {
-        target = m;
-        return "";
-    });
-    if (!target)
-    {
-        ErrorMessage("No whisper recipient specified.");
-        return;
-    }
-
-    // Trim quotation
-    target = target.replace(/^"|"$/g, '');
-
-    // Lookup target
-    let targetId = UserLookup(target);
-    if (!targetId)
-    {
-        ErrorMessage(`User ${target} does not exist.`);
-        return;
-    }
-
-    // Send chat message
-    let speaker = ChatMessage.getSpeaker();
-    speaker.alias = game.user.name;
-    ChatMessage.create({
-        user: game.user._id,
-        speaker: speaker,
-        content: `<div class="lightbearer whisper">${args}</div>`,
-        whisper: targetId
-    });
-}
-
 function helpCommand(args)
 {
+    SystemMessage(
+        `
+            <p><b>/?</b> display this help message</p>
+            <p><b>/e</b> describe what your character is doing</p>
+            <p><b>/o</b> speak out of character</p>
+            <p><b>/n</b> like /e, but doesn't put your name at the front</p>
+            <p><b>/w &lt;player&gt;</b> send a message to a specific player</p>
+        `,
+        "System"
+    );
 }
 
 function sendRegularMessage(message)
@@ -168,14 +140,46 @@ const COMMANDS = {
     "d": storyCommand,
     "story": storyCommand,
     "s": storyCommand,
-    "w": whisperCommand,
-    "whisper": whisperCommand,
     "?": helpCommand,
     "help": helpCommand,
-    "h": helpCommand
+    "h": helpCommand,
+    "w": whisperCommand,
+    "whisper": whisperCommand
 };
 
-const CMD_PATTERN = /^\s*[\/!]([a-z0-9_-]+)\s*/i;
+const WHISPER_PATTERN = /^\s*("[^"]*?"|[a-z0-9_-]+)\s*/i;
+function whisperCommand(args)
+{
+    let target = null;
+    let content = args.replace(WHISPER_PATTERN, (_, m) => {
+        target = m;
+        return "";
+    });
+
+    if (!target)
+    {
+        ErrorMessage("No whisper target specified.");
+        return;
+    }
+
+    let targetId = UserLookup(target);
+    if (!targetId)
+    {
+        ErrorMessage(`No user exists with the name ${target}.`);
+        return;
+    }
+
+    let speaker = ChatMessage.getSpeaker();
+    speaker.alias = game.user.name;
+    ChatMessage.create({
+        user: game.user.id,
+        speaker: speaker,
+        content: content,
+        whisper: [targetId]
+    });
+}
+
+const CMD_PATTERN = /^\s*\/([a-z0-9?_-]+)\s*/i;
 export function preChatMessage(chatLog, message, chatData)
 {
     // Replace italics and bold
@@ -258,7 +262,8 @@ export function SystemMessage(content, source)
     ChatMessage.create({
         user: game.user._id,
         speaker: speaker,
-        content: `<div class="lightbearer system">${content}</div>`
+        content: `<div class="lightbearer system">${content}</div>`,
+        whisper: [game.user._id]
     });
 }
 
@@ -270,7 +275,7 @@ export function ErrorMessage(content, source)
         user: game.user._id,
         speaker: speaker,
         content: `<div class="lightbearer error">${content}</div>`,
-        whisper: game.user._id
+        whisper: [game.user._id]
     });
 }
 

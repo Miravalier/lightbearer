@@ -14,6 +14,7 @@ import { onUpdateToken } from "./combat-tracker.js";
 import { forceMovementModeRefresh } from "./combat-tracker.js";
 import { forceStandardModeRefresh } from "./combat-tracker.js";
 import { forceModeRefresh } from "./combat-tracker.js";
+import { pingCombatant } from "./combat-tracker.js";
 import { onCreateChatMessage } from "./chat.js";
 import { onChatExport } from "./chat.js";
 import { preChatMessage } from "./chat.js";
@@ -82,6 +83,7 @@ Hooks.once("init", async function() {
 
     // Create lightbearer namespace
     game.lightbearer = {
+        ErrorMessage,
         ItemMacro,
         ActorMacro,
         ActorOwnedItemMacro,
@@ -92,6 +94,7 @@ Hooks.once("init", async function() {
         forceMovementModeRefresh,
         forceStandardModeRefresh,
         forceModeRefresh,
+        pingCombatant,
         emoji: {
             'think': '/systems/lightbearer/emoji/think.gif'
         }
@@ -103,7 +106,7 @@ Hooks.once("init", async function() {
 	 * @type {String}
 	 */
 	CONFIG.Combat.initiative = {
-	    formula: "1d20",
+	    formula: "2d6+@agility",
         decimals: 0
     };
 

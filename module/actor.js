@@ -165,22 +165,53 @@ export class LightbearerActor extends Actor {
     }
 
     useAction() {
+        // Only applies in combat
+        if (!game.combat || !game.combat.combatant) return true;
+
         let actions = this.data.data.actions.value;
         if (actions <= 0) {
             ErrorMessage("Not enough actions.");
+            return false;
         }
         else {
             this.update({"data.actions.value": actions - 1})
+            return true;
         }
     }
 
     useReaction() {
+        // Only applies in combat
+        if (!game.combat || !game.combat.combatant) return true;
+
         let reactions = this.data.data.reactions.value;
         if (reactions <= 0) {
             ErrorMessage("Not enough reactions.");
+            return false;
         }
         else {
             this.update({"data.reactions.value": reactions - 1})
+            return true;
         }
+    }
+
+    focusOn() {
+        // Find a token of this character on the current scene
+        let tokens = this.getActiveTokens();
+        let scene = game.scenes.get(game.user.viewedScene);
+        let token = tokens.find(t => t.scene == scene);
+        if (!token) return;
+
+        // Pan to the token
+        canvas.animatePan({
+            x: token.x + (unitPixels * token.width / 2),
+            y: token.y + (unitPixels * token.height / 2),
+            duration: 500
+        });
+
+        // Target the token
+        token.setTarget(true);
+        setTimeout(() => {
+            token.setTarget(false);
+        }, 2500);
     }
 }

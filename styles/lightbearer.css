@@ -307,7 +307,7 @@ div.lightbearer.error {
     border-radius: 4px;
 }
 div.lightbearer.system {
-    color: #aaaaaa;
+    color: #000000;
     background-color: rgba(100, 100, 100, 0.5);
     padding: 2px;
     border-radius: 4px;
