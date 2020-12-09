@@ -1,7 +1,7 @@
 {
     "Actor": {
-        "types": ["character"],
-        "character": {
+        "types": ["Character", "NPC"],
+        "Character": {
             "notes": "",
             "actions": {
                 "value": 0,
@@ -94,7 +94,7 @@
         }
     },
     "Item": {
-        "types": ["item", "ability"],
+        "types": ["ability", "item"],
         "item": {
             "notes": "",
             "description": "",

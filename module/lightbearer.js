@@ -9,102 +9,33 @@ import { LightbearerActor } from "./actor.js";
 import { LightbearerItem } from "./item.js";
 import { LightbearerItemSheet } from "./item-sheet.js";
 import { LightbearerActorSheet } from "./actor-sheet.js";
-import { onUpdateCombat } from "./combat-tracker.js";
-import { onUpdateToken } from "./combat-tracker.js";
-import { forceMovementModeRefresh } from "./combat-tracker.js";
-import { forceStandardModeRefresh } from "./combat-tracker.js";
-import { forceModeRefresh } from "./combat-tracker.js";
-import { pingCombatant } from "./combat-tracker.js";
-import { onCreateChatMessage } from "./chat.js";
-import { onChatExport } from "./chat.js";
-import { preChatMessage } from "./chat.js";
-import { ErrorMessage } from "./chat.js";
 
-const STANDARD_MODE = 0;
-const MOVEMENT_MODE = 1;
-const COMBAT_MODE = 2;
+import * as combatTracker from "./combat-tracker.js";
+import * as chat from "./chat.js";
+import * as ui from "./ui.js";
+import * as createDefaults from "./create-defaults.js";
+
 
 /* -------------------------------------------- */
 /*    Foundry VTT Initialization                */
 /* -------------------------------------------- */
 
-function SetMode(value)
-{
-    game.lightbearer.mode = value;
-    switch (value)
-    {
-        case STANDARD_MODE:
-            for (let actor of game.actors.entities.filter(a => a.isPC))
-            {
-                for (let token of actor.getActiveTokens())
-                {
-                    token.update({
-                        name: actor.name,
-                        displayName: TOKEN_DISPLAY_MODES.HOVER
-                    });
-                }
-            }
-        break;
-        case MOVEMENT_MODE:
-            for (let actor of game.actors.entities.filter(a => a.isPC))
-            {
-                actor.px = null;
-                actor.py = null;
-                actor.distance = 0;
-                for (let token of actor.getActiveTokens())
-                {
-                    token.update({
-                        name: "📐 0 ft",
-                        displayName: TOKEN_DISPLAY_MODES.ALWAYS
-                    });
-                }
-            }
-        break;
-        case COMBAT_MODE:
-            for (let actor of game.actors.entities.filter(a => a.isPC))
-            {
-                for (let token of actor.getActiveTokens())
-                {
-                    token.update({
-                        name: "Not Implemented",
-                        displayName: TOKEN_DISPLAY_MODES.ALWAYS
-                    });
-                }
-            }
-        break;
-        default:
-            console.error("Failed to set unrecognized lightbearer mode: " + value);
-        break;
-    }
-}
 
 Hooks.once("init", async function() {
     console.log(`Initializing Lightbearer Ruleset`);
 
     // Create lightbearer namespace
     game.lightbearer = {
-        ErrorMessage,
+        ErrorMessage: chat.ErrorMessage,
         ItemMacro,
         ActorMacro,
-        ActorOwnedItemMacro,
-        SetMode,
-        STANDARD_MODE,
-        MOVEMENT_MODE,
-        COMBAT_MODE,
-        forceMovementModeRefresh,
-        forceStandardModeRefresh,
-        forceModeRefresh,
-        pingCombatant,
+        OwnedItemMacro,
         emoji: {
             'think': '/systems/lightbearer/emoji/think.gif'
-        }
+        },
+        ui
     };
-    game.lightbearer.mode = game.lightbearer.STANDARD_MODE;
 
-	/**
-	 * Set an initiative formula for the system
-	 * @type {String}
-	 */
 	CONFIG.Combat.initiative = {
 	    formula: "2d6+@agility",
         decimals: 0
@@ -120,33 +51,53 @@ Hooks.once("init", async function() {
     Items.unregisterSheet("core", ItemSheet);
     Items.registerSheet("lightbearer", LightbearerItemSheet, {makeDefault: true});
 
-    // Register system settings
-    // - None
+    // Handlebars helpers
+    Handlebars.registerHelper('ifcontains', function (a, b, options) {
+        if (a.includes(b)) { return options.fn(this); }
+        return options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifoneof', function (a, b, options) {
+        if (b.split(',').indexOf(a) !== -1) { return options.fn(this); }
+        return options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifeq', function (a, b, options) {
+        if (a == b) { return options.fn(this); }
+        return options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifneq', function (a, b, options) {
+        if (a != b) { return options.fn(this); }
+        return options.inverse(this);
+    });
+
+    // Early hooks
+    Hooks.on("renderChatLog", (app, html, data) => chat.onRenderChatLog(html));
+    Hooks.on("renderChatMessage", (app, html, data) => chat.onRenderChatMessage(html));
 });
 
 Hooks.once("ready", function() {
     // Link in other namespace items after initialization
     game.lightbearer.gm = game.users.entities.find(u => u.isGM);
-
     // Register hooks
-    Hooks.on("updateCombat", onUpdateCombat);
-    Hooks.on("hotbarDrop", (bar, data, slot) => createLightbearerMacro(data, slot));
-    Hooks.on("renderChatMessage", (app, html, data) => onCreateChatMessage(html, data));
-    Hooks.on("createActor", (actor, options, uid) => actor.setDefaults(uid));
-    Hooks.on("createItem", (item, options, uid) => item.setDefaults(uid));
-    Hooks.on("chatMessage", (chatLog, message, chatData) => preChatMessage(chatLog, message, chatData));
-    Hooks.on("updateToken", onUpdateToken);
+    Hooks.on("updateCombat", combatTracker.onUpdateCombat);
+    Hooks.on("hotbarDrop", createMacro);
+    Hooks.on("preCreateActor", createDefaults.preCreateActor);
+    Hooks.on("preCreateItem", createDefaults.preCreateItem);
+    Hooks.on("preCreateOwnedItem", createDefaults.preCreateOwnedItem);
+    Hooks.on("chatMessage", chat.preChatMessage);
     // Hook game members
-    Messages.prototype.export = onChatExport;
+    Messages.prototype.export = chat.onChatExport;
 });
 
-async function createLightbearerMacro(data, slot) {
+async function createMacro(bar, data, slot) {
     let command = "";
     let source = null;
     if (data.type === "Item")
     {
         if (data.actorId) {
-            command = `game.lightbearer.ActorOwnedItemMacro("${data.actorId}", "${data.data._id}");`;
+            command = `game.lightbearer.OwnedItemMacro("${data.actorId}", "${data.data._id}");`;
             source = game.actors.get(data.actorId).getOwnedItem(data.data._id);
         }
         else {
@@ -161,7 +112,7 @@ async function createLightbearerMacro(data, slot) {
     }
     else
     {
-        throw "Invalid macro drop source.";
+        return;
     }
 
     let macro = game.macros.entities.find(m => (m.data.command === command));
@@ -183,26 +134,26 @@ function ActorMacro(actor_id)
         game.actors.get(actor_id).sheet.render(true);
     }
     catch {
-        console.error("The actor this macro references no longer exists.");
+        chat.ErrorMessage("The actor this macro references no longer exists.");
     }
 }
 
 function ItemMacro(item_id)
 {
     try {
-        game.items.get(item_id).use()
+        game.items.get(item_id).sheet.render(true);
     }
     catch {
-        console.error("The item this macro references no longer exists.");
+        chat.ErrorMessage("The item this macro references no longer exists.");
     }
 }
 
-function ActorOwnedItemMacro(actor_id, item_id)
+function OwnedItemMacro(actor_id, item_id)
 {
     try {
         game.actors.get(actor_id).getOwnedItem(item_id).use();
     }
     catch {
-        console.error("Either the actor or item this macro references no longer exist.");
+        chat.ErrorMessage("Either the actor or item this macro references no longer exist.");
     }
 }

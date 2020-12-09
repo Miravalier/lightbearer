@@ -1,3 +1,5 @@
+import * as ui from "./ui.js"
+
 function spongebobCase(s)
 {
     let capital = true;
@@ -193,14 +195,13 @@ export function preChatMessage(chatLog, message, chatData)
         return `<span style="font-style: italic;">${m}</span>`;
     });
     message = message.replace(/\:([0-9a-zA-Z_-]+)\:/, (_, m) => {
-        let img = game.lightbearer.emoji[m];
         if (img)
         {
             return `<img class="lightbearer emoji" src="${img}" width=24 height=24/>`;
         }
         else
         {
-            return `:${m}:`;
+            return `&lt;unrecognized emoji: ${m}&gt;`;
         }
     });
 
@@ -231,10 +232,10 @@ export function preChatMessage(chatLog, message, chatData)
     return false;
 }
 
-export function RoundUpdateMessage(round, alias)
+export function RoundUpdateMessage(round)
 {
     let speaker = ChatMessage.getSpeaker();
-    speaker.alias = alias;
+    speaker.alias = " ";
     ChatMessage.create({
         user: game.user._id,
         speaker: speaker,
@@ -242,16 +243,14 @@ export function RoundUpdateMessage(round, alias)
     });
 }
 
-export function TurnUpdateMessage(actor, alias)
+export function TurnUpdateMessage(name, alias)
 {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = alias;
     ChatMessage.create({
         user: game.user._id,
         speaker: speaker,
-        content: `<div class="lightbearer turn-update"
-            style="color: ${actor.player.data.color}; border: 2px solid ${actor.player.data.color};"
-            >${actor.name}</div>`
+        content: `<div class="lightbearer turn-update">${name}</div>`
     });
 }
 
@@ -289,8 +288,7 @@ export function onChatExport()
     output += `<html>`;
     output += `<head>`;
     output += `<title>${date} Chat Log</title>`;
-    output += `<link href="https://nonsense.page/systems/lightbearer/styles/lightbearer.css" rel="stylesheet" type="text/css">`;
-    output += `<link href="https://nonsense.page/css/style.css" rel="stylesheet" type="text/css">`;
+    output += `<link href="https://dnd.miramontes.dev/systems/lightbearer/styles/lightbearer.css" rel="stylesheet" type="text/css">`;
     output += `<style>`;
     output += `img {display: none}`;
     output += `</style>`;
@@ -330,166 +328,381 @@ export function onChatExport()
     saveDataToFile(output, "text/html", `chat-log-${date}.html`);
 }
 
-export async function onCreateChatMessage(html, data)
+
+export async function onRenderChatLog(html)
+{
+}
+
+
+export async function onRenderChatMessage(html)
 {
     html.on('click', '.chat-template.caption', onChatTemplateCaptionClicked);
-    html.on('click', '.chat-template.total', onChatTemplateTotalClicked);
+    html.on('click', '.chat-template.roll', onChatTemplateRollClicked);
 }
 
-async function onChatTemplateTotalClicked(event)
+
+async function onChatTemplateCaptionClicked(ev)
 {
-    event.preventDefault();
-    let formula = $(event.currentTarget).siblings(".chat-template.formula");
-    if (formula.css("display") === "none")
-    {
-        formula.css("display", "block");
-    }
-    else
-    {
-        formula.css("display", "none");
-    }
+    const caption = $(ev.currentTarget);
+    const message = game.messages.get(
+        caption.closest(".chat-message").data("messageId")
+    );
+    message.children('.message-content').append()
 }
 
-// Called when the caption in a chat template is clicked
-async function onChatTemplateCaptionClicked(event)
+
+async function onChatTemplateRollClicked(ev)
 {
-    // Get button from event
-    event.preventDefault();
-    const button = event.currentTarget;
+    const rollItem = $(ev.currentTarget);
+    const rowId = rollItem.closest(".chat-template.item").data("rowId");
+    const resultData = JSON.parse(atob(rollItem.data("results")));
+    resultData.modified = rollItem.data("modified");
+    resultData.isGM = game.user.isGM;
 
-    // Disable button in case of multiple clicks while loading
-    button.disabled = true;
+    // Get entire message containing this row
+    const message = game.messages.get(
+        rollItem.closest(".chat-message").data("messageId")
+    );
+    // Get message's contents
+    const content = $("<div>"+message.data.content+"</div>");
+    // Find roll total element
+    const roll = content.find(".chat-template.item").filter(function () {
+        return $(this).data("rowId") == rowId;
+    }).find(".roll");
 
-    // Render source sheet
-    const source = JSON.parse(atob(button.dataset.source));
-    if (source.type === "Actor")
-    {
-        game.actors.get(source.actorId).sheet.render(true);
-    }
-    else if (source.type === "Item")
-    {
-        game.items.get(source.itemId).sheet.render(true);
-    }
-    else if (source.type === "OwnedItem")
-    {
-        const actor = game.actors.get(source.actorId);
-        actor.getOwnedItem(source.itemId).sheet.render(true);
-    }
-    else
-    {
-        throw ("Unrecognized chat template source " + source.type);
-    }
-
-    // Re-enable button
-    button.disabled = false;
-}
-
-
-// ChatTemplate class, created with a source of any actor,
-// item, or ability.
-export class ChatTemplate {
-    constructor(source, template, buttons) {
-        this.source = source;
-        if (source.entity === "Actor")
-        {
-            this.title = "";
-            this.origin = source.name;
-            this.description = "";
-            this.template = {};
-            this.buttons = {};
-            this.ids = btoa(JSON.stringify({
-                "type": "Actor",
-                "actorId": source._id
-            }));
-            this.roll_data = source.getRollData();
-        }
-        else if (source.entity === "Item")
-        {
-            if (source.actor) {
-                this.title = source.name;
-                this.origin = source.actor.name;
-                this.ids = btoa(JSON.stringify({
-                    "type": "OwnedItem",
-                    "actorId": source.actor._id,
-                    "itemId": source._id
-                }));
-                this.roll_data = source.actor.getRollData();
-            }
-            else
-            {
-                this.title = "";
-                this.origin = source.name;
-                this.ids = btoa(JSON.stringify({
-                    "type": "Item",
-                    "itemId": source._id
-                }));
-                this.roll_data = {};
-            }
-            this.description = source.data.data.description;
-            this.template = source.data.data.template;
-            this.buttons = {};
-        }
-        else
-        {
-            throw "Invalid ChatTemplate source type.";
-        }
-        this.icon = source.img;
-        if (typeof template !== 'undefined' && template !== null)
-        {
-            Object.assign(this.template, template);
-        }
-        if (typeof buttons !== 'undefined' && buttons !== null)
-        {
-            Object.assign(this.buttons, buttons);
-        }
-    }
-
-    send(speaker) {
-        if (typeof speaker === 'undefined' || speaker === null) {
-            speaker = ChatMessage.getSpeaker();
-        }
-        ChatMessage.create({
-            user: game.user._id,
-            speaker: speaker,
-            content: this.toString()
+    // Modify function used for the click handlers
+    function modifyTotal(html, amount) {
+        // Set modified total
+        roll.attr("data-modified", amount);
+        roll.text(amount + "*");
+        // Set the total in this dialog
+        const totalTerm = html.find(".result.overview .die.term");
+        totalTerm.text(amount);
+        totalTerm.addClass("modified");
+        // Update message for everyone
+        message.update({
+            content: content.html()
         });
+        resultData.modified = amount;
     }
 
-    toString() {
-        let output = "";
-
-        // Build Header
-        output += `<div class="chat-template caption" data-source="${this.ids}">`;
-        output += `<img src="${this.icon}" title="Roll Icon" width="36" height="36" />`;
-        output += `<span>${this.title}</span>`;
-        output += `<span>${this.origin}</span>`;
-        output += '</div>';
-
-        // Build Body
-        if (this.description)
-        {
-            output += '<div class="chat-template description">';
-            output += this.description;
-            output += '</div>';
+    const templateContent = await renderTemplate(
+        "systems/5e-lite/html/roll-results.html",
+        resultData
+    );
+    Dialog.prompt({
+        title: "Roll Results",
+        content: templateContent,
+        label: "Close",
+        callback: html => {},
+        render: html => {
+            html.on('click', '.roll-controls .add', ev => {
+                message.update({
+                    content: message.data.content + chatTemplateRow(
+                        resultData.label, resultData.formula
+                    )
+                });
+                html.find('.dialog-button.ok').trigger('click');
+            });
+            html.on('click', '.roll-controls .delete', ev => {
+                // Delete this row from message
+                content.find(".chat-template.item").filter(function () {
+                    return $(this).data("rowId") == rowId;
+                }).remove();
+                // Update message for everyone
+                message.update({
+                    content: content.html()
+                });
+                html.find('.dialog-button.ok').trigger('click');
+            });
+            html.on('click', '.roll-controls .zero', ev => {
+                modifyTotal(html, 0);
+            });
+            html.on('click', '.roll-controls .increment', ev => {
+                if (resultData.modified)
+                    modifyTotal(html, parseInt(resultData.modified) + 1);
+                else
+                    modifyTotal(html, parseInt(resultData.total) + 1);
+            });
+            html.on('click', '.roll-controls .decrement', ev => {
+                if (resultData.modified)
+                    modifyTotal(html, parseInt(resultData.modified) - 1);
+                else
+                    modifyTotal(html, parseInt(resultData.total) - 1);
+            });
+            html.on('click', '.roll-controls .halve', ev => {
+                if (resultData.modified)
+                    modifyTotal(html, parseInt(parseInt(resultData.modified) / 2));
+                else
+                    modifyTotal(html, parseInt(parseInt(resultData.total) / 2));
+            });
+            html.on('click', '.roll-controls .double', ev => {
+                if (resultData.modified)
+                    modifyTotal(html, parseInt(resultData.modified) * 2);
+                else
+                    modifyTotal(html, parseInt(resultData.total) * 2);
+            });
+            html.on('click', '.roll-controls .reset', ev => {
+                // Set modified total
+                const modified = resultData.total;
+                roll.attr("data-modified", null);
+                roll.text(modified);
+                // Set the total in this dialog
+                const totalTerm = html.find(".result.overview .die.term");
+                totalTerm.text(modified);
+                totalTerm.removeClass("modified");
+                // Update message for everyone
+                message.update({
+                    content: content.html()
+                });
+                resultData.modified = null;
+            });
         }
-        if (this.template)
+    });
+}
+
+
+function dedent(str) {
+	str = str.replace(/^\n/, "");
+	let match = str.match(/^\s+/);
+	return match ? str.replace(new RegExp("^"+match[0], "gm"), "") : str;
+}
+
+
+function indent(str, count)
+{
+    if (!count) count = 1;
+    return str.replace(/^/gm, "    ".repeat(count));
+}
+
+
+function oxfordList(array) {
+    if (array.length == 0) return "no one";
+    else if (array.length == 1) return array[0];
+    else if (array.length == 2) return array.join(" and ");
+    array = array.slice();
+    array[array.length-1] = `and ${array[array.length-1]}`;
+    return array.join(", ");
+}
+
+
+export function chatTemplateDescription(source)
+{
+    let description = source.data.data.description;
+    return (`<div class="chat-template description">${description}</div>`);
+}
+
+
+export function chatTemplateUsage(source, targetNames)
+{
+    const templates = Object.values(source.data.data.usage_phrases);
+    if (templates.length == 0) return "";
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    const targetString = oxfordList(Array.from(targetNames));
+    const variables = {
+        ITEM: source.name,
+        ITEM_NAME: source.name,
+        CHARACTER: source.actor.name,
+        CHARACTER_NAME: source.actor.name,
+        CHARACTER_POSSESSIVE_PRONOUN: source.actor.data.data.possessive_pronoun,
+        CHARACTER_SUBJECTIVE_PRONOUN: source.actor.data.data.subjective_pronoun,
+        POSSESSIVE_PRONOUN: source.actor.data.data.possessive_pronoun,
+        SUBJECTIVE_PRONOUN: source.actor.data.data.subjective_pronoun,
+        POSSESSIVE: source.actor.data.data.possessive_pronoun,
+        SUBJECTIVE: source.actor.data.data.subjective_pronoun,
+        TARGET: targetString,
+        TARGETS: targetString,
+        TARGET_NAME: targetString,
+        TARGET_NAMES: targetString
+    };
+
+    const usage_phrase = template.replace(/\$\{([a-z0-9_-]+)\}/ig, (match, variable) => {
+        return variables[variable];
+    });
+
+    return (`<div class="chat-template description"><p>${usage_phrase}</p></div>`);
+}
+
+
+export async function chatTemplateRolls(source, targetNames)
+{
+    const rows = [];
+    let target = null;
+    let targets = null;
+    let fields = null;
+    const rollData = source.actor.getRollData();
+    const template = source.data.data.template;
+
+    // Roll each untargeted row
+    fields = Object.values(template).filter(row => row.target_type === "None");
+    for (const field of fields)
+    {
+        rows.push(chatTemplateRow(field.label, field.formula, rollData));
+    }
+
+    // Roll each Individual Target row
+    for (let i=1; i <= 3; i++)
+    {
+        target = null;
+        fields = Object.values(template).filter(row => row.target_type === `Target ${i}`);
+        for (const field of fields)
         {
-            output += '<div class="chat-template list">';
-            for (let value of Object.values(this.template))
-            {
-                const roll = new Roll(value.roll, this.roll_data);
-                roll.roll();
-                output += '<div class="chat-template item">';
-                    output += `<div class="chat-template label">${value.label}</div>`;
-                    output += `<div class="chat-template roll">`;
-                        output += `<div class="chat-template total">${Math.round(roll.total)}</div>`;
-                        output += `<div class="chat-template formula">${value.roll}</div>`;
-                    output += '</div>';
-                output += '</div>';
+            // Select a target the first time through
+            if (!target) {
+                target = await selectToken(`${source.name} Target ${i}`);
+                if (!target) throw "No token selected.";
+                if (!target.actor) throw "Token does not have an actor.";
+                targetNames.add(target.name);
+                rows.push(dedent(`
+                    <div class="chat-template item">
+                        <div class="chat-template label">${target.name}</div>
+                    </div>
+                `));
             }
-            output += '</div>';
+            // Update roll data with the target's values
+            const targetRollData = target.actor.getRollData();
+            Object.keys(targetRollData).forEach(key => {
+                rollData["target_" + key] = targetRollData[key];
+            });
+            // Create output line
+            rows.push(chatTemplateRow(field.label, field.formula, rollData));
         }
-
-        return output;
     }
+
+    // Roll each Group Target row
+    for (let i=1; i <= 3; i++)
+    {
+        targets = null;
+        fields = Object.values(template).filter(row => row.target_type === `Group ${i}`);
+        for (let row of fields)
+        {
+            // Select targets the first time through
+            if (targets === null) {
+                targets = await selectTokens(`${source.name} Group ${i} Targets`);
+                rollData["group_size"] = targets.size;
+            }
+            // Go through each target rolling this row
+            for (let target of targets)
+            {
+                if (!target.actor) throw "Token does not have an actor.";
+                // Add target to output list
+                targetNames.add(target.name);
+                // Update roll data with the target's values
+                const targetRollData = target.actor.getRollData();
+                Object.keys(targetRollData).forEach(key => {
+                    rollData["target_" + key] = targetRollData[key];
+                });
+                // Roll the row
+                rows.push(chatTemplateRow(target.name + " " + row.label, row.formula, rollData));
+            }
+        }
+    }
+
+    return rows.join('\n');
+}
+
+
+export function sendTemplate(content)
+{
+    let speaker = ChatMessage.getSpeaker();
+    speaker.alias = game.user.name;
+    ChatMessage.create({
+        user: game.user._id,
+        speaker: speaker,
+        content: content
+    });
+}
+
+
+export function chatTemplateRow(label, formula, rollData)
+{
+    if (!rollData) rollData = {};
+    if (formula) {
+        const roll = new Roll(formula, rollData);
+        roll.roll();
+        const resultData = [];
+        let crit = true;
+        let fail = true;
+        for (const die of roll.dice) {
+            const rolls = die.results;
+            rolls.forEach(r => {
+                if (r.result != 1)
+                    fail = false;
+                if (r.result != die.faces)
+                    crit = false;
+                // Fail or success coloring
+                if (r.result == 1)
+                    r.classes = "failure";
+                else if (r.result == die.faces)
+                    r.classes = "success";
+                else
+                    r.classes = "";
+                // Face count icon
+                if (die.faces == 4)
+                    r.classes += " d4";
+                else if (die.faces == 8)
+                    r.classes += " d8";
+                else if (die.faces == 10)
+                    r.classes += " d10";
+                else if (die.faces == 12)
+                    r.classes += " d12";
+                else if (die.faces == 20)
+                    r.classes += " d20";
+            });
+            resultData.push({
+                formula: `${die.number}d${die.faces}`,
+                rolls: rolls
+            });
+        }
+        const resultString = btoa(JSON.stringify({
+            label: label,
+            original: formula,
+            formula: roll.formula,
+            total: roll.total,
+            results: resultData,
+            crit: crit
+        }));
+        let color = "";
+        if (label.toLowerCase().indexOf("damage") !== -1)
+            color = "red";
+        else if (label.toLowerCase().indexOf("attack") !== -1)
+        {
+            color = "yellow";
+            if (crit) {
+                color += " crit";
+            }
+            else if (fail) {
+                color += " fail";
+            }
+        }
+        else if (label.toLowerCase().indexOf("ac") !== -1)
+            color = "blue";
+        else if (label.toLowerCase().indexOf("dc") !== -1)
+            color = "green";
+        else if (label.toLowerCase().indexOf("saving") !== -1)
+            color = "green";
+        else if (label.toLowerCase().indexOf("save") !== -1)
+            color = "green";
+        return dedent(`
+            <div class="chat-template item ${color}" data-row-id="${randomID(16)}">
+                <div class="chat-template label">${label}</div>
+                <div class="chat-template roll" data-results="${resultString}">
+                    ${Math.round(roll.total)}
+                </div>
+            </div>
+        `);
+    }
+    else {
+        return dedent(`
+            <div class="chat-template item">
+                <div class="chat-template label">${label}</div>
+            </div>
+        `);
+    }
+}
+
+
+export function chatTemplateHeader(source)
+{
+    return `<div class="chat-template caption">${source.name}</div>`;
 }

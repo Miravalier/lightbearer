@@ -14,10 +14,25 @@ export function pingCombatant()
     const token = actor.getActiveTokens().find(t => t.id === combat.combatant.token._id);
     if (token) {
         token.setTarget(true);
+        canvas.animatePan({
+            x: token.x + (token.width / 2),
+            y: token.y + (token.height / 2),
+            duration: 500
+        });
         setTimeout(() => {
             token.setTarget(false);
-        }, 2500);
+        }, 2000);
     }
+}
+
+function roundAdvance(combat, round)
+{
+    RoundUpdateMessage(round);
+}
+
+function turnAdvance(combat, turn)
+{
+    TurnUpdateMessage(combat.combatant.name, "Turn Start");
 }
 
 export function onUpdateCombat(combat, update, options, userId)
@@ -25,128 +40,22 @@ export function onUpdateCombat(combat, update, options, userId)
     if (!game.user.isGM) return;
     if (!combat.combatant) return;
 
-    const actor = combat.combatant.actor;
     pingCombatant();
 
-    if (combat.current.round > combat.previous.round)
+    if (combat.combatant.token.name == game.lightbearer.combatant)
     {
-        RoundUpdateMessage(combat.current.round, " ");
-        TurnUpdateMessage(actor, "Turn Start");
-        for (let token of combat.combatants)
-        {
-            if (!token.actor) continue;
-            token.actor.startRound(combat);
-        }
-    }
-    else if (combat.current.round < combat.previous.round)
-    {
-        for (let token of combat.combatants)
-        {
-            if (!token.actor) continue;
-            token.actor.undoRound(combat);
-        }
-    }
-    else if (combat.current.turn > combat.previous.turn)
-    {
-        TurnUpdateMessage(actor, "Turn Start");
-    }
-}
-
-export function forceModeRefresh()
-{
-    switch (game.lightbearer.mode)
-    {
-        case game.lightbearer.MOVEMENT_MODE:
-            game.lightbearer.forceMovementModeRefresh()
-        break;
-        case game.lightbearer.STANDARD_MODE:
-            game.lightbearer.forceStandardModeRefresh()
-        break;
-    }
-}
-
-export function forceStandardModeRefresh()
-{
-    // Rename all actors to their real names.
-    for (let actor of game.actors.entities)
-    {
-        for (let token of actor.getActiveTokens())
-        {
-            token.update({
-                name: actor.name,
-                displayName: TOKEN_DISPLAY_MODES.HOVER
-            });
-        }
-    }
-}
-
-export function forceMovementModeRefresh()
-{
-    // Get current scene
-    const scene = game.scenes.get(game.user.viewedScene);
-
-    // Calculate the minimum distance traveled of all actors
-    const actors = game.actors.entities.filter(a => a.isPC && a.getActiveTokens().length !== 0);
-
-    let minimumDistance = Number.MAX_SAFE_INTEGER;
-    for (let actor of actors)
-    {
-        minimumDistance = Math.min(minimumDistance, actor.distance);
+        return;
     }
 
-    // Reduce all actor distances by the common travel distance, then
-    // re-render their names.
-    for (let actor of actors)
+    if (update.round)
     {
-        actor.distance -= minimumDistance;
-        let distance = Math.round(actor.distance / scene.data.grid * scene.data.gridDistance);
-        for (let token of actor.getActiveTokens())
-        {
-            token.update({
-                name: `📐 ${distance} ${scene.data.gridUnits}`
-            });
-        }
+        roundAdvance(combat, update.round);
+        turnAdvance(combat, update.turn);
     }
-}
-
-export function onUpdateToken(scene, token)
-{
-    if (!game.user.isGM) return;
-    if (!token.actorId) return;
-    if (game.lightbearer.mode !== game.lightbearer.MOVEMENT_MODE) return;
-
-    // Make sure the token moved
-    const actor = game.actors.get(token.actorId);
-    if (actor.px == token.x && actor.py == token.y) return;
-
-    // Update the moved actor
-    if (actor.px === null) actor.px = token.x;
-    if (actor.py === null) actor.py = token.y;
-
-    actor.distance += pointDistance(actor.px, actor.py, token.x, token.y);
-    actor.px = token.x;
-    actor.py = token.y;
-
-    // Calculate the minimum distance traveled of all actors
-    const actors = game.actors.entities.filter(a => a.isPC && a.getActiveTokens().length !== 0);
-
-    let minimumDistance = Number.MAX_SAFE_INTEGER;
-    for (let actor of actors)
+    else
     {
-        minimumDistance = Math.min(minimumDistance, actor.distance);
+        turnAdvance(combat, update.turn);
     }
 
-    // Reduce all actor distances by the common travel distance, then
-    // re-render their names.
-    for (let actor of actors)
-    {
-        actor.distance -= minimumDistance;
-        let distance = Math.round(actor.distance / scene.data.grid * scene.data.gridDistance);
-        for (let token of actor.getActiveTokens())
-        {
-            token.update({
-                name: `📐 ${distance} ${scene.data.gridUnits}`
-            });
-        }
-    }
+    game.lightbearer.combatant = combat.combatant.token.name;
 }

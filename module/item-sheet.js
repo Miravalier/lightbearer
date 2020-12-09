@@ -4,14 +4,35 @@
  */
 export class LightbearerItemSheet extends ItemSheet {
 
+    storeValue(path, value) {
+        if (!value)
+        {
+            value = "";
+        }
+        let newFieldId = "_" + randomID(16);
+        let newField = document.createElement("div");
+        newField.innerHTML = `<input class="invisible" type="text" name="${path.replace('$id', newFieldId)}" value="${value}"/>`;
+        newField = newField.children[0];
+        this.form.appendChild(newField);
+    }
+
+    deleteValue(container_path, id) {
+        const updates = {_id: this.object._id};
+        const removal_ids = {};
+        removal_ids[`-=${id}`] = null;
+        updates[container_path] = removal_ids;
+        this.object.update(updates);
+    }
+
+
     /** @override */
 	static get defaultOptions() {
 	    return mergeObject(super.defaultOptions, {
 			classes: ["lightbearer", "sheet", "item"],
-			template: "systems/lightbearer/templates/item-sheet.html",
+			template: "systems/lightbearer/html/item-sheet.html",
 			width: 520,
 			height: 480,
-            tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description"}]
+            tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "usage"}]
 		});
     }
 
@@ -26,94 +47,67 @@ export class LightbearerItemSheet extends ItemSheet {
     /* -------------------------------------------- */
 
     /** @override */
-    setPosition(options={}) {
-        const position = super.setPosition(options);
-        const sheetBody = this.element.find(".sheet-body");
-        const bodyHeight = position.height - 192;
-        sheetBody.css("height", bodyHeight);
-        return position;
-    }
-
-    /* -------------------------------------------- */
-
-    /** @override */
 	activateListeners(html) {
         super.activateListeners(html);
 
         // Everything below here is only needed if the sheet is editable
         if (!this.options.editable) return;
 
-        // Add or Remove Attribute
-        html.find(".template").on("click", ".template-control", this._onClickAttributeControl.bind(this));
-    }
+        html.find(".add-target-button").click(async ev => {
+            const updates = {};
+            updates[`data.targets._${randomID(16)}`] = {
+                "type": "None",
+                effects: {}
+            };
+            this.object.update(updates)
+            await this._onSubmit(ev);
+        });
 
-    /* -------------------------------------------- */
+        html.find(".remove-target-button").click(async ev => {
+            const target = ev.target.closest(".target");
+            this.deleteValue("data.targets", target.dataset.key);
+            target.parentElement.removeChild(target);
+            await this._onSubmit(ev);
+        });
 
-    /**
-     * Listen for click events on an attribute control to modify the composition of attributes in the sheet
-     * @param {MouseEvent} event        The originating left click event
-     * @private
-     */
-    async _onClickAttributeControl(event) {
-        event.preventDefault();
-        const button = event.currentTarget;
-        const action = button.dataset.action;
-        const template = this.object.data.data.template;
-        const form = this.form;
+        html.find(".add-effect-button").click(async ev => {
+            const target = ev.target.closest(".target");
+            const updates = {};
+            updates[`data.targets.${target.dataset.key}.effects._${randomID(16)}`] = {
+                "type": "Text"
+            };
+            this.object.update(updates)
+            await this._onSubmit(ev);
+        });
 
-        // Add new attribute
-        if ( action === "create" ) {
-            let newFieldId = "_" + randomID(16);
-            let newField = document.createElement("div");
-            newField.innerHTML = `<input type="text" name="data.template.${newFieldId}.label" value="Item"/>`;
-            newField = newField.children[0];
-            form.appendChild(newField);
-            await this._onSubmit(event);
-        }
-
-        // Remove existing attribute
-        else if ( action === "delete" ) {
-            const li = button.closest(".template");
-            li.parentElement.removeChild(li);
-            await this._onSubmit(event);
-        }
+        html.find(".remove-effect-button").click(async ev => {
+            const effectList = ev.target.closest(".effect-list");
+            const effect = ev.target.closest(".effect");
+            this.deleteValue(
+                `data.targets.${effectList.dataset.key}.effects`,
+                effect.dataset.key
+            );
+            effect.parentElement.removeChild(effect);
+            await this._onSubmit(ev);
+        });
     }
 
     /* -------------------------------------------- */
 
     /** @override */
+    /*
     _updateObject(event, formData) {
-        const expanded = expandObject(formData);
+        return this.object.update(formData);
+    }
+    */
 
-        // If no data exists, fallback to standard behaviour
-        if (!expanded.data)
-        {
-            console.log("Falling back on item edit, no data.");
-            return super._updateObject(event, formData);
-        }
-
-        if (!expanded.data.template)
-        {
-            expanded.data.template = {};
-        }
-
-        // Remove attributes which are no longer used
-        const template = expanded.data.template;
-        for ( let k of Object.keys(this.object.data.data.template) ) {
-          if ( !template.hasOwnProperty(k) ) template[`-=${k}`] = null;
-        }
-
-        // Create new update object
-        let updatedData = {_id: this.object._id, "data.template": template};
-        for (let [key, value] of Object.entries(formData).filter(e => !e[0].startsWith("data.template")))
-        {
-            if (!key.startsWith("data.template"))
-            {
-                updatedData[key] = value;
-            }
-        }
-
-        // Update the Item
-        return this.object.update(updatedData);
+    static get defaultOptions() {
+        return mergeObject(super.defaultOptions, {
+            classes: ["lightbearer", "sheet", "item"],
+            template: "systems/lightbearer/html/item-sheet.html",
+            width: 520,
+            height: 480,
+            tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description_tab"}]
+        });
     }
 }

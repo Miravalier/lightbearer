@@ -1,4 +1,4 @@
-import { ChatTemplate, ErrorMessage } from "./chat.js";
+import * as chat from "./chat.js";
 
 const ATTRIBUTES = ["agility", "endurance", "power", "charisma", "memory", "perception"];
 const STATS = ["physique", "cunning", "total"];
@@ -170,7 +170,7 @@ export class LightbearerActor extends Actor {
 
         let actions = this.data.data.actions.value;
         if (actions <= 0) {
-            ErrorMessage("Not enough actions.");
+            chat.ErrorMessage("Not enough actions.");
             return false;
         }
         else {
@@ -185,7 +185,7 @@ export class LightbearerActor extends Actor {
 
         let reactions = this.data.data.reactions.value;
         if (reactions <= 0) {
-            ErrorMessage("Not enough reactions.");
+            chat.ErrorMessage("Not enough reactions.");
             return false;
         }
         else {

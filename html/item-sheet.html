@@ -1,0 +1,146 @@
+<form class="{{cssClass}}" autocomplete="off">
+    <header class="sheet-header">
+        <div class="sheet-header lightbearer">
+            <div class="row">
+                <span class="sheet-type">{{item.type}}</span>
+            <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+            </div>
+            <div class="row">
+                {{#ifeq item.type "ability"}}
+                    <div class="field">
+                        <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg"
+                            title="Action" width="24" height="24"/>
+                        <input type="checkbox" name="data.action" {{checked data.action}}/>
+                    </div>
+                    <div class="field">
+                        <img class="ability-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg"
+                            title="Reaction" width="24" height="24"/>
+                        <input type="checkbox" name="data.reaction" {{checked data.reaction}}/>
+                    </div>
+                    {{#if data.reaction}}
+                        <div class="field">
+                            <img class="ability-icon cooldown" src="systems/lightbearer/resources/cooldown_icon.svg"
+                                title="Cooldown" width="24" height="24"/>
+                            <input type="checkbox" name="data.cooldown" {{checked data.cooldown}}/>
+                        </div>
+                    {{/if}}
+                {{/ifeq}}
+            </div>
+        </div>
+    </header>
+
+    {{!-- Sheet Tab Navigation --}}
+    <nav class="sheet-tabs tabs" data-group="primary">
+        <a class="item description" data-tab="description">Description</a>
+        <a class="item" data-tab="usage">Usage</a>
+    </nav>
+
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
+        {{!-- Description Tab --}}
+        <div class="tab" data-group="primary" data-tab="description">
+            {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+        </div>
+
+        {{!-- Usage Tab --}}
+        <div class="tab" data-group="primary" data-tab="usage">
+            <header class="template-header flexrow">
+                <span class="template-label">Targets</span>
+                <a class="add-target-button"><i class="fas fa-plus"></i></a>
+            </header>
+
+            <div class="target-list">
+            {{#each data.targets as |target tkey|}}
+                <div class="target" data-key="{{tkey}}">
+                    <div class="field">
+                        <span>Target</span>
+                        <select name="data.targets.{{tkey}}.type">
+                        {{#select target.type}}
+                            <option value="None">None</option>
+                            <option value="Creature">Creature</option>
+                            <option value="Group">Group</option>
+                            <option value="Point">Point</option>
+                            <option value="Sphere">Sphere</option>
+                            <option value="Ray">Ray</option>
+                            <option value="Cone">Cone</option>
+                            <option value="Close Sphere">Close Sphere</option>
+                            <option value="Close Ray">Close Ray</option>
+                            <option value="Close Cone">Close Cone</option>
+                        {{/select}}
+                        </select>
+                    </div>
+
+                    {{#ifoneof target.type "Creature,Group,Point,Sphere,Ray,Cone"}}
+                    <div class="field">
+                        <span>Range</span>
+                        <input class="range" type="number"
+                            name="data.targets.{{tkey}}.range"
+                            value="{{target.range}}"/>
+                    </div>
+                    {{/ifoneof}}
+                    {{#ifoneof target.type "Sphere,Close Sphere"}}
+                    <div class="field">
+                        <span>Radius</span>
+                        <input class="radius" type="number"
+                            name="data.targets.{{tkey}}.radius"
+                            value="{{target.radius}}"/>
+                    </div>
+                    {{/ifoneof}}
+                    {{#ifoneof target.type "Ray,Cone,Close Ray,Close Cone"}}
+                    <div class="field">
+                        <span>Length</span>
+                        <input class="length" type="number"
+                            name="data.targets.{{tkey}}.length"
+                            value="{{target.length}}"/>
+                    </div>
+                    {{/ifoneof}}
+
+                    <a class="add-effect-button"><i class="fas fa-plus"></i></a>
+                    <a class="remove-target-button"><i class="fas fa-trash"></i></a>
+                </div>
+                <div class="effect-list" data-key="{{tkey}}">
+                {{#each target.effects as |effect ekey|}}
+                    <div class="effect" data-key="{{ekey}}">
+                        <select name="data.targets.{{tkey}}.effects.{{ekey}}.type">
+                        {{#select effect.type}}
+                            <option value="Text">Text</option>
+                            <option value="Check">Check</option>
+                            <option value="Opposed Check">Opposed Check</option>
+                            <option value="Damage">Damage</option>
+                            <option value="Healing">Healing</option>
+                        {{/select}}
+                        </select>
+
+                        {{#ifoneof effect.type "Check,Opposed Check"}}
+                            <select name="data.targets.{{tkey}}.effects.{{ekey}}.stat">
+                            {{#select effect.stat}}
+                                <option value="physique">Physique</option>
+                                <option value="agility">Agility</option>
+                                <option value="endurance">Endurance</option>
+                                <option value="power">Power</option>
+                                <option value="cunning">Cunning</option>
+                                <option value="charisma">Charisma</option>
+                                <option value="memory">Memory</option>
+                                <option value="perception">Perception</option>
+                                <option value="artifice">Artifice</option>
+                                <option value="melee">Melee Combat</option>
+                                <option value="ranged">Ranged Combat</option>
+                                <option value="spellwork">Spellwork</option>
+                                <option value="stealth">Stealth</option>
+                            {{/select}}
+                            </select>
+                        {{else}}
+                            <input class="formula" type="text"
+                                name="data.targets.{{tkey}}.effects.{{ekey}}.formula"
+                                value="{{effect.formula}}"/>
+                        {{/ifoneof}}
+
+                        <a class="remove-effect-button"><i class="fas fa-trash"></i></a>
+                    </div>
+                {{/each}}
+                </div>
+            {{/each}}
+            </div>
+        </div>
+    </section>
+</form>

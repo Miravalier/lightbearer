@@ -1,106 +1,39 @@
-.lightbearer {
-    /* Sheet Tabs */
-    /* Items List */
-    /* Attributes */
+nav.sheet-tabs {
+    line-height: 40px;
+    height: 40px;
 }
-.lightbearer .window-content {
-    height: 100%;
-    padding: 5px;
-    overflow-y: hidden;
-}
-.lightbearer .sheet-header {
-    overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    margin-bottom: 10px;
-}
-.lightbearer.actor .sheet-header {
-    height: 154px;
-}
-.lightbearer.item .sheet-header {
-    height: 100px;
-}
-.lightbearer .sheet-header .resource img {
-    border: none;
-    margin: 0;
-    height: 28px;
-    width: 28px;
-    flex: none;
-}
-.lightbearer .sheet-header span.sheet-type {
-    line-height: 48px;
-    height: 48px;
-    font-weight: bold;
-    font-size: 16px;
-}
-.lightbearer .sheet-header img {
+.sheet .lightbearer.sheet-header img.ability-icon {
+    flex: 0 0 24px;
     height: 24px;
+    width: 24px;
+    margin: 0px;
 }
-.lightbearer .sheet-header .profile-img {
-    flex: 0 0 100px;
-    height: 100px;
-    margin-right: 10px;
-    border: none;
-    object-fit: contain;
+.sheet .lightbearer.sheet-header h1.charname input {
+    height: 32px;
 }
-.lightbearer.actor .sheet-header .header-fields {
-    flex: 1;
-    height: 154px;
-}
-.lightbearer.item .sheet-header .header-fields {
-    flex: 1;
-    height: 100px;
-}
-.lightbearer.item .sheet-header .header-input-list {
+.sheet .lightbearer.sheet-header .row {
     display: flex;
-    flex-flow: row wrap;
-    justify-content: space-evenly;
-    height: 48px;
-}
-.lightbearer.item .sheet-header .header-input {
-    display: flex;
-    flex-flow: row wrap;
+    flex-flow: row nowrap;
+    justify-content: space-around;
     align-items: center;
-    height: 48px;
 }
-.lightbearer .sheet-header h1.charname {
-    height: 50px;
-    padding: 0px;
-    margin: 5px 0;
-    border-bottom: 0;
-}
-.lightbearer .sheet-header h1.charname input {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-}
-.lightbearer .resource {
-    width: 50%;
-    margin-top: 10px;
-    float: left;
-    text-align: center;
-    line-height: 28px;
+.sheet .lightbearer.sheet-header .field {
     display: flex;
-    flex-flow: row wrap;
-    align-items: center;
+    flex-flow: row nowrap;
     justify-content: center;
+    align-items: center;
+    margin: 0px 10px;
 }
-.lightbearer .resource > * {
-    margin: 2px;
-}
-.lightbearer .resource input {
-    width: 80px;
-    height: 28px;
+.sheet .lightbearer.sheet-header .sheet-type {
+    font-weight: bold;
 }
 .lightbearer .tabs {
+    line-height: 40px;
     height: 40px;
     border-top: 1px solid #AAA;
     border-bottom: 1px solid #AAA;
 }
 .lightbearer .tabs .item {
-    line-height: 40px;
     font-weight: bold;
 }
 .lightbearer .tabs .item.active {
@@ -354,9 +287,77 @@ img.lightbearer.emoji {
     vertical-align: middle;
     border: none;
 }
-#chat-controls div.roll-type-select select {
+#chat-controls .roll-type-select,
+#chat-controls .chat-control-icon {
     display: none;
 }
-#chat-controls div.roll-type-select i {
-    display: none;
+
+.effect-list {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.effect-list .effect {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+
+.effect-list .effect input,
+.effect-list .effect select {
+    margin: 4px;
+}
+
+.target-list {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.target-list .target {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    margin: 5px 0px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.target-list .target .field {
+    margin: 6px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.target-list .target i,
+.target-list .target .field input,
+.target-list .target .field select {
+    margin: 4px;
+    flex: 1;
+}
+
+input.formula {
+    font-family: monospace;
+}
+
+.sheet .sheet-body,
+.sheet .sheet-body .tab,
+.sheet .sheet-body .tab .editor,
+.sheet .sheet-body .tab .editor-content
+{
+    height: 100%;
+}
+
+.sheet .tox.tox-tinymce {
+    height: 100%;
 }

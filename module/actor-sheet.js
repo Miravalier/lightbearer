@@ -8,7 +8,7 @@ export class LightbearerActorSheet extends ActorSheet {
 	static get defaultOptions() {
 	    return mergeObject(super.defaultOptions, {
   	        classes: ["lightbearer", "sheet", "actor"],
-  	        template: "systems/lightbearer/templates/actor-sheet.html",
+  	        template: "systems/lightbearer/html/actor-sheet.html",
             width: 600,
             height: 600,
             tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "abilities"}]
