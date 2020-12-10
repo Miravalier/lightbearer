@@ -62,6 +62,11 @@ Hooks.once("init", async function() {
         return options.inverse(this);
     });
 
+    Handlebars.registerHelper('ifnoneof', function (a, b, options) {
+        if (b.split(',').indexOf(a) === -1) { return options.fn(this); }
+        return options.inverse(this);
+    });
+
     Handlebars.registerHelper('ifeq', function (a, b, options) {
         if (a == b) { return options.fn(this); }
         return options.inverse(this);

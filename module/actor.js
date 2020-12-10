@@ -87,53 +87,6 @@ export class LightbearerActor extends Actor {
 
     // Actor Defaults
     async setDefaults(uid) {
-        // Make sure only the GM sets values
-        if (!game.user.isGM) return;
-        const user = game.users.get(uid);
-        console.log("New Character by " + user.name);
-
-        // Wait for the sheet to compile
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Set player defaults
-        if (this.isPC)
-        {
-            let permissions = {'default': ENTITY_PERMISSIONS.LIMITED};
-            permissions[user.id] = ENTITY_PERMISSIONS.OWNER;
-            this.update({
-                "permissions": permissions,
-                "name": `${user.name}`,
-                "token.name": `${user.name}`,
-                "token.actorLink": true,
-                "token.displayBars": TOKEN_DISPLAY_MODES.HOVER,
-                "token.displayName": TOKEN_DISPLAY_MODES.HOVER,
-                "token.disposition": TOKEN_DISPOSITIONS.FRIENDLY,
-                "token.dimLight": 30,
-                "token.brightLight": 15,
-                "token.vision": true,
-                "token.bar1": {"attribute": "health"},
-                "token.bar2": {"attribute": "reactions"},
-                "img": "Players/default_image.svg",
-                "token.img": "Players/default_image.svg"
-            });
-        }
-        // Set npc defaults
-        else
-        {
-            this.update({
-                "permissions.default": ENTITY_PERMISSIONS.NONE,
-                "name": "New Character",
-                "token.name": "New Character",
-                "token.actorLink": false,
-                "token.displayBars": TOKEN_DISPLAY_MODES.OWNER_HOVER,
-                "token.displayName": TOKEN_DISPLAY_MODES.HOVER,
-                "token.disposition": TOKEN_DISPOSITIONS.FRIENDLY,
-                "token.bar1": {"attribute": "health"},
-                "token.bar2": {"attribute": "reactions"},
-                "img": "Entities/default_image.svg",
-                "token.img": "Entities/default_image.svg"
-            });
-        }
     }
 
     // Called when a new round begins

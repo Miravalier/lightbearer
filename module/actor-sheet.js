@@ -53,10 +53,6 @@ export class LightbearerActorSheet extends ActorSheet {
     activateListeners(html) {
         super.activateListeners(html);
 
-        // TODO
-        // Float to top if clicked
-        console.log(html);
-
         // Everything below here is only needed if the sheet is editable
         if (!this.options.editable) return;
 

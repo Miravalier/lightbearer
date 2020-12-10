@@ -1,5 +1,33 @@
 import { distance, closer, farther } from "./points.js";
 
+export async function createTemplate(data)
+{
+    if (data === undefined) data = {};
+    if (data.x === undefined) data.x = 0;
+    if (data.y === undefined) data.y = 0;
+    if (data.shape === undefined) data.shape = 'circle';
+    if (data.length === undefined) data.length = 15;
+    if (data.color === undefined) data.color = game.user.color;
+    if (data.angle === undefined) data.angle = 360;
+    if (data.direction === undefined) data.direction = 0;
+    if (data.width === undefined) data.width = 5;
+
+    const scene = game.scenes.get(game.user.viewedScene);
+    return await scene.createEmbeddedEntity("MeasuredTemplate", {
+        t: data.shape,
+        user: game.user.id,
+        x: data.x + 50,
+        y: data.y + 50,
+        angle: data.angle,
+        width: data.width,
+        distance: data.length,
+        direction: data.direction,
+        borderColor: "#000000",
+        fillColor: data.color,
+        texture: data.texture,
+    });
+}
+
 export async function selectGroup(prompt)
 {
     if (!prompt) prompt = "Select any number of tokens, then click the board.";
@@ -36,7 +64,7 @@ export async function selectGroup(prompt)
         token.setTarget(false);
         token.refresh();
     });
-    return selectedTokens;
+    return Array.from(selectedTokens);
 }
 
 
@@ -53,7 +81,7 @@ export async function selectCreature(prompt)
 }
 
 
-export async function selectSquare(prompt)
+export async function selectPosition(prompt)
 {
     if (!prompt) prompt = "Click on a square.";
     document.body.style.cursor = "crosshair";
@@ -66,28 +94,27 @@ export async function selectSquare(prompt)
 }
 
 
-export async function selectCone(length, angle, color)
+export async function selectSquare(size)
 {
-    return await selectShape({shape: "cone", angle: angle, color: color});
-}
-
-
-export async function selectRay(length, width, color)
-{
-    return await selectShape({shape: "ray", width: width, color: color});
-}
-
-
-export async function selectCircle(radius, color)
-{
-    return await selectFixedShape({shape: "circle", length: radius, color: color});
+    if (size === undefined) size = 5;
+    return selectFixedShape(
+        {
+            shape: "ray",
+            width: size,
+            length: size,
+        },
+        {x: -size * 10, y: 0}
+    );
 }
 
 
 export async function selectFixedShape(data)
 {
-    if (!data.length) data.length = 15;
-    if (!data.color) data.color = game.user.color;
+    if (data.length === undefined) data.length = 15;
+    if (data.color === undefined) data.color = game.user.color;
+    if (data.offset === undefined) data.offset = {x: 0, y: 0};
+    if (data.offset.x === undefined) data.offset.x = 0;
+    if (data.offset.y === undefined) data.offset.y = 0;
     
     // Find the current scene
     const scene = game.scenes.get(game.user.viewedScene);
@@ -100,6 +127,7 @@ export async function selectFixedShape(data)
         y: 50,
         angle: 360,
         distance: data.length,
+        width: data.width,
         direction: 0,
         borderColor: "#000000",
         fillColor: data.color,
@@ -109,12 +137,14 @@ export async function selectFixedShape(data)
     const mouse = canvas.app.renderer.plugins.interaction.mouse;
     const moveInterval = setInterval(function() {
         const mousePosition = mouse.getLocalPosition(canvas.app.stage);
+        mousePosition.x += data.offset.x;
+        mousePosition.y += data.offset.y;
         moveTemplateToPosition(scene, template, mousePosition);
     }, 100);
 
     // Wait for user to click, locking in their shape selection
     document.body.style.cursor = "crosshair";
-    await new Promise(resolve => {
+    const position = await new Promise(resolve => {
         Hooks.once("clickBoard", resolve);
     });
     document.body.style.cursor = "";
@@ -128,33 +158,36 @@ export async function selectFixedShape(data)
     // Delete template
     await scene.deleteEmbeddedEntity("MeasuredTemplate", template._id);
 
-    // Return the tokens under the drawn template
-    return selected;
+    // Return the position and the tokens under the drawn template
+    return {position: position, tokens: selected};
 }
 
 
 export async function selectShape(data)
 {
     // Get default parameters set up
-    if (data.shape == "cone" && !data.angle) data.angle = 100;
-    if (data.shape == "ray" && !data.width) data.width = 5;
-    if (!data.length) data.length = 15;
-    if (!data.color) data.color = game.user.color;
+    if (data.shape == "cone" && data.angle === undefined) data.angle = 100;
+    if (data.shape == "ray" && data.width === undefined) data.width = 5;
+    if (data.length === undefined) data.length = 15;
+    if (data.color === undefined) data.color = game.user.color;
+    if (data.origin === undefined) {
+        data.origin = await selectPosition(`Place the ${data.shape}'s origin.`);
+    }
+    else {
+        data.origin = {x: data.origin.x, y: data.origin.y};
+    }
+    data.origin.x += 50;
+    data.origin.y += 50;
 
     // Find the current scene
     const scene = game.scenes.get(game.user.viewedScene);
-
-    // Find shape origin
-    const origin = await selectSquare(`Place the ${data.shape}'s origin.`);
-    origin.x += 50;
-    origin.y += 50;
 
     // Create shape template
     const template = await scene.createEmbeddedEntity("MeasuredTemplate", {
         t: data.shape,
         user: game.user.id,
-        x: origin.x,
-        y: origin.y,
+        x: data.origin.x,
+        y: data.origin.y,
         angle: data.angle,
         distance: data.length,
         width: data.width,
@@ -172,7 +205,7 @@ export async function selectShape(data)
 
     // Wait for user to click, locking in their shape selection
     document.body.style.cursor = "crosshair";
-    await new Promise(resolve => {
+    const position = await new Promise(resolve => {
         Hooks.once("clickBoard", resolve);
     });
     document.body.style.cursor = "";
@@ -187,7 +220,7 @@ export async function selectShape(data)
     await scene.deleteEmbeddedEntity("MeasuredTemplate", template._id);
 
     // Return the tokens under the drawn template
-    return selected;
+    return {position: position, tokens: selected};
 }
 
 
@@ -207,7 +240,30 @@ function onHoverToken(token, selected)
 }
 
 
-async function getTokensUnderTemplate(scene, template)
+export function getTokensAtPosition(position)
+{
+        if (game.combat)
+        {
+            return game.combat.combatants.filter(combatant => {
+                return distance(template, {x: combatant.token.x + 50, y: combatant.token.y + 50}) <= template.distance * 20;
+            });
+        }
+        else
+        {
+            const scene = game.scenes.get(game.user.viewedScene);
+            return scene.getEmbeddedCollection("Token").filter(token => {
+                return distance(template, {x: token.x + 50, y: token.y + 50}) <= template.distance * 20;
+                return (
+                    Math.floor(token.x / 100) * 100 == position.x
+                    &&
+                    Math.floor(token.y / 100) * 100 == position.y
+                )
+            });
+        }
+}
+
+
+export function getTokensUnderTemplate(scene, template)
 {
     if (template.t == "circle")
     {

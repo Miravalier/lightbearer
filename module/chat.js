@@ -398,7 +398,7 @@ async function onChatTemplateRollClicked(ev)
         render: html => {
             html.on('click', '.roll-controls .add', ev => {
                 message.update({
-                    content: message.data.content + chatTemplateRow(
+                    content: message.data.content + templateRow(
                         resultData.label, resultData.formula
                     )
                 });
@@ -486,14 +486,14 @@ function oxfordList(array) {
 }
 
 
-export function chatTemplateDescription(source)
+export function templateDescription(source)
 {
     let description = source.data.data.description;
     return (`<div class="chat-template description">${description}</div>`);
 }
 
 
-export function chatTemplateUsage(source, targetNames)
+export function templateUsage(source, targetNames)
 {
     const templates = Object.values(source.data.data.usage_phrases);
     if (templates.length == 0) return "";
@@ -524,7 +524,7 @@ export function chatTemplateUsage(source, targetNames)
 }
 
 
-export async function chatTemplateRolls(source, targetNames)
+export async function templateRolls(source, targetNames)
 {
     const rows = [];
     let target = null;
@@ -537,7 +537,7 @@ export async function chatTemplateRolls(source, targetNames)
     fields = Object.values(template).filter(row => row.target_type === "None");
     for (const field of fields)
     {
-        rows.push(chatTemplateRow(field.label, field.formula, rollData));
+        rows.push(templateRow(field.label, field.formula, rollData));
     }
 
     // Roll each Individual Target row
@@ -565,7 +565,7 @@ export async function chatTemplateRolls(source, targetNames)
                 rollData["target_" + key] = targetRollData[key];
             });
             // Create output line
-            rows.push(chatTemplateRow(field.label, field.formula, rollData));
+            rows.push(templateRow(field.label, field.formula, rollData));
         }
     }
 
@@ -593,7 +593,7 @@ export async function chatTemplateRolls(source, targetNames)
                     rollData["target_" + key] = targetRollData[key];
                 });
                 // Roll the row
-                rows.push(chatTemplateRow(target.name + " " + row.label, row.formula, rollData));
+                rows.push(templateRow(target.name + " " + row.label, row.formula, rollData));
             }
         }
     }
@@ -602,7 +602,7 @@ export async function chatTemplateRolls(source, targetNames)
 }
 
 
-export function sendTemplate(content)
+export function send(content)
 {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
@@ -614,7 +614,7 @@ export function sendTemplate(content)
 }
 
 
-export function chatTemplateRow(label, formula, rollData)
+export function templateRow(label, formula, rollData)
 {
     if (!rollData) rollData = {};
     if (formula) {
@@ -660,28 +660,13 @@ export function chatTemplateRow(label, formula, rollData)
             formula: roll.formula,
             total: roll.total,
             results: resultData,
-            crit: crit
+            crit: crit,
+            fail: fail,
         }));
         let color = "";
         if (label.toLowerCase().indexOf("damage") !== -1)
             color = "red";
-        else if (label.toLowerCase().indexOf("attack") !== -1)
-        {
-            color = "yellow";
-            if (crit) {
-                color += " crit";
-            }
-            else if (fail) {
-                color += " fail";
-            }
-        }
-        else if (label.toLowerCase().indexOf("ac") !== -1)
-            color = "blue";
-        else if (label.toLowerCase().indexOf("dc") !== -1)
-            color = "green";
-        else if (label.toLowerCase().indexOf("saving") !== -1)
-            color = "green";
-        else if (label.toLowerCase().indexOf("save") !== -1)
+        if (label.toLowerCase().indexOf("healing") !== -1)
             color = "green";
         return dedent(`
             <div class="chat-template item ${color}" data-row-id="${randomID(16)}">
@@ -702,7 +687,7 @@ export function chatTemplateRow(label, formula, rollData)
 }
 
 
-export function chatTemplateHeader(source)
+export function templateHeader(source)
 {
     return `<div class="chat-template caption">${source.name}</div>`;
 }

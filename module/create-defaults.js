@@ -47,7 +47,6 @@ export function preCreateActor(data, options, userId)
     data.img = "Players/default_image.svg";
     if (data.type === "Character")
     {
-        console.log(data);
         data.permission = {'default': ENTITY_PERMISSIONS.LIMITED};
     }
 }

@@ -159,6 +159,12 @@ export function autoMove(actorId, tokenId, criterion)
 export function autoAttack(actorId, itemCriterion, targetCriterion)
 {
     const actor = game.actors.get(actorId);
+    const token = actor.getActiveTokens().find(token => token.id == tokenId);
+    if (!actor || !token)
+    {
+        chat.ErrorMessage("Failed to resolve token or actor.");
+    }
+
 	const options = Array.from(actor.getEmbeddedCollection("OwnedItem").filter(itemCriterion));
 	const attack = actor.getOwnedItem(options[Math.floor(Math.random() * options.length)]._id);
 
@@ -166,7 +172,7 @@ export function autoAttack(actorId, itemCriterion, targetCriterion)
 	let target = null;
 	let bestMetric = null;
 	potentialCombatants.forEach(combatant => {
-		const metric = (combatant.token.x - currentToken.x)**2 + (combatant.token.y - currentToken.y)**2;
+		const metric = (combatant.token.x - token.x)**2 + (combatant.token.y - token.y)**2;
 		if (target === null || metric < bestMetric) {
             target = combatant;
             bestMetric = metric;
