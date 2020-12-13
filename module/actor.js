@@ -1,8 +1,5 @@
 import * as chat from "./chat.js";
 
-const ATTRIBUTES = ["agility", "endurance", "power", "charisma", "memory", "perception"];
-const STATS = ["physique", "cunning", "total"];
-
 /**
  * Base Actor class
  * @extends {Actor}
@@ -11,67 +8,59 @@ export class LightbearerActor extends Actor {
 
     /** @override */
     getRollData() {
+        const actorData = this.data.data;
         const data = super.getRollData();
         data['health'] = data.health.value;
         data['maxHealth'] = data.health.max;
         data['hp'] = data.health.value;
         data['maxHp'] = data.health.max;
-        data['energy'] = data.energy.value;
-        data['maxEnergy'] = data.energy.max;
+        data['mana'] = data.mana.value;
+        data['maxMana'] = data.mana.max;
         data['actions'] = data.actions.value;
         data['maxActions'] = data.actions.max;
         data['reactions'] = data.reactions.value;
         data['maxReactions'] = data.reactions.max;
-        for (let attribute of ATTRIBUTES)
-        {
-            data[attribute] = data.attributes[attribute].value;
-        }
-        for (let stat of STATS)
-        {
-            data[stat] = data.stats[stat].value;
-        }
-        for (let skill of Object.keys(data.skills))
-        {
-            data[skill] = data.skills[skill].value;
-        }
-        return data;
-    }
 
-    /** @override */
-    prepareData() {
-        // Retrieve data
-        super.prepareData();
-        const actorData = this.data;
-        const data = actorData.data;
-
-        // Skip non-character actors
-        if (actorData.type !== "character")
-            return;
-
-        // Set derived attributes
-        data.stats.physique.value = Math.round((
-            Number(data.attributes.agility.value)
-            + Number(data.attributes.endurance.value)
-            + Number(data.attributes.power.value)
-        ) / 3);
-        data.stats.cunning.value = Math.round((
-            Number(data.attributes.charisma.value)
-            + Number(data.attributes.memory.value)
-            + Number(data.attributes.perception.value)
-        ) / 3);
-        data.stats.total.value = (
-            Number(data.attributes.agility.value)
-            + Number(data.attributes.endurance.value)
-            + Number(data.attributes.power.value)
-            + Number(data.attributes.charisma.value)
-            + Number(data.attributes.memory.value)
-            + Number(data.attributes.perception.value)
+        for (const [stat, value] of Object.entries(actorData.stats))
+        {
+            data[stat] = parseInt(value / 2);
+        }
+        data['physique'] = Math.round(
+            (
+                actorData.stats.agility
+                + actorData.stats.endurance
+                + actorData.stats.power
+            ) / 6 // Half of average
         );
+        data['cunning'] = Math.round(
+            (
+                actorData.stats.charisma
+                + actorData.stats.memory
+                + actorData.stats.perception
+            ) / 6 // Half of average
+        );
+
+        for (const [key, skill] of Object.entries(actorData.skills))
+        {
+            let skillBonus = 0;
+            if (skill.level === "Novice") skillBonus = 2;
+            else if (skill.level === "Skilled") skillBonus = 4;
+            else if (skill.level === "Expert") skillBonus = 6;
+            else if (skill.level === "Master") skillBonus = 8;
+            else if (skill.level === "Legend") skillBonus = 10;
+
+            data[key] = skillBonus;
+            data[skill.label] = skillBonus;
+            data[key + "_level"] = skill.level;
+            data[skill.label + "_level"] = skill.level;
+        }
+
+        return data;
     }
 
     // Public extensions
     get player() {
-        if (this.isPC)
+        if (this.hasPlayerOwner)
         {
             return game.users.get(Object.keys(this.data.permission).find(p => p !== "default"));
         }
@@ -81,12 +70,11 @@ export class LightbearerActor extends Actor {
         }
     }
 
-    sendTemplate(template, buttons) {
-        new ChatTemplate(this, template, buttons).send()
-    }
-
-    // Actor Defaults
-    async setDefaults(uid) {
+    send(label, formula) {
+        chat.send(chat.dedent(`
+            ${chat.templateHeader(this)}
+            ${chat.templateRow(label, formula, this.getRollData())}
+        `));
     }
 
     // Called when a new round begins
@@ -97,12 +85,19 @@ export class LightbearerActor extends Actor {
         if (actorData.type !== "character")
             return;
 
-        this.update({"data.actions.previous": data.actions.value});
-        this.update({"data.reactions.previous": data.reactions.value});
-        this.update({"data.actions.value": data.actions.max});
-        this.update({"data.reactions.value": data.reactions.max});
+        this.update({
+            "data.actions.previous": data.actions.value,
+            "data.reactions.previous": data.reactions.value,
+            "data.actions.value": data.actions.max,
+            "data.reactions.value": data.reactions.max,
+        });
 
-        this.items.forEach(item => item.update({"data.cooldown": false}));
+        this.items.forEach(item => {
+            if (item.data.data.cooldown)
+            {
+                item.update({"data.cooldown": false})
+            }
+        });
     }
 
     // Called when a round is reset
@@ -113,8 +108,10 @@ export class LightbearerActor extends Actor {
         if (actorData.type !== "character")
             return;
 
-        this.update({"data.actions.value": data.actions.previous});
-        this.update({"data.reactions.value": data.reactions.previous});
+        this.update({
+            "data.actions.value": data.actions.previous,
+            "data.reactions.value": data.reactions.previous,
+        });
     }
 
     useAction() {
@@ -151,7 +148,7 @@ export class LightbearerActor extends Actor {
         // Find a token of this character on the current scene
         let tokens = this.getActiveTokens();
         let scene = game.scenes.get(game.user.viewedScene);
-        let token = tokens.find(t => t.scene == scene);
+        let token = tokens.find(t => t.scene.id == scene.id);
         if (!token) return;
 
         // Pan to the token

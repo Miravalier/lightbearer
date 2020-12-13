@@ -1,16 +1,12 @@
 export function preCreateItem(data, options, userId)
 {
-    if (data.type == "Active Ability")
+    if (data.type === "Ability")
     {
         data.img = "systems/lightbearer/resources/unknown-active.png";
     }
-    else if (data.type == "Consumable")
+    else if (data.type === "Item")
     {
-        data.img = "systems/lightbearer/resources/unknown-consumable.png";
-    }
-    else if (data.type == "Passive Ability")
-    {
-        data.img = "systems/lightbearer/resources/unknown-passive.png";
+        data.img = "systems/lightbearer/resources/unknown-weapon.png";
     }
     else
     {
@@ -23,17 +19,13 @@ export function preCreateOwnedItem(actor, data, options, userId)
 {
     if (!data.img)
     {
-        if (data.type == "Active Ability")
+        if (data.type === "Ability")
         {
             data.img = "systems/lightbearer/resources/unknown-active.png";
         }
-        else if (data.type == "Consumable")
+        else if (data.type === "Item")
         {
-            data.img = "systems/lightbearer/resources/unknown-consumable.png";
-        }
-        else if (data.type == "Passive Ability")
-        {
-            data.img = "systems/lightbearer/resources/unknown-passive.png";
+            data.img = "systems/lightbearer/resources/unknown-weapon.png";
         }
         else
         {
@@ -45,7 +37,7 @@ export function preCreateOwnedItem(actor, data, options, userId)
 export function preCreateActor(data, options, userId)
 {
     data.img = "Players/default_image.svg";
-    if (data.type === "Character")
+    if (userId !== game.lightbearer.gm.id)
     {
         data.permission = {'default': ENTITY_PERMISSIONS.LIMITED};
     }
@@ -57,42 +49,49 @@ export function preCreateToken(scene, data, options, userId)
 
     data.name = actor.name;
     data.img = actor.img;
-    data.bar1 = {attribute: "hp"};
+    data.bar1 = {attribute: "health"};
     if (actor.data.data.mana.max)
     {
         data.bar2 = {attribute: "mana"};
     }
 
-    if (actor.data.type === "Character")
+    if (actor.data.data.category === "unique")
     {
         data.actorLink = true;
-        data.displayBars = TOKEN_DISPLAY_MODES.ALWAYS;
-        data.displayName = TOKEN_DISPLAY_MODES.HOVER;
-        data.disposition = TOKEN_DISPOSITIONS.FRIENDLY;
-        data.vision = true;
-
-        data.brightSight = 100;
-        data.dimSight = 100;
     }
-    else if (actor.data.type === "NPC")
+    else
     {
         data.actorLink = false;
-        data.displayBars = TOKEN_DISPLAY_MODES.OWNER;
-        data.displayName = TOKEN_DISPLAY_MODES.HOVER;
-        data.vision = false;
-        if (actor.data.data.hp.formula)
+        if (actor.data.data.health.formula)
         {
-            const roll = new Roll(actor.data.data.hp.formula, actor.getRollData());
+            const roll = new Roll(actor.data.data.health.formula, actor.getRollData());
             roll.roll();
             data.actorData = {
                 data: {
-                    hp: {
+                    health: {
                         value: roll.total,
                         max: roll.total
                     }
                 }
             };
         }
+    }
+
+    if (actor.hasPlayerOwner)
+    {
+        data.displayBars = TOKEN_DISPLAY_MODES.ALWAYS;
+        data.displayName = TOKEN_DISPLAY_MODES.HOVER;
+        data.disposition = TOKEN_DISPOSITIONS.FRIENDLY;
+        data.vision = true;
+        data.brightSight = 100;
+        data.dimSight = 100;
+    }
+    else
+    {
+        data.displayBars = TOKEN_DISPLAY_MODES.OWNER;
+        data.displayName = TOKEN_DISPLAY_MODES.HOVER;
+        data.disposition = TOKEN_DISPOSITIONS.HOSTILE;
+        data.vision = false;
     }
 
     let size = 1;

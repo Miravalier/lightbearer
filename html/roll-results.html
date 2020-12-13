@@ -1,0 +1,35 @@
+<h1>{{{label}}}</h1>
+<div class="roll-results">
+    <div class="result overview">
+        <div class="term">{{original}}</div>
+        <div class="operator">→</div>
+        <div class="term">{{formula}}</div>
+        <div class="operator">→</div>
+        {{#if modified}}
+        <div class="die term modified">{{modified}}</div>
+        {{else}}
+        <div class="die term">{{total}}</div>
+        {{/if}}
+    </div>
+    {{#each results}}
+    <div class="result">
+        <div class="formula">{{formula}}</div>
+        {{#each rolls}}
+            <div class="die {{classes}}">{{result}}</div>
+        {{/each}}
+    </div>
+    {{/each}}
+</div>
+<div class="roll-controls">
+    <a title="Zero" class="zero"><i class="fas fa-ban"></i></a>
+    <a title="+1" class="increment"><i class="fas fa-angle-up"></i></a>
+    <a title="-1" class="decrement"><i class="fas fa-angle-down"></i></a>
+    <a title="Halve" class="halve"><i class="fas fa-unlink"></i></a>
+    <a title="Double" class="double"><i class="fas fa-clone"></i></a>
+    <a title="Reset" class="reset"><i class="fas fa-undo"></i></a>
+    <span class="separator"></span>
+    <a title="Re-Roll" class="add"><i class="fas fa-plus"></i></a>
+    {{#if isGM}}
+    <a title="Delete Roll" class="delete"><i class="fas fa-trash"></i></a>
+    {{/if}}
+</div>

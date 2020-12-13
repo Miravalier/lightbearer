@@ -47,6 +47,17 @@ export class LightbearerItemSheet extends ItemSheet {
     /* -------------------------------------------- */
 
     /** @override */
+    setPosition(options={}) {
+        const position = super.setPosition(options);
+        const sheetBody = this.element.find(".sheet-body");
+        const bodyHeight = position.height - 140;
+        sheetBody.css("height", bodyHeight);
+        return position;
+    }
+
+    /* -------------------------------------------- */
+
+    /** @override */
 	activateListeners(html) {
         super.activateListeners(html);
 

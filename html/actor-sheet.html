@@ -1,44 +1,20 @@
 <form class="{{cssClass}}" autocomplete="off">
 
     {{!-- Sheet Header --}}
-    <header class="sheet-header">
-        <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
-        <div class="header-fields">
-            <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
-            <div class="resource">
-                <img src="systems/lightbearer/resources/hp_icon.svg" title="hp" width"24" height="24"/>
-                <input type="text" name="data.health.value" value="{{data.health.value}}" data-dtype="Number"/>
-                <span> / </span>
-                <input type="text" name="data.health.max" value="{{data.health.max}}" data-dtype="Number"/>
-            </div>
-            <div class="resource">
-                <img src="systems/lightbearer/resources/energy_icon.svg" title="energy" width"24" height="24"/>
-                <input type="text" name="data.energy.value" value="{{data.energy.value}}" data-dtype="Number"/>
-                <span> / </span>
-                <input type="text" name="data.energy.max" value="{{data.energy.max}}" data-dtype="Number"/>
-            </div>
-            <div class="resource">
-                <img src="systems/lightbearer/resources/action_icon.svg" title="actions" width"24" height="24"/>
-                <input type="text" name="data.actions.value" value="{{data.actions.value}}" data-dtype="Number"/>
-                <span> / </span>
-                <input type="text" name="data.actions.max" value="{{data.actions.max}}" data-dtype="Number"/>
-            </div>
-            <div class="resource">
-                <img src="systems/lightbearer/resources/reaction_icon.svg" title="reactions" width"24" height="24"/>
-                <input type="text" name="data.reactions.value" value="{{data.reactions.value}}" data-dtype="Number"/>
-                <span> / </span>
-                <input type="text" name="data.reactions.max" value="{{data.reactions.max}}" data-dtype="Number"/>
-            </div>
+    <header class="lightbearer sheet-header">
+        <div class="row">
+            <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+            <h1 class="charname">
+                <input name="name" type="text" value="{{actor.name}}" placeholder="Name"/>
+            </h1>
         </div>
     </header>
 
     {{!-- Sheet Tab Navigation --}}
     <nav class="sheet-tabs tabs" data-group="primary">
         <a class="item" data-tab="notes">Notes</a>
+        <a class="item" data-tab="stats">Stats</a>
         <a class="item" data-tab="abilities">Abilities</a>
-        <a class="item" data-tab="items">Items</a>
-        <a class="item" data-tab="attributes">Attributes</a>
-        <a class="item" data-tab="skills">Skills</a>
     </nav>
 
     {{!-- Sheet Body --}}
@@ -50,208 +26,228 @@
         </div>
 
         {{!-- Abilities Tab --}}
-        <div class="tab abilities" data-group="primary" data-tab="abilities">
-            <ol class="abilities-list">
+        <div class="tab" data-group="primary" data-tab="abilities">
+            <div class="row">
+                <div class="row">
+                    <div class="caption label">HP</div>
+                    <span class="value">{{data.health.value}}</span>
+                    <span>/</span>
+                    <span class="value">{{data.health.max}}</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="row">
+                    <div class="caption label">Mana</div>
+                    <span class="value">{{data.mana.value}}</span>
+                    <span>/</span>
+                    <span class="value">{{data.mana.max}}</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <a class="new-ability label" title="New Ability">
+                    <span>Add Ability</span>
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
+
+            <div class="abilities column">
             {{#each abilities as |ability id|}}
-                <li class="ability flexrow" data-item-id="{{ability._id}}">
-                    <img class="ability-icon" src="{{ability.img}}" title="{{ability.name}}" width="24" height="24"/>
+                <div class="ability" data-item-id="{{ability._id}}">
                     {{#if ability.data.cooldown}}
-                        <img class="ability-icon cooldown" src="systems/lightbearer/resources/cooldown_icon.svg" title="Cooldown" width="24" height="24"/>
+                        <img class="ability-icon cooldown" src="systems/lightbearer/resources/cooldown_icon.svg" title="Cooldown"/>
                     {{/if}}
                     {{#if ability.data.action}}
-                        <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg" title="Action" width="24" height="24"/>
+                        <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg" title="Action"/>
                     {{/if}}
                     {{#if ability.data.reaction}}
-                        <img class="ability-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg" title="Reaction" width="24" height="24"/>
+                        <img class="ability-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg" title="Reaction"/>
                     {{/if}}
-                    <h4 class="ability-name">{{ability.name}}</h4>
-                    <div class="ability-controls">
-                        <a class="ability-control ability-edit" title="Edit Ability"><i class="fas fa-edit"></i></a>
-                        <a class="ability-control ability-delete" title="Delete Ability"><i class="fas fa-trash"></i></a>
-                    </div>
-                </li>
+                    <a class="name">{{ability.name}}</a>
+                    <a class="control edit" title="Edit Ability">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a class="control delete" title="Delete Ability">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
             {{/each}}
-            </ol>
+            </div>
         </div>
 
-        {{!-- Items Tab --}}
-        <div class="tab items" data-group="primary" data-tab="items">
-            <ol class="items-list">
-            {{#each inventory as |item id|}}
-                <li class="item flexrow" data-item-id="{{item._id}}">
-                    <img class="item-icon" src="{{item.img}}" title="{{item.name}}" width="24" height="24"/>
-                    {{#if item.data.action}}
-                        <img class="item-icon action" src="systems/lightbearer/resources/action_icon.svg" title="Action" width="24" height="24"/>
-                    {{/if}}
-                    {{#if item.data.reaction}}
-                        <img class="item-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg" title="Reaction" width="24" height="24"/>
-                    {{/if}}
-                    <h4 class="item-name">{{item.name}}</h4>
-                    <div class="item-controls">
-                        <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
-                        <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
+        {{!-- Stats Tab --}}
+        <div class="tab" data-group="primary" data-tab="stats">
+            <div class="column">
+                <div class="row">
+                    <div class="row">
+                        <div class="caption label">HP</div>
+                        <input class="value" type="number"
+                            name="data.health.value"
+                            value="{{data.health.value}}"/>
+                        <span>/</span>
+                        <input class="value" type="number"
+                            name="data.health.max"
+                            value="{{data.health.max}}"/>
                     </div>
-                </li>
-            {{/each}}
-            </ol>
-        </div>
 
-        {{!-- Attributes Tab --}}
-        <div class="tab attributes" data-group="primary" data-tab="attributes">
-            <ul class="attributes-list">
-                <!-- Attribute Total -->
-                <li class="reference attribute flexrow" data-attribute="total">
-                    <span class="attribute-label flexrow" name="data.stats.total.label">
-                        <h4>Attribute Total</h4>
-                    </span>
-                    <div class="attribute-editbox flexrow">
-                        {{data.stats.total.value}}
+                    <div class="divider"></div>
+
+                    <div class="row">
+                        <div class="caption label">Mana</div>
+                        <input class="value" type="number"
+                            name="data.mana.value"
+                            value="{{data.mana.value}}"/>
+                        <span>/</span>
+                        <input class="value" type="number"
+                            name="data.mana.max"
+                            value="{{data.mana.max}}"/>
                     </div>
-                </li>
+                </div>
 
-                <!-- Physique Header -->
-                <li class="attribute flexrow" data-attribute="physique">
-                    <img class="stat-roll-icon" src="icons/svg/d20-grey.svg" width="24" height="24"/>
-                    <span class="attribute-label" name="data.stats.physique.label">
-                        <h4>Physique</h4>
-                    </span>
-                    <div class="attribute-editbox flexrow">
-                        {{data.stats.physique.value}}
-                    </div>
-                </li>
+                <div class="divider"></div>
 
-                <li class="attribute flexrow" data-attribute="agility">
-                    <img class="attribute-roll-icon" src="icons/svg/d20-grey.svg" width="24" height="24"/>
-                    <span class="attribute-label flexrow" name="data.attributes.agility.label">
-                        Agility
-                    </span>
-                    <div class="attribute-editbox flexrow">
-                        <input
-                            class="attribute-value"
-                            type="text"
-                            name="data.attributes.agility.value"
-                            value="{{data.attributes.agility.value}}"
-                            data-dtype="Number"
-                        />
-                    </div>
-                </li>
+                <div class="row">
+                    <div class="caption">Attributes</div>
+                    {{#ifgt statTotal 80}}
+                        <span class="value red">{{statTotal}}</span>
+                    {{else}}
+                        <span class="value">{{statTotal}}</span>
+                    {{/ifgt}}
+                </div>
 
-                <li class="attribute flexrow" data-attribute="endurance">
-                    <img class="attribute-roll-icon" src="icons/svg/d20-grey.svg" width="24" height="24"/>
-                    <span class="attribute-label flexrow" name="data.attributes.endurance.label">
-                        Endurance
-                    </span>
-                    <div class="attribute-editbox flexrow">
-                        <input
-                            class="attribute-value"
-                            type="text"
-                            name="data.attributes.endurance.value"
-                            value="{{data.attributes.endurance.value}}"
-                            data-dtype="Number"
-                        />
-                    </div>
-                </li>
-
-                <li class="attribute flexrow" data-attribute="power">
-                    <img class="attribute-roll-icon" src="icons/svg/d20-grey.svg" width="24" height="24"/>
-                    <span class="attribute-label flexrow" name="data.attributes.power.label">
-                        Power
-                    </span>
-                    <div class="attribute-editbox flexrow">
-                        <input
-                            class="attribute-value"
-                            type="text"
-                            name="data.attributes.power.value"
-                            value="{{data.attributes.power.value}}"
-                            data-dtype="Number"
-                        />
-                    </div>
-                </li>
-
-                <!-- Cunning Header -->
-                <li class="attribute flexrow" data-attribute="cunning">
-                    <img class="stat-roll-icon" src="icons/svg/d20-grey.svg" width="24" height="24"/>
-                    <span class="attribute-label flexrow" name="data.stats.cunning.label">
-                        <h4>Cunning</h4>
-                    </span>
-                    <div class="attribute-editbox flexrow">
-                        {{data.stats.cunning.value}}
-                    </div>
-                </li>
-
-                <li class="attribute flexrow" data-attribute="charisma">
-                    <img class="attribute-roll-icon" src="icons/svg/d20-grey.svg" width="24" height="24"/>
-                    <span class="attribute-label flexrow" name="data.attributes.charisma.label">
-                        Charisma
-                    </span>
-                    <div class="attribute-editbox flexrow">
-                        <input
-                            class="attribute-value"
-                            type="text"
-                            name="data.attributes.charisma.value"
-                            value="{{data.attributes.charisma.value}}"
-                            data-dtype="Number"
-                        />
-                    </div>
-                </li>
-
-                <li class="attribute flexrow" data-attribute="memory">
-                    <img class="attribute-roll-icon" src="icons/svg/d20-grey.svg" width="24" height="24"/>
-                    <span class="attribute-label flexrow" name="data.attributes.memory.label">
-                        Memory
-                    </span>
-                    <div class="attribute-editbox flexrow">
-                        <input
-                            class="attribute-value"
-                            type="text"
-                            name="data.attributes.memory.value"
-                            value="{{data.attributes.memory.value}}"
-                            data-dtype="Number"
-                        />
-                    </div>
-                </li>
-
-                <li class="attribute flexrow" data-attribute="perception">
-                    <img class="attribute-roll-icon" src="icons/svg/d20-grey.svg" width="24" height="24"/>
-                    <span class="attribute-label flexrow" name="data.attributes.perception.label">
-                        Perception
-                    </span>
-                    <div class="attribute-editbox flexrow">
-                        <input
-                            class="attribute-value"
-                            type="text"
-                            name="data.attributes.perception.value"
-                            value="{{data.attributes.perception.value}}"
-                            data-dtype="Number"
-                        />
-                    </div>
-                </li>
-            </ul>
-        </div>
-
-        {{!-- Skills Tab --}}
-        <div class="tab skills" data-group="primary" data-tab="skills">
-
-            <ul class="skills-list">
-                {{#each actor.data.skills as |skill key|}}
-                    <li class="skill flexrow" data-skill="{{key}}">
-                        <img class="skill-roll-icon" src="icons/svg/d20-grey.svg" width="24" height="24"/>
-                        <span class="skill-label flexrow" name="data.skills.{{key}}.label">
-                            {{label}}
-                        </span>
-                        <div class="skill-editbox flexrow">
-                            <input
-                                class="skill-value"
-                                type="text"
-                                name="data.skills.{{key}}.value"
-                                value="{{skill.value}}"
-                                data-dtype="Number"
-                            />
+                <div class="row">
+                    <div class="column">
+                        <div class="attribute" data-key="physique" data-label="Physique">
+                            <a class="roll-stat" title="Roll Physique">
+                                <i class="fas fa-dice-d20"></i>
+                            </a>
+                            <div class="label caption">Physique</div>
+                            <span class="value">{{physique}}</span>
                         </div>
-                    </li>
-                {{/each}}
-            </ul>
 
+                        <div class="group">
+                            <div class="attribute" data-key="agility" data-label="Agility">
+                                <a class="roll-stat" title="Roll Agility">
+                                    <i class="fas fa-dice-d20"></i>
+                                </a>
+                                <div class="label">Agility</div>
+                                <input class="value" type="number"
+                                    name="data.stats.agility"
+                                    value="{{data.stats.agility}}"/>
+                            </div>
+
+                            <div class="attribute" data-key="endurance" data-label="Endurance">
+                                <a class="roll-stat" title="Roll Endurance">
+                                    <i class="fas fa-dice-d20"></i>
+                                </a>
+                                <div class="label">Endurance</div>
+                                <input class="value" type="number"
+                                    name="data.stats.endurance"
+                                    value="{{data.stats.endurance}}"/>
+                            </div>
+
+                            <div class="attribute" data-key="power" data-label="Power">
+                                <a class="roll-stat" title="Roll Power">
+                                    <i class="fas fa-dice-d20"></i>
+                                </a>
+                                <div class="label">Power</div>
+                                <input class="value" type="number"
+                                    name="data.stats.power"
+                                    value="{{data.stats.power}}"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <div class="attribute" data-key="cunning" data-label="Cunning">
+                            <a class="roll-stat" title="Roll Cunning">
+                                <i class="fas fa-dice-d20"></i>
+                            </a>
+                            <div class="label caption">Cunning</div>
+                            <span class="value">{{cunning}}</span>
+                        </div>
+
+                        <div class="group">
+                            <div class="attribute" data-key="charisma" data-label="Charisma">
+                                <a class="roll-stat" title="Roll Charisma">
+                                    <i class="fas fa-dice-d20"></i>
+                                </a>
+                                <div class="label">Charisma</div>
+                                <input class="value" type="number"
+                                    name="data.stats.charisma"
+                                    value="{{data.stats.charisma}}"/>
+                            </div>
+
+                            <div class="attribute" data-key="memory" data-label="Memory">
+                                <a class="roll-stat" title="Roll Memory">
+                                    <i class="fas fa-dice-d20"></i>
+                                </a>
+                                <div class="label">Memory</div>
+                                <input class="value" type="number"
+                                    name="data.stats.memory"
+                                    value="{{data.stats.memory}}"/>
+                            </div>
+
+                            <div class="attribute" data-key="perception" data-label="Perception">
+                                <a class="roll-stat" title="Roll Perception">
+                                    <i class="fas fa-dice-d20"></i>
+                                </a>
+                                <div class="label">Perception</div>
+                                <input class="value" type="number"
+                                    name="data.stats.perception"
+                                    value="{{data.stats.perception}}"/>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="row">
+                    <div class="caption">Skills</div>
+                    {{#ifgt skillTotal 6}}
+                        <span class="value red">{{skillTotal}}</span>
+                    {{else}}
+                        <span class="value">{{skillTotal}}</span>
+                    {{/ifgt}}
+                </div>
+                <div class="column">
+                    {{#each actor.data.skills as |skill key|}}
+                        <div class="skill" data-key="{{key}}"
+                        data-label="{{label}}" data-stat="{{stat}}">
+                            <a class="roll-skill" title="Roll {{label}}">
+                                <i class="fas fa-dice-d20"></i>
+                            </a>
+                            <div class="label">{{label}}</div>
+                            <select name="data.skills.{{key}}.level">
+                            {{#select skill.level}}
+                                <option value="Untrained">Untrained</option>
+                                <option value="Novice">Novice</option>
+                                <option value="Skilled">Skilled</option>
+                                <option value="Expert">Expert</option>
+                                <option value="Master">Master</option>
+                                <option value="Legend">Legend</option>
+                            {{/select}}
+                            </select>
+                        </div>
+                    {{/each}}
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="caption">Misc</div>
+                <div class="row">
+                    <div class="label">Category</div>
+                    <select name="data.category">
+                    {{#select data.category}}
+                        <option value="unique">Unique</option>
+                        <option value="generic">Generic</option>
+                    {{/select}}
+                    </select>
+                </div>
+            </div>
         </div>
     </section>
 </form>

@@ -25,7 +25,7 @@ export class LightbearerItem extends Item {
             return;
         }
 
-        const rows = [];
+        const items = [];
 
         // For each target
         for (const target of Object.values(this.data.data.targets))
@@ -62,8 +62,8 @@ export class LightbearerItem extends Item {
             else
             {
                 if (target.type == "Square") {
-                    const size = target.size;
-                    template = await ui.selectShape({
+                    const size = (target.radius*2) + 0.5;
+                    template = await ui.selectFixedShape({
                         shape: "ray",
                         width: size,
                         length: size,
@@ -73,24 +73,24 @@ export class LightbearerItem extends Item {
                 else if (target.type == "Sphere") {
                     template = await ui.selectFixedShape({
                         shape: "circle",
-                        length: target.radius
+                        length: target.radius + 0.5
                     });
                 }
                 else if (target.type == "Ray") {
                     template = await ui.selectShape({
                         shape: "ray",
-                        length: target.length
+                        length: target.length + 0.5
                     });
                 }
                 else if (target.type == "Cone") {
                     template = await ui.selectShape({
                         shape: "cone",
-                        length: target.length
+                        length: target.length + 0.5
                     });
                 }
                 else if (target.type == "Close Square") {
-                    const size = target.size;
-                    template = await ui.selectShape({
+                    const size = (target.radius*2) + 0.5;
+                    template = await ui.selectFixedShape({
                         shape: "ray",
                         width: size,
                         length: size,
@@ -99,38 +99,145 @@ export class LightbearerItem extends Item {
                     });
                 }
                 else if (target.type == "Close Sphere") {
-                    template = await ui.selectShape({
+                    template = await ui.selectFixedShape({
                         shape: "circle",
-                        length: target.radius,
+                        length: target.radius + 0.5,
                         origin: usingToken
                     });
                 }
                 else if (target.type == "Close Ray") {
                     template = await ui.selectShape({
                         shape: "ray",
-                        length: target.length,
+                        length: target.length + 0.5,
                         origin: usingToken
                     });
                 }
                 else if (target.type == "Close Cone") {
                     template = await ui.selectShape({
                         shape: "cone",
-                        length: target.length,
+                        length: target.length + 0.5,
                         origin: usingToken
                     });
                 }
-                template.tokens.forEach(token => {
-                    actors.push(game.actors.get(token.actorId));
+                if (template)
+                {
+                    template.tokens.forEach(token => {
+                        if (token.actor !== undefined)
+                        {
+                            actors.push(token.actor);
+                        }
+                        else
+                        {
+                            actors.push(game.actors.get(token.actorId));
+                        }
+                    });
+                }
+                Object.values(target.effects).filter(e => e.type == "Texture").forEach(effect => {
+                    const templateData = {position: template.position};
+                    if (effect.texture) {
+                        templateData.texture = effect.texture;
+                    }
+                    templateData.offset = {x: -50, y: -50};
+
+                    if (target.type == "Square")
+                    {
+                        const size = (target.radius*2) + 0.5;
+                        templateData.shape = "ray";
+                        templateData.width = size;
+                        templateData.length = size;
+                        templateData.offset = {x: -size * 10};
+                    }
+                    else if (target.type == "Sphere")
+                    {
+                        templateData.shape = "circle";
+                        templateData.length = target.radius + 0.5;
+                        templateData.offset = {x: 0, y: 0};
+                    }
+                    else if (target.type == "Ray")
+                    {
+                        templateData.shape = "ray";
+                        templateData.length = target.length + 0.5;
+                        templateData.direction = template.direction;
+                    }
+                    else if (target.type == "Cone")
+                    {
+                        templateData.shape = "cone";
+                        templateData.length = target.length + 0.5;
+                        templateData.direction = template.direction;
+                    }
+                    else if (target.type == "Close Square")
+                    {
+                        const size = (target.radius*2) + 0.5;
+                        templateData.shape = "ray";
+                        templateData.width = size;
+                        templateData.length = size;
+                    }
+                    else if (target.type == "Close Sphere")
+                    {
+                        templateData.shape = "circle";
+                        templateData.length = target.radius + 0.5;
+                    }
+                    else if (target.type == "Close Ray")
+                    {
+                        templateData.shape = "ray";
+                        templateData.length = target.length + 0.5;
+                        templateData.direction = template.direction;
+                    }
+                    else if (target.type == "Close Cone")
+                    {
+                        templateData.shape = "cone";
+                        templateData.length = target.length + 0.5;
+                        templateData.direction = template.direction;
+                    }
+                    ui.createTemplate(templateData);
                 });
             }
 
             for (const actor of actors)
             {
-                rows.push(chat.templateRow(actor.name));
+                const subitems = [];
                 for (const effect of Object.values(target.effects))
                 {
-                    rows.push(chat.templateRow(effect.type));
+                    if (effect.type == "Damage" || effect.type == "Healing")
+                    {
+                        subitems.push(chat.templateRow(effect.type, effect.formula, actor.getRollData()));
+                    }
+                    else if (effect.type == "Check")
+                    {
+                        subitems.push(chat.templateRow(
+                            `${game.lightbearer.statIcons[effect.stat]} Check`,
+                            `2d6+@${effect.stat}`,
+                            actor.getRollData()
+                        ));
+                    }
+                    else if (effect.type == "Opposed Check")
+                    {
+                        subitems.push(chat.templateRow(
+                            `Target ${game.lightbearer.statIcons[effect.stat]}`,
+                            `2d6+@${effect.stat}`,
+                            actor.getRollData()
+                        ));
+
+                        subitems.push(chat.templateRow(
+                            `Source ${game.lightbearer.statIcons[effect.stat]}`,
+                            `2d6+@${effect.stat}`,
+                            this.actor.getRollData()
+                        ));
+                    }
+                    else if (effect.type == "Text")
+                    {
+                        subitems.push(chat.templateDescription(effect.formula));
+                    }
+                    else if (effect.type == "Texture")
+                    {
+                        // Handled elsewhere.
+                    }
+                    else
+                    {
+                        subitems.push(chat.templateDescription("Unrecognized effect: " + effect.type));
+                    }
                 }
+                items.push(chat.templateActor(actor, subitems.join('\n')));
             }
         }
 
@@ -153,6 +260,6 @@ export class LightbearerItem extends Item {
         }
 
         // Send complete template into the chat
-        chat.send(chat.templateHeader(this) + rows.join('\n'));
+        chat.send(chat.templateHeader(this) + items.join('\n'));
     }
 }

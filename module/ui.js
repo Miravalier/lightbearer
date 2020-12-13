@@ -3,21 +3,25 @@ import { distance, closer, farther } from "./points.js";
 export async function createTemplate(data)
 {
     if (data === undefined) data = {};
-    if (data.x === undefined) data.x = 0;
-    if (data.y === undefined) data.y = 0;
+    if (data.position === undefined) data.position = {x: 0, y: 0};
+    if (data.position.x === undefined) data.position.x = 0;
+    if (data.position.y === undefined) data.position.y = 0;
     if (data.shape === undefined) data.shape = 'circle';
     if (data.length === undefined) data.length = 15;
     if (data.color === undefined) data.color = game.user.color;
-    if (data.angle === undefined) data.angle = 360;
+    if (data.angle === undefined) data.angle = 100;
     if (data.direction === undefined) data.direction = 0;
     if (data.width === undefined) data.width = 5;
+    if (data.offset === undefined) data.offset = {x: 0, y: 0};
+    if (data.offset.x === undefined) data.offset.x = 0;
+    if (data.offset.y === undefined) data.offset.y = 0;
 
     const scene = game.scenes.get(game.user.viewedScene);
     return await scene.createEmbeddedEntity("MeasuredTemplate", {
         t: data.shape,
         user: game.user.id,
-        x: data.x + 50,
-        y: data.y + 50,
+        x: data.position.x + 50 + data.offset.x,
+        y: data.position.y + 50 + data.offset.y,
         angle: data.angle,
         width: data.width,
         distance: data.length,
@@ -94,20 +98,6 @@ export async function selectPosition(prompt)
 }
 
 
-export async function selectSquare(size)
-{
-    if (size === undefined) size = 5;
-    return selectFixedShape(
-        {
-            shape: "ray",
-            width: size,
-            length: size,
-        },
-        {x: -size * 10, y: 0}
-    );
-}
-
-
 export async function selectFixedShape(data)
 {
     if (data.length === undefined) data.length = 15;
@@ -115,6 +105,16 @@ export async function selectFixedShape(data)
     if (data.offset === undefined) data.offset = {x: 0, y: 0};
     if (data.offset.x === undefined) data.offset.x = 0;
     if (data.offset.y === undefined) data.offset.y = 0;
+    if (data.origin === undefined) {
+        data.fixed = false;
+        data.position = {x: 0, y: 0}
+    }
+    else {
+        data.fixed = true;
+        data.position = {x: data.origin.x, y: data.origin.y};
+    }
+    data.position.x += data.offset.x + 50;
+    data.position.y += data.offset.y + 50;
     
     // Find the current scene
     const scene = game.scenes.get(game.user.viewedScene);
@@ -123,8 +123,8 @@ export async function selectFixedShape(data)
     const template = await scene.createEmbeddedEntity("MeasuredTemplate", {
         t: data.shape,
         user: game.user.id,
-        x: 50,
-        y: 50,
+        x: data.position.x,
+        y: data.position.y,
         angle: 360,
         distance: data.length,
         width: data.width,
@@ -134,13 +134,16 @@ export async function selectFixedShape(data)
     });
 
     // Start moving the shape to the mouse periodically
-    const mouse = canvas.app.renderer.plugins.interaction.mouse;
-    const moveInterval = setInterval(function() {
-        const mousePosition = mouse.getLocalPosition(canvas.app.stage);
-        mousePosition.x += data.offset.x;
-        mousePosition.y += data.offset.y;
-        moveTemplateToPosition(scene, template, mousePosition);
-    }, 100);
+    let moveInterval;
+    if (!data.fixed) {
+        const mouse = canvas.app.renderer.plugins.interaction.mouse;
+        moveInterval = setInterval(function() {
+            const mousePosition = mouse.getLocalPosition(canvas.app.stage);
+            mousePosition.x += data.offset.x;
+            mousePosition.y += data.offset.y;
+            moveTemplateToPosition(scene, template, mousePosition);
+        }, 50);
+    }
 
     // Wait for user to click, locking in their shape selection
     document.body.style.cursor = "crosshair";
@@ -150,7 +153,9 @@ export async function selectFixedShape(data)
     document.body.style.cursor = "";
 
     // Stop moving the shape template
-    clearInterval(moveInterval);
+    if (!data.fixed) {
+        clearInterval(moveInterval);
+    }
 
     // Get all combatants under the template
     const selected = getTokensUnderTemplate(scene, template);
@@ -159,7 +164,12 @@ export async function selectFixedShape(data)
     await scene.deleteEmbeddedEntity("MeasuredTemplate", template._id);
 
     // Return the position and the tokens under the drawn template
-    return {position: position, tokens: selected};
+    if (data.fixed) {
+        return {position: data.position, tokens: selected};
+    }
+    else {
+        return {position: position, tokens: selected};
+    }
 }
 
 
@@ -171,13 +181,14 @@ export async function selectShape(data)
     if (data.length === undefined) data.length = 15;
     if (data.color === undefined) data.color = game.user.color;
     if (data.origin === undefined) {
-        data.origin = await selectPosition(`Place the ${data.shape}'s origin.`);
+        data.position = await selectPosition(`Place the ${data.shape}'s origin.`);
     }
     else {
-        data.origin = {x: data.origin.x, y: data.origin.y};
+        data.position = {x: data.origin.x, y: data.origin.y};
     }
-    data.origin.x += 50;
-    data.origin.y += 50;
+    data.position.x += 50;
+    data.position.y += 50;
+    data.direction = 0;
 
     // Find the current scene
     const scene = game.scenes.get(game.user.viewedScene);
@@ -186,8 +197,8 @@ export async function selectShape(data)
     const template = await scene.createEmbeddedEntity("MeasuredTemplate", {
         t: data.shape,
         user: game.user.id,
-        x: data.origin.x,
-        y: data.origin.y,
+        x: data.position.x,
+        y: data.position.y,
         angle: data.angle,
         distance: data.length,
         width: data.width,
@@ -198,9 +209,9 @@ export async function selectShape(data)
 
     // Start rotating the shape toward the mouse periodically
     const mouse = canvas.app.renderer.plugins.interaction.mouse;
-    const rotateInterval = setInterval(function() {
+    const rotateInterval = setInterval(async function() {
         const mousePosition = mouse.getLocalPosition(canvas.app.stage);
-        rotateTemplateToFace(scene, template, mousePosition);
+        data.direction = await rotateTemplateToFace(scene, template, mousePosition);
     }, 50);
 
     // Wait for user to click, locking in their shape selection
@@ -220,7 +231,7 @@ export async function selectShape(data)
     await scene.deleteEmbeddedEntity("MeasuredTemplate", template._id);
 
     // Return the tokens under the drawn template
-    return {position: position, tokens: selected};
+    return {position: data.position, tokens: selected, direction: data.direction};
 }
 
 
@@ -270,7 +281,11 @@ export function getTokensUnderTemplate(scene, template)
         if (game.combat)
         {
             return game.combat.combatants.filter(combatant => {
-                return distance(template, {x: combatant.token.x + 50, y: combatant.token.y + 50}) <= template.distance * 20;
+                if (!combatant.token) {
+                    return false;
+                }
+                const value = distance(template, {x: combatant.token.x + 50, y: combatant.token.y + 50});
+                return value <= (template.distance * 20);
             });
         }
         else
@@ -285,6 +300,9 @@ export function getTokensUnderTemplate(scene, template)
     if (game.combat)
     {
         return game.combat.combatants.filter(combatant => {
+            if (!combatant.token) {
+                return false;
+            }
             return bounds.contains(
                 combatant.token.x + 50 - template.x,
                 combatant.token.y + 50 - template.y
@@ -315,10 +333,12 @@ async function moveTemplateToPosition(scene, template, point)
 
 async function rotateTemplateToFace(scene, template, point)
 {
+    const rotation = Math.atan2(point.y - template.y, point.x - template.x) * 180 / Math.PI;
     await scene.updateEmbeddedEntity("MeasuredTemplate", {
         _id: template._id,
-        direction: Math.atan2(point.y - template.y, point.x - template.x) * 180 / Math.PI
+        direction: rotation
     });
+    return rotation;
 }
 
 

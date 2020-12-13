@@ -1,119 +1,66 @@
 {
     "Actor": {
-        "types": ["Character", "NPC"],
+        "types": ["Character"],
         "Character": {
+            "category": "unique",
             "notes": "",
             "actions": {
                 "value": 0,
-                "max": 1,
-                "previous": 0
+                "max": 1
             },
             "reactions": {
                 "value": 0,
-                "max": 3,
-                "previous": 0
+                "max": 3
             },
             "health": {
                 "value": 20,
                 "min": 0,
                 "max": 20
             },
-            "energy": {
-                "value": 100,
+            "mana": {
+                "value": 0,
                 "min": 0,
-                "max": 100
+                "max": 0
             },
             "stats": {
-                "total": {
-                    "value": 0,
-                    "label": "Total"
-                },
-                "physique": {
-                    "value": 0,
-                    "label": "Physique"
-                },
-                "cunning": {
-                    "value": 0,
-                    "label": "Cunning"
-                }
-            },
-            "attributes": {
-                "agility": {
-                    "value": 10,
-                    "label": "Agility",
-                    "stat": "physique"
-                },
-                "endurance": {
-                    "value": 10,
-                    "label": "Endurance",
-                    "stat": "physique"
-                },
-                "power": {
-                    "value": 10,
-                    "label": "Power",
-                    "stat": "physique"
-                },
-                "charisma": {
-                    "value": 10,
-                    "label": "Charisma",
-                    "stat": "cunning"
-                },
-                "memory": {
-                    "value": 10,
-                    "label": "Memory",
-                    "stat": "cunning"
-                },
-                "perception": {
-                    "value": 10,
-                    "label": "Perception",
-                    "stat": "cunning"
-                }
+                "agility": 10,
+                "endurance": 10,
+                "power": 10,
+                "charisma": 10,
+                "memory": 10,
+                "perception": 10
             },
             "skills": {
                 "artifice": {
-                    "value": 0,
+                    "stat": "cunning",
                     "label": "Artifice"
                 },
+                "spellwork": {
+                    "stat": "cunning",
+                    "label": "Spellwork"
+                },
                 "melee": {
-                    "value": 0,
+                    "stat": "physique",
                     "label": "Melee Combat"
                 },
                 "ranged": {
-                    "value": 0,
+                    "stat": "physique",
                     "label": "Ranged Combat"
                 },
-                "spellwork": {
-                    "value": 0,
-                    "label": "Spellwork"
-                },
                 "stealth": {
-                    "value": 0,
+                    "stat": "physique",
                     "label": "Stealth"
                 }
             }
         }
     },
     "Item": {
-        "types": ["ability", "item"],
-        "item": {
-            "notes": "",
+        "types": ["Ability"],
+        "Ability": {
             "description": "",
-            "template": {},
-            "action": true,
-            "reaction": false,
-            "cooldown": false,
-            "isAbility": false,
-            "isItem": true
-        },
-        "ability": {
-            "notes": "",
-            "description": "",
-            "template": {},
-            "action": true,
-            "reaction": false,
-            "cooldown": false,
-            "isAbility": true,
-            "isItem": false
+            "targets": {},
+            "actionCost": "action",
+            "manaCost": 0
         }
     }
 }

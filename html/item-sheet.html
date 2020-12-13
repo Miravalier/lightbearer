@@ -1,31 +1,10 @@
 <form class="{{cssClass}}" autocomplete="off">
-    <header class="sheet-header">
-        <div class="sheet-header lightbearer">
-            <div class="row">
-                <span class="sheet-type">{{item.type}}</span>
-            <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
-            </div>
-            <div class="row">
-                {{#ifeq item.type "ability"}}
-                    <div class="field">
-                        <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg"
-                            title="Action" width="24" height="24"/>
-                        <input type="checkbox" name="data.action" {{checked data.action}}/>
-                    </div>
-                    <div class="field">
-                        <img class="ability-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg"
-                            title="Reaction" width="24" height="24"/>
-                        <input type="checkbox" name="data.reaction" {{checked data.reaction}}/>
-                    </div>
-                    {{#if data.reaction}}
-                        <div class="field">
-                            <img class="ability-icon cooldown" src="systems/lightbearer/resources/cooldown_icon.svg"
-                                title="Cooldown" width="24" height="24"/>
-                            <input type="checkbox" name="data.cooldown" {{checked data.cooldown}}/>
-                        </div>
-                    {{/if}}
-                {{/ifeq}}
-            </div>
+    <header class="lightbearer sheet-header">
+        <div class="row">
+            <span class="sheet-type">{{item.type}}</span>
+            <h1 class="charname">
+                <input name="name" type="text" value="{{item.name}}" placeholder="Name"/>
+            </h1>
         </div>
     </header>
 
@@ -44,10 +23,11 @@
 
         {{!-- Usage Tab --}}
         <div class="tab" data-group="primary" data-tab="usage">
-            <header class="template-header flexrow">
-                <span class="template-label">Targets</span>
-                <a class="add-target-button"><i class="fas fa-plus"></i></a>
-            </header>
+            <div class="row">
+                <div class="label add-target-button">
+                    <a><span>Add Target</span> <i class="fas fa-plus"></i></a>
+                </div>
+            </div>
 
             <div class="target-list">
             {{#each data.targets as |target tkey|}}
@@ -56,7 +36,7 @@
                         <span>Target</span>
                         <select name="data.targets.{{tkey}}.type">
                         {{#select target.type}}
-                            <option value="None">None</option>
+                            <option value="None">Self</option>
                             <option value="Creature">Creature</option>
                             <option value="Group">Group</option>
                             <option value="Square">Square</option>
@@ -79,7 +59,7 @@
                             value="{{target.range}}"/>
                     </div>
                     {{/ifoneof}}
-                    {{#ifoneof target.type "Sphere,Close Sphere"}}
+                    {{#ifoneof target.type "Sphere,Close Sphere,Square,Close Square"}}
                     <div class="field">
                         <span>Radius</span>
                         <input class="radius" type="number"

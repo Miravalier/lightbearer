@@ -21,6 +21,13 @@ import * as createDefaults from "./create-defaults.js";
 /* -------------------------------------------- */
 
 
+function iconize(title, name, style)
+{
+    if (style === undefined) style = "fas";
+    return `<a title="${title}"><i class="${style} fa-${name}"></i></a>`;
+}
+
+
 Hooks.once("init", async function() {
     console.log(`Initializing Lightbearer Ruleset`);
 
@@ -31,9 +38,25 @@ Hooks.once("init", async function() {
         ActorMacro,
         OwnedItemMacro,
         emoji: {
-            'think': '/systems/lightbearer/emoji/think.gif'
+            'think': '/systems/lightbearer/emoji/think.gif',
+            'oof': '/systems/lightbearer/emoji/oof.png',
         },
-        ui
+        ui,
+        statIcons: {
+            "physique": iconize("Physique", "heartbeat"),
+            "agility": iconize("Agility", "feather-alt"),
+            "endurance": iconize("Endurance", "hiking"),
+            "power": iconize("Power", "fist-raised"),
+            "cunning": iconize("Cunning", "puzzle-piece"),
+            "charisma": iconize("Charisma", "grin-wink"),
+            "memory": iconize("Memory", "book-open"),
+            "perception": iconize("Perception", "eye"),
+            "artifice": iconize("Artifice", "cogs"),
+            "melee": iconize("Melee Combat", "shield-alt"),
+            "ranged": iconize("Ranged Combat", "crosshairs"),
+            "spellwork": iconize("Spellwork", "hand-sparkles"),
+            "stealth": iconize("Stealth", "low-vision"),
+        }
     };
 
 	CONFIG.Combat.initiative = {
@@ -77,6 +100,26 @@ Hooks.once("init", async function() {
         return options.inverse(this);
     });
 
+    Handlebars.registerHelper('ifgt', function (a, b, options) {
+        if (a > b) { return options.fn(this); }
+        return options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifge', function (a, b, options) {
+        if (a >= b) { return options.fn(this); }
+        return options.inverse(this);
+    });
+
+    Handlebars.registerHelper('iflt', function (a, b, options) {
+        if (a < b) { return options.fn(this); }
+        return options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifle', function (a, b, options) {
+        if (a <= b) { return options.fn(this); }
+        return options.inverse(this);
+    });
+
     // Early hooks
     Hooks.on("renderChatLog", (app, html, data) => chat.onRenderChatLog(html));
     Hooks.on("renderChatMessage", (app, html, data) => chat.onRenderChatMessage(html));
@@ -88,6 +131,7 @@ Hooks.once("ready", function() {
     // Register hooks
     Hooks.on("updateCombat", combatTracker.onUpdateCombat);
     Hooks.on("hotbarDrop", createMacro);
+    Hooks.on("preCreateToken", createDefaults.preCreateToken);
     Hooks.on("preCreateActor", createDefaults.preCreateActor);
     Hooks.on("preCreateItem", createDefaults.preCreateItem);
     Hooks.on("preCreateOwnedItem", createDefaults.preCreateOwnedItem);

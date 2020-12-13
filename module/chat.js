@@ -195,6 +195,7 @@ export function preChatMessage(chatLog, message, chatData)
         return `<span style="font-style: italic;">${m}</span>`;
     });
     message = message.replace(/\:([0-9a-zA-Z_-]+)\:/, (_, m) => {
+        const img = game.lightbearer.emoji[m];
         if (img)
         {
             return `<img class="lightbearer emoji" src="${img}" width=24 height=24/>`;
@@ -336,8 +337,8 @@ export async function onRenderChatLog(html)
 
 export async function onRenderChatMessage(html)
 {
-    html.on('click', '.chat-template.caption', onChatTemplateCaptionClicked);
-    html.on('click', '.chat-template.roll', onChatTemplateRollClicked);
+    html.on('click', '.chat-template .caption', onChatTemplateCaptionClicked);
+    html.on('click', '.chat-template .roll', onChatTemplateRollClicked);
 }
 
 
@@ -347,14 +348,13 @@ async function onChatTemplateCaptionClicked(ev)
     const message = game.messages.get(
         caption.closest(".chat-message").data("messageId")
     );
-    message.children('.message-content').append()
 }
 
 
 async function onChatTemplateRollClicked(ev)
 {
     const rollItem = $(ev.currentTarget);
-    const rowId = rollItem.closest(".chat-template.item").data("rowId");
+    const rowId = rollItem.closest(".chat-template .item").data("rowId");
     const resultData = JSON.parse(atob(rollItem.data("results")));
     resultData.modified = rollItem.data("modified");
     resultData.isGM = game.user.isGM;
@@ -366,7 +366,7 @@ async function onChatTemplateRollClicked(ev)
     // Get message's contents
     const content = $("<div>"+message.data.content+"</div>");
     // Find roll total element
-    const roll = content.find(".chat-template.item").filter(function () {
+    const roll = content.find(".chat-template .item").filter(function () {
         return $(this).data("rowId") == rowId;
     }).find(".roll");
 
@@ -387,7 +387,7 @@ async function onChatTemplateRollClicked(ev)
     }
 
     const templateContent = await renderTemplate(
-        "systems/5e-lite/html/roll-results.html",
+        "systems/lightbearer/html/roll-results.html",
         resultData
     );
     Dialog.prompt({
@@ -397,16 +397,19 @@ async function onChatTemplateRollClicked(ev)
         callback: html => {},
         render: html => {
             html.on('click', '.roll-controls .add', ev => {
+                const item = content.find(".chat-template .item").filter(function () {
+                    return $(this).data("rowId") == rowId;
+                });
+                const newItem = templateRow(resultData.label, resultData.formula);
+                item.after(newItem);
                 message.update({
-                    content: message.data.content + templateRow(
-                        resultData.label, resultData.formula
-                    )
+                    content: content.html()
                 });
                 html.find('.dialog-button.ok').trigger('click');
             });
             html.on('click', '.roll-controls .delete', ev => {
                 // Delete this row from message
-                content.find(".chat-template.item").filter(function () {
+                content.find(".chat-template .item").filter(function () {
                     return $(this).data("rowId") == rowId;
                 }).remove();
                 // Update message for everyone
@@ -419,25 +422,26 @@ async function onChatTemplateRollClicked(ev)
                 modifyTotal(html, 0);
             });
             html.on('click', '.roll-controls .increment', ev => {
-                if (resultData.modified)
+                console.log(resultData.modified);
+                if (typeof resultData.modified === "number")
                     modifyTotal(html, parseInt(resultData.modified) + 1);
                 else
                     modifyTotal(html, parseInt(resultData.total) + 1);
             });
             html.on('click', '.roll-controls .decrement', ev => {
-                if (resultData.modified)
+                if (typeof resultData.modified === "number")
                     modifyTotal(html, parseInt(resultData.modified) - 1);
                 else
                     modifyTotal(html, parseInt(resultData.total) - 1);
             });
             html.on('click', '.roll-controls .halve', ev => {
-                if (resultData.modified)
+                if (typeof resultData.modified === "number")
                     modifyTotal(html, parseInt(parseInt(resultData.modified) / 2));
                 else
                     modifyTotal(html, parseInt(parseInt(resultData.total) / 2));
             });
             html.on('click', '.roll-controls .double', ev => {
-                if (resultData.modified)
+                if (typeof resultData.modified === "number")
                     modifyTotal(html, parseInt(resultData.modified) * 2);
                 else
                     modifyTotal(html, parseInt(resultData.total) * 2);
@@ -462,14 +466,19 @@ async function onChatTemplateRollClicked(ev)
 }
 
 
-function dedent(str) {
+export function titlecase(str) {
+    return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
+}
+
+
+export function dedent(str) {
 	str = str.replace(/^\n/, "");
 	let match = str.match(/^\s+/);
 	return match ? str.replace(new RegExp("^"+match[0], "gm"), "") : str;
 }
 
 
-function indent(str, count)
+export function indent(str, count)
 {
     if (!count) count = 1;
     return str.replace(/^/gm, "    ".repeat(count));
@@ -486,10 +495,9 @@ function oxfordList(array) {
 }
 
 
-export function templateDescription(source)
+export function templateDescription(description)
 {
-    let description = source.data.data.description;
-    return (`<div class="chat-template description">${description}</div>`);
+    return (`<div class="description">${description}</div>`);
 }
 
 
@@ -520,7 +528,7 @@ export function templateUsage(source, targetNames)
         return variables[variable];
     });
 
-    return (`<div class="chat-template description"><p>${usage_phrase}</p></div>`);
+    return (`<div class="description"><p>${usage_phrase}</p></div>`);
 }
 
 
@@ -554,8 +562,8 @@ export async function templateRolls(source, targetNames)
                 if (!target.actor) throw "Token does not have an actor.";
                 targetNames.add(target.name);
                 rows.push(dedent(`
-                    <div class="chat-template item">
-                        <div class="chat-template label">${target.name}</div>
+                    <div class="item">
+                        <div class="label">${target.name}</div>
                     </div>
                 `));
             }
@@ -609,85 +617,117 @@ export function send(content)
     ChatMessage.create({
         user: game.user._id,
         speaker: speaker,
-        content: content
+        content: dedent(`
+            <div class="chat-template">
+                ${content}
+            </div>
+        `)
     });
+}
+
+
+export function templateActor(actor, content)
+{
+    if (content === undefined) content = "";
+
+    let tags = "actor";
+    if (actor.hasPlayerOwner) {
+        tags += " player";
+    }
+    else {
+        tags += " npc";
+    }
+
+    return dedent(`
+        <div class="${tags}">
+            <div class="name">${actor.name}</div>
+            ${content}
+        </div>
+    `);
 }
 
 
 export function templateRow(label, formula, rollData)
 {
-    if (!rollData) rollData = {};
-    if (formula) {
-        const roll = new Roll(formula, rollData);
-        roll.roll();
-        const resultData = [];
-        let crit = true;
-        let fail = true;
-        for (const die of roll.dice) {
-            const rolls = die.results;
-            rolls.forEach(r => {
-                if (r.result != 1)
-                    fail = false;
-                if (r.result != die.faces)
-                    crit = false;
-                // Fail or success coloring
-                if (r.result == 1)
-                    r.classes = "failure";
-                else if (r.result == die.faces)
-                    r.classes = "success";
-                else
-                    r.classes = "";
-                // Face count icon
-                if (die.faces == 4)
-                    r.classes += " d4";
-                else if (die.faces == 8)
-                    r.classes += " d8";
-                else if (die.faces == 10)
-                    r.classes += " d10";
-                else if (die.faces == 12)
-                    r.classes += " d12";
-                else if (die.faces == 20)
-                    r.classes += " d20";
-            });
-            resultData.push({
-                formula: `${die.number}d${die.faces}`,
-                rolls: rolls
-            });
-        }
-        const resultString = btoa(JSON.stringify({
-            label: label,
-            original: formula,
-            formula: roll.formula,
-            total: roll.total,
-            results: resultData,
-            crit: crit,
-            fail: fail,
-        }));
-        let color = "";
-        if (label.toLowerCase().indexOf("damage") !== -1)
-            color = "red";
-        if (label.toLowerCase().indexOf("healing") !== -1)
-            color = "green";
-        return dedent(`
-            <div class="chat-template item ${color}" data-row-id="${randomID(16)}">
-                <div class="chat-template label">${label}</div>
-                <div class="chat-template roll" data-results="${resultString}">
-                    ${Math.round(roll.total)}
-                </div>
-            </div>
-        `);
+    if (rollData === undefined)
+        rollData = {};
+
+    const roll = new Roll(formula, rollData);
+    roll.roll();
+    const resultData = [];
+    let crit = true;
+    let fail = true;
+    for (const die of roll.dice) {
+        const rolls = die.results;
+        rolls.forEach(r => {
+            if (r.result != 1)
+                fail = false;
+            if (r.result != die.faces)
+                crit = false;
+            // Fail or success coloring
+            if (r.result == 1)
+                r.classes = "failure";
+            else if (r.result == die.faces)
+                r.classes = "success";
+            else
+                r.classes = "";
+            // Face count icon
+            if (die.faces == 4)
+                r.classes += " d4";
+            else if (die.faces == 8)
+                r.classes += " d8";
+            else if (die.faces == 10)
+                r.classes += " d10";
+            else if (die.faces == 12)
+                r.classes += " d12";
+            else if (die.faces == 20)
+                r.classes += " d20";
+        });
+        resultData.push({
+            formula: `${die.number}d${die.faces}`,
+            rolls: rolls
+        });
     }
-    else {
-        return dedent(`
-            <div class="chat-template item">
-                <div class="chat-template label">${label}</div>
+
+    const resultString = btoa(JSON.stringify({
+        label: label,
+        original: formula,
+        formula: roll.formula,
+        total: roll.total,
+        results: resultData,
+        crit: crit,
+        fail: fail,
+    }));
+
+    let color = "";
+    if (label.toLowerCase().indexOf("damage") !== -1)
+        color = "red";
+    if (label.toLowerCase().indexOf("healing") !== -1)
+        color = "green";
+
+    return dedent(`
+        <div class="item ${color}" data-row-id="${randomID(16)}">
+            <div class="label">${label}</div>
+            <div class="roll" data-results="${resultString}">
+                ${Math.round(roll.total)}
             </div>
-        `);
-    }
+        </div>
+    `);
 }
 
 
 export function templateHeader(source)
 {
-    return `<div class="chat-template caption">${source.name}</div>`;
+    if (source.constructor.name == "LightbearerActor")
+    {
+        return `<div class="caption">${source.name}</div>`;
+    }
+    else if (source.constructor.name == "LightbearerItem")
+    {
+        return `<div class="caption">${source.actor.name}: ${source.name}</div>`;
+    }
+    else
+    {
+        return `<div class="caption">ERROR: Unknown source</div>`;
+    }
 }

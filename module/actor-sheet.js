@@ -19,20 +19,56 @@ export class LightbearerActorSheet extends ActorSheet {
 
     /** @override */
     getData() {
+        const actorData = this.actor.data.data;
         const data = super.getData();
         data.inventory = [];
         data.abilities = [];
         for (let item of data.items)
         {
-            if (item.type === "item")
+            if (item.type === "Item")
             {
                 data.inventory.push(item);
             }
-            else if (item.type === "ability")
+            else if (item.type === "Ability")
             {
                 data.abilities.push(item);
             }
         }
+
+        // Determine physique and cunning
+        data.physique = Math.round(
+            (
+                actorData.stats.agility
+                + actorData.stats.endurance
+                + actorData.stats.power
+            ) / 3
+        );
+        data.cunning = Math.round(
+            (
+                actorData.stats.charisma
+                + actorData.stats.memory
+                + actorData.stats.perception
+            ) / 3
+        );
+
+        // Sum up the stat total
+        data.statTotal = 0;
+        for (const value of Object.values(actorData.stats))
+        {
+            data.statTotal += value;
+        }
+
+        // Sum up the skill total
+        data.skillTotal = 0;
+        for (const skill of Object.values(actorData.skills))
+        {
+            if (skill.level === 'Novice') data.skillTotal += 1;
+            else if (skill.level === 'Skilled') data.skillTotal += 2;
+            else if (skill.level === 'Expert') data.skillTotal += 3;
+            else if (skill.level === 'Master') data.skillTotal += 6;
+            else if (skill.level === 'Legend') data.skillTotal += 12;
+        }
+
         return data;
     }
 
@@ -42,7 +78,7 @@ export class LightbearerActorSheet extends ActorSheet {
     setPosition(options={}) {
         const position = super.setPosition(options);
         const sheetBody = this.element.find(".sheet-body");
-        const bodyHeight = position.height - 192;
+        const bodyHeight = position.height - 150;
         sheetBody.css("height", bodyHeight);
         return position;
     }
@@ -56,86 +92,33 @@ export class LightbearerActorSheet extends ActorSheet {
         // Everything below here is only needed if the sheet is editable
         if (!this.options.editable) return;
 
-        // Item / Ability Dragging
-        let handler = ev => this._onDragItemStart(ev);
-        html.find('li.item').each((i, li) => {
-            li.setAttribute("draggable", true);
-            li.addEventListener("dragstart", handler, false);
-        });
-        html.find('li.ability').each((i, li) => {
-            li.setAttribute("draggable", true);
-            li.addEventListener("dragstart", handler, false);
-        });
-
         // Stat rolls
-        html.find('.stat-roll-icon').click(ev => {
-            const stat = $(ev.currentTarget).parents(".attribute").data('attribute');
-            const label = this.actor.data.data.stats[stat].label;
-            this.actor.sendTemplate({"CHECK": {"label": label, "roll": `2d6 * (@${stat} / 10)`}});
+        html.find(".roll-stat").click(ev => {
+            const attribute = ev.target.closest(".attribute");
+            this.actor.send(attribute.dataset.label, `2d6+@${attribute.dataset.key}`);
         });
 
-        // Attribute rolls
-        html.find('.attribute-roll-icon').click(ev => {
-            const attribute = $(ev.currentTarget).parents(".attribute").data('attribute');
-            const label = this.actor.data.data.attributes[attribute].label;
-            this.actor.sendTemplate({"CHECK": {"label": label, "roll": `2d6 * (@${attribute} / 10)`}});
-        });
-
-        // Skill rolls
-        html.find('.skill-roll-icon').click(ev => {
-            const skill = $(ev.currentTarget).parents(".skill").data('skill');
-            const label = this.actor.data.data.skills[skill].label;
-            this.actor.sendTemplate({"CHECK": {"label": label, "roll": `2d6 * (1 + @${skill} / 100)`}});
-        });
-
-        // Use Inventory Item
-        html.find('.item-icon').click(ev => {
-            const li = $(ev.currentTarget).parents(".item");
-            const item = this.actor.getOwnedItem(li.data("itemId"));
-            item.use();
-        });
-        html.find('.item-name').click(ev => {
-            const li = $(ev.currentTarget).parents(".item");
-            const item = this.actor.getOwnedItem(li.data("itemId"));
-            item.use();
-        });
-
-        // Update Inventory Item
-        html.find('.item-edit').click(ev => {
-            const li = $(ev.currentTarget).parents(".item");
-            const item = this.actor.getOwnedItem(li.data("itemId"));
-            item.sheet.render(true);
-        });
-
-        // Delete Inventory Item
-        html.find('.item-delete').click(ev => {
-            const li = $(ev.currentTarget).parents(".item");
-            this.actor.deleteOwnedItem(li.data("itemId"));
-            li.slideUp(200, () => this.render(false));
+        html.find(".roll-skill").click(ev => {
+            const skill = ev.target.closest(".skill");
+            this.actor.send(skill.dataset.label, `2d6+@${skill.dataset.key}+@${skill.dataset.stat}`);
         });
 
         // Use Ability
-        html.find('.ability-icon').click(ev => {
-            const li = $(ev.currentTarget).parents(".ability");
-            const ability = this.actor.getOwnedItem(li.data("itemId"));
-            ability.use();
-        });
-
-        html.find('.ability-name').click(ev => {
+        html.find('.ability .name').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
             ability.use();
         });
 
         // Update Ability
-        html.find('.ability-edit').click(ev => {
+        html.find('.ability .control.edit').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
             ability.sheet.render(true);
         });
 
         // Delete Ability
-        html.find('.ability-delete').click(ev => {
+        html.find('.ability .control.delete').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             this.actor.deleteOwnedItem(li.data("itemId"));
             li.slideUp(200, () => this.render(false));
