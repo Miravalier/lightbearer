@@ -87,8 +87,7 @@
                             <option value="Text">Text</option>
                             <option value="Check">Check</option>
                             <option value="Opposed Check">Opposed Check</option>
-                            <option value="Damage">Damage</option>
-                            <option value="Healing">Healing</option>
+                            <option value="Amount">Amount</option>
                             {{#ifnoneof target.type "None,Creature,Group"}}
                             <option value="Texture">Texture</option>
                             {{/ifnoneof}}
@@ -114,16 +113,39 @@
                             {{/select}}
                             </select>
                         {{else}}
-                        {{#ifeq effect.type "Texture"}}
-                            <input class="formula" type="text"
-                                name="data.targets.{{tkey}}.effects.{{ekey}}.texture"
-                                value="{{effect.texture}}"/>
-                        {{else}}
-                            <input class="formula" type="text"
-                                name="data.targets.{{tkey}}.effects.{{ekey}}.formula"
-                                value="{{effect.formula}}"/>
-                        {{/ifeq}}
+                            {{#switchon effect.type}}
+                                {{#switchcase "Texture"}}
+                                    <input class="formula" type="text"
+                                        name="data.targets.{{tkey}}.effects.{{ekey}}.texture"
+                                        value="{{effect.texture}}"/>
+                                {{/switchcase}}
+                                {{#switchcase "Text"}}
+                                    <input class="formula" type="text"
+                                        name="data.targets.{{tkey}}.effects.{{ekey}}.text"
+                                        value="{{effect.text}}"/>
+                                {{/switchcase}}
+                                {{#switchcase "Amount"}}
+                                    <input class="formula" type="text"
+                                        name="data.targets.{{tkey}}.effects.{{ekey}}.label"
+                                        value="{{effect.label}}"/>
+                                    <input class="formula" type="text"
+                                        name="data.targets.{{tkey}}.effects.{{ekey}}.formula"
+                                        value="{{effect.formula}}"/>
+                                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.color">
+                                    {{#select effect.color}}
+                                        <option value="">None</option>
+                                        <option value="yellow">Yellow</option>
+                                        <option value="red">Red</option>
+                                        <option value="blue">Blue</option>
+                                        <option value="green">Green</option>
+                                        <option value="orange">Orange</option>
+                                        <option value="purple">Purple</option>
+                                    {{/select}}
+                                    </select>
+                                {{/switchcase}}
+                            {{/switchon}}
                         {{/ifoneof}}
+
 
                         <a class="remove-effect-button"><i class="fas fa-trash"></i></a>
                     </div>

@@ -26,9 +26,11 @@ export class LightbearerItem extends Item {
         }
 
         const items = [];
+        const results = {};
 
         // For each target
-        for (const target of Object.values(this.data.data.targets))
+        const targets = Object.values(this.data.data.targets);
+        for (const target of targets)
         {
             let template = null;
             const actors = [];
@@ -37,6 +39,10 @@ export class LightbearerItem extends Item {
             }
             else if (target.type == "Creature") {
                 const creature = await ui.selectCreature();
+                if (!creature)
+                {
+                    continue;
+                }
                 if (creature.actor)
                 {
                     actors.push(creature.actor);
@@ -195,18 +201,33 @@ export class LightbearerItem extends Item {
 
             for (const actor of actors)
             {
-                const subitems = [];
+                let subitems = [];
+                if (results[actor.id] !== undefined)
+                {
+                    subitems = results[actor.id];
+                }
+                else
+                {
+                    results[actor.id] = subitems;
+                }
+
                 for (const effect of Object.values(target.effects))
                 {
-                    if (effect.type == "Damage" || effect.type == "Healing")
+                    if (effect.type == "Amount")
                     {
-                        subitems.push(chat.templateRow(effect.type, effect.formula, actor.getRollData()));
+                        subitems.push(chat.templateRow(
+                            effect.label,
+                            effect.formula,
+                            effect.color,
+                            actor.getRollData(),
+                        ));
                     }
                     else if (effect.type == "Check")
                     {
                         subitems.push(chat.templateRow(
                             `${game.lightbearer.statIcons[effect.stat]} Check`,
                             `2d6+@${effect.stat}`,
+                            "",
                             actor.getRollData()
                         ));
                     }
@@ -215,18 +236,20 @@ export class LightbearerItem extends Item {
                         subitems.push(chat.templateRow(
                             `Target ${game.lightbearer.statIcons[effect.stat]}`,
                             `2d6+@${effect.stat}`,
+                            "",
                             actor.getRollData()
                         ));
 
                         subitems.push(chat.templateRow(
                             `Source ${game.lightbearer.statIcons[effect.stat]}`,
                             `2d6+@${effect.stat}`,
+                            "",
                             this.actor.getRollData()
                         ));
                     }
                     else if (effect.type == "Text")
                     {
-                        subitems.push(chat.templateDescription(effect.formula));
+                        subitems.push(chat.templateDescription(effect.text));
                     }
                     else if (effect.type == "Texture")
                     {
@@ -237,7 +260,18 @@ export class LightbearerItem extends Item {
                         subitems.push(chat.templateDescription("Unrecognized effect: " + effect.type));
                     }
                 }
-                items.push(chat.templateActor(actor, subitems.join('\n')));
+            }
+        }
+
+        const resultEntries = Object.entries(results);
+        for (const [actorId, subitems] of resultEntries)
+        {
+            const actor = game.actors.get(actorId);
+            if (resultEntries.length == 1 && actor.id == this.actor.id) {
+                items.push(chat.templateActor(actor, subitems.join('\n'), false));
+            }
+            else {
+                items.push(chat.templateActor(actor, subitems.join('\n'), true));
             }
         }
 

@@ -120,6 +120,18 @@ Hooks.once("init", async function() {
         return options.inverse(this);
     });
 
+    Handlebars.registerHelper('switchon', function (value, options) {
+        this.switch_value = value;
+        return options.fn(this);
+    });
+
+    Handlebars.registerHelper('switchcase', function (value, options) {
+        if (value == this.switch_value) {
+            return options.fn(this);
+        }
+    });
+
+
     // Early hooks
     Hooks.on("renderChatLog", (app, html, data) => chat.onRenderChatLog(html));
     Hooks.on("renderChatMessage", (app, html, data) => chat.onRenderChatMessage(html));

@@ -322,6 +322,9 @@ input.formula {
 .chat-template .item.orange .label {
     background: rgba(255, 128, 0, 0.1);
 }
+.chat-template .item.purple .label {
+    background: rgba(157, 0, 255, 0.1);
+}
 .chat-template .item.yellow .roll {
     background: rgba(255, 255, 0, 0.07);
 }
@@ -336,6 +339,9 @@ input.formula {
 }
 .chat-template .item.orange .roll {
     background: rgba(255, 128, 0, 0.07);
+}
+.chat-template .item.purple .roll {
+    background: rgba(157, 0, 255, 0.07);
 }
 
 .chat-template .actor {

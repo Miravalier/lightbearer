@@ -400,7 +400,7 @@ async function onChatTemplateRollClicked(ev)
                 const item = content.find(".chat-template .item").filter(function () {
                     return $(this).data("rowId") == rowId;
                 });
-                const newItem = templateRow(resultData.label, resultData.formula);
+                const newItem = templateRow(resultData.label, resultData.formula, resultData.color);
                 item.after(newItem);
                 message.update({
                     content: content.html()
@@ -532,84 +532,6 @@ export function templateUsage(source, targetNames)
 }
 
 
-export async function templateRolls(source, targetNames)
-{
-    const rows = [];
-    let target = null;
-    let targets = null;
-    let fields = null;
-    const rollData = source.actor.getRollData();
-    const template = source.data.data.template;
-
-    // Roll each untargeted row
-    fields = Object.values(template).filter(row => row.target_type === "None");
-    for (const field of fields)
-    {
-        rows.push(templateRow(field.label, field.formula, rollData));
-    }
-
-    // Roll each Individual Target row
-    for (let i=1; i <= 3; i++)
-    {
-        target = null;
-        fields = Object.values(template).filter(row => row.target_type === `Target ${i}`);
-        for (const field of fields)
-        {
-            // Select a target the first time through
-            if (!target) {
-                target = await selectToken(`${source.name} Target ${i}`);
-                if (!target) throw "No token selected.";
-                if (!target.actor) throw "Token does not have an actor.";
-                targetNames.add(target.name);
-                rows.push(dedent(`
-                    <div class="item">
-                        <div class="label">${target.name}</div>
-                    </div>
-                `));
-            }
-            // Update roll data with the target's values
-            const targetRollData = target.actor.getRollData();
-            Object.keys(targetRollData).forEach(key => {
-                rollData["target_" + key] = targetRollData[key];
-            });
-            // Create output line
-            rows.push(templateRow(field.label, field.formula, rollData));
-        }
-    }
-
-    // Roll each Group Target row
-    for (let i=1; i <= 3; i++)
-    {
-        targets = null;
-        fields = Object.values(template).filter(row => row.target_type === `Group ${i}`);
-        for (let row of fields)
-        {
-            // Select targets the first time through
-            if (targets === null) {
-                targets = await selectTokens(`${source.name} Group ${i} Targets`);
-                rollData["group_size"] = targets.size;
-            }
-            // Go through each target rolling this row
-            for (let target of targets)
-            {
-                if (!target.actor) throw "Token does not have an actor.";
-                // Add target to output list
-                targetNames.add(target.name);
-                // Update roll data with the target's values
-                const targetRollData = target.actor.getRollData();
-                Object.keys(targetRollData).forEach(key => {
-                    rollData["target_" + key] = targetRollData[key];
-                });
-                // Roll the row
-                rows.push(templateRow(target.name + " " + row.label, row.formula, rollData));
-            }
-        }
-    }
-
-    return rows.join('\n');
-}
-
-
 export function send(content)
 {
     let speaker = ChatMessage.getSpeaker();
@@ -626,9 +548,10 @@ export function send(content)
 }
 
 
-export function templateActor(actor, content)
+export function templateActor(actor, content, displayName)
 {
     if (content === undefined) content = "";
+    if (displayName === undefined) displayName = true;
 
     let tags = "actor";
     if (actor.hasPlayerOwner) {
@@ -638,16 +561,27 @@ export function templateActor(actor, content)
         tags += " npc";
     }
 
-    return dedent(`
-        <div class="${tags}">
-            <div class="name">${actor.name}</div>
-            ${content}
-        </div>
-    `);
+    if (displayName)
+    {
+        return dedent(`
+            <div class="${tags}">
+                <div class="name">${actor.name}</div>
+                ${content}
+            </div>
+        `);
+    }
+    else
+    {
+        return dedent(`
+            <div class="${tags}">
+                ${content}
+            </div>
+        `);
+    }
 }
 
 
-export function templateRow(label, formula, rollData)
+export function templateRow(label, formula, color, rollData)
 {
     if (rollData === undefined)
         rollData = {};
@@ -697,13 +631,8 @@ export function templateRow(label, formula, rollData)
         results: resultData,
         crit: crit,
         fail: fail,
+        color: color,
     }));
-
-    let color = "";
-    if (label.toLowerCase().indexOf("damage") !== -1)
-        color = "red";
-    if (label.toLowerCase().indexOf("healing") !== -1)
-        color = "green";
 
     return dedent(`
         <div class="item ${color}" data-row-id="${randomID(16)}">
