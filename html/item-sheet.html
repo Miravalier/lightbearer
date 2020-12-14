@@ -1,158 +1,182 @@
 <form class="{{cssClass}}" autocomplete="off">
     <header class="lightbearer sheet-header">
         <div class="row">
-            <span class="sheet-type">{{item.type}}</span>
             <h1 class="charname">
                 <input name="name" type="text" value="{{item.name}}" placeholder="Name"/>
             </h1>
         </div>
     </header>
 
-    {{!-- Sheet Tab Navigation --}}
-    <nav class="sheet-tabs tabs" data-group="primary">
-        <a class="item description" data-tab="description">Description</a>
-        <a class="item" data-tab="usage">Usage</a>
-    </nav>
-
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-        {{!-- Description Tab --}}
-        <div class="tab" data-group="primary" data-tab="description">
-            {{editor content=data.description target="data.description" button=true owner=owner editable=editable}}
+        <textarea class="paragraph" name="data.description">{{data.description}}</textarea>
+
+        <div class="row">
+            <span class="label">Action Type</span>
+            <select name="data.actionCost">
+            {{#select data.actionCost}}
+                <option value="none">None</option>
+                <option value="action">Action</option>
+                <option value="reaction">Reaction</option>
+            {{/select}}
+            </select>
+
+            <div class="divider"></div>
+
+            <span class="label">Mana Cost</span>
+            <input class="value" type="number"
+                name="data.manaCost"
+                value="{{data.manaCost}}"/>
+
+            <div class="divider"></div>
+
+            <div class="label add-target-button">
+                <a><span>Add Target</span> <i class="fas fa-plus"></i></a>
+            </div>
         </div>
 
-        {{!-- Usage Tab --}}
-        <div class="tab" data-group="primary" data-tab="usage">
-            <div class="row">
-                <div class="label add-target-button">
-                    <a><span>Add Target</span> <i class="fas fa-plus"></i></a>
+        <div class="target-list">
+        {{#each data.targets as |target tkey|}}
+            <div class="target" data-key="{{tkey}}">
+                <div class="field">
+                    <a class="target-up"><i class="fas fa-arrow-up"></i></a>
+                    <a class="target-down"><i class="fas fa-arrow-down"></i></a>
                 </div>
+
+                <div class="field">
+                    <span>Target</span>
+                    <select name="data.targets.{{tkey}}.type">
+                    {{#select target.type}}
+                        <option value="None">Self</option>
+                        <option value="Creature">Creature</option>
+                        <option value="Group">Group</option>
+                        <option value="Square">Square</option>
+                        <option value="Sphere">Sphere</option>
+                        <option value="Ray">Ray</option>
+                        <option value="Cone">Cone</option>
+                        <option value="Close Square">Close Square</option>
+                        <option value="Close Sphere">Close Sphere</option>
+                        <option value="Close Ray">Close Ray</option>
+                        <option value="Close Cone">Close Cone</option>
+                    {{/select}}
+                    </select>
+                </div>
+
+                {{#ifoneof target.type "Creature,Group,Point,Sphere,Ray,Cone"}}
+                <div class="field">
+                    <span>Range</span>
+                    <input class="range" type="number"
+                        name="data.targets.{{tkey}}.range"
+                        value="{{target.range}}"/>
+                </div>
+                {{/ifoneof}}
+                {{#ifoneof target.type "Sphere,Close Sphere,Square,Close Square"}}
+                <div class="field">
+                    <span>Radius</span>
+                    <input class="radius" type="number"
+                        name="data.targets.{{tkey}}.radius"
+                        value="{{target.radius}}"/>
+                </div>
+                {{/ifoneof}}
+                {{#ifoneof target.type "Ray,Cone,Close Ray,Close Cone"}}
+                <div class="field">
+                    <span>Length</span>
+                    <input class="length" type="number"
+                        name="data.targets.{{tkey}}.length"
+                        value="{{target.length}}"/>
+                </div>
+                {{/ifoneof}}
+
+                {{#ifoneof target.type "Close Sphere, Close Square"}}
+                <div class="field">
+                    <span>Exclude Self</span>
+                    <input type="checkbox"
+                        name="data.targets.{{tkey}}.excludeSelf"
+                        {{checked target.excludeSelf}}/>
+                </div>
+                {{/ifoneof}}
+
+                <a class="add-effect-button"><i class="fas fa-plus"></i></a>
+                <a class="remove-target-button"><i class="fas fa-trash"></i></a>
             </div>
+            <div class="effect-list" data-parent-key="{{tkey}}">
+            {{#each target.effects as |effect ekey|}}
+                <div class="effect" data-key="{{ekey}}">
+                    <div>
+                        <a class="effect-up"><i class="fas fa-arrow-up"></i></a>
+                        <a class="effect-down"><i class="fas fa-arrow-down"></i></a>
+                    </div>
 
-            <div class="target-list">
-            {{#each data.targets as |target tkey|}}
-                <div class="target" data-key="{{tkey}}">
-                    <div class="field">
-                        <span>Target</span>
-                        <select name="data.targets.{{tkey}}.type">
-                        {{#select target.type}}
-                            <option value="None">Self</option>
-                            <option value="Creature">Creature</option>
-                            <option value="Group">Group</option>
-                            <option value="Square">Square</option>
-                            <option value="Sphere">Sphere</option>
-                            <option value="Ray">Ray</option>
-                            <option value="Cone">Cone</option>
-                            <option value="Close Square">Close Square</option>
-                            <option value="Close Sphere">Close Sphere</option>
-                            <option value="Close Ray">Close Ray</option>
-                            <option value="Close Cone">Close Cone</option>
+                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.type">
+                    {{#select effect.type}}
+                        <option value="Text">Text</option>
+                        <option value="Check">Check</option>
+                        <option value="Opposed Check">Opposed Check</option>
+                        <option value="Amount">Amount</option>
+                        {{#ifnoneof target.type "None,Creature,Group"}}
+                        <option value="Texture">Texture</option>
+                        {{/ifnoneof}}
+                    {{/select}}
+                    </select>
+
+                    {{#ifoneof effect.type "Check,Opposed Check"}}
+                        <select name="data.targets.{{tkey}}.effects.{{ekey}}.stat">
+                        {{#select effect.stat}}
+                            <option value="physique">Physique</option>
+                            <option value="agility">Agility</option>
+                            <option value="endurance">Endurance</option>
+                            <option value="power">Power</option>
+                            <option value="cunning">Cunning</option>
+                            <option value="charisma">Charisma</option>
+                            <option value="memory">Memory</option>
+                            <option value="perception">Perception</option>
+                            <option value="artifice">Artifice</option>
+                            <option value="melee">Melee Combat</option>
+                            <option value="ranged">Ranged Combat</option>
+                            <option value="spellwork">Spellwork</option>
+                            <option value="stealth">Stealth</option>
                         {{/select}}
                         </select>
-                    </div>
-
-                    {{#ifoneof target.type "Creature,Group,Point,Sphere,Ray,Cone"}}
-                    <div class="field">
-                        <span>Range</span>
-                        <input class="range" type="number"
-                            name="data.targets.{{tkey}}.range"
-                            value="{{target.range}}"/>
-                    </div>
+                    {{else}}
+                        {{#switchon effect.type}}
+                            {{#switchcase "Texture"}}
+                                <input class="formula" type="text"
+                                    name="data.targets.{{tkey}}.effects.{{ekey}}.texture"
+                                    value="{{effect.texture}}"/>
+                            {{/switchcase}}
+                            {{#switchcase "Text"}}
+                                <input class="formula" type="text"
+                                    name="data.targets.{{tkey}}.effects.{{ekey}}.text"
+                                    value="{{effect.text}}"/>
+                            {{/switchcase}}
+                            {{#switchcase "Amount"}}
+                                <input class="formula" type="text"
+                                    name="data.targets.{{tkey}}.effects.{{ekey}}.label"
+                                    value="{{effect.label}}"/>
+                                <input class="formula" type="text"
+                                    name="data.targets.{{tkey}}.effects.{{ekey}}.formula"
+                                    value="{{effect.formula}}"/>
+                                <select name="data.targets.{{tkey}}.effects.{{ekey}}.color">
+                                {{#select effect.color}}
+                                    <option value="">None</option>
+                                    <option value="yellow">Yellow</option>
+                                    <option value="red">Red</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="green">Green</option>
+                                    <option value="orange">Orange</option>
+                                    <option value="purple">Purple</option>
+                                {{/select}}
+                                </select>
+                            {{/switchcase}}
+                        {{/switchon}}
                     {{/ifoneof}}
-                    {{#ifoneof target.type "Sphere,Close Sphere,Square,Close Square"}}
-                    <div class="field">
-                        <span>Radius</span>
-                        <input class="radius" type="number"
-                            name="data.targets.{{tkey}}.radius"
-                            value="{{target.radius}}"/>
-                    </div>
-                    {{/ifoneof}}
-                    {{#ifoneof target.type "Ray,Cone,Close Ray,Close Cone"}}
-                    <div class="field">
-                        <span>Length</span>
-                        <input class="length" type="number"
-                            name="data.targets.{{tkey}}.length"
-                            value="{{target.length}}"/>
-                    </div>
-                    {{/ifoneof}}
-
-                    <a class="add-effect-button"><i class="fas fa-plus"></i></a>
-                    <a class="remove-target-button"><i class="fas fa-trash"></i></a>
-                </div>
-                <div class="effect-list" data-key="{{tkey}}">
-                {{#each target.effects as |effect ekey|}}
-                    <div class="effect" data-key="{{ekey}}">
-                        <select name="data.targets.{{tkey}}.effects.{{ekey}}.type">
-                        {{#select effect.type}}
-                            <option value="Text">Text</option>
-                            <option value="Check">Check</option>
-                            <option value="Opposed Check">Opposed Check</option>
-                            <option value="Amount">Amount</option>
-                            {{#ifnoneof target.type "None,Creature,Group"}}
-                            <option value="Texture">Texture</option>
-                            {{/ifnoneof}}
-                        {{/select}}
-                        </select>
-
-                        {{#ifoneof effect.type "Check,Opposed Check"}}
-                            <select name="data.targets.{{tkey}}.effects.{{ekey}}.stat">
-                            {{#select effect.stat}}
-                                <option value="physique">Physique</option>
-                                <option value="agility">Agility</option>
-                                <option value="endurance">Endurance</option>
-                                <option value="power">Power</option>
-                                <option value="cunning">Cunning</option>
-                                <option value="charisma">Charisma</option>
-                                <option value="memory">Memory</option>
-                                <option value="perception">Perception</option>
-                                <option value="artifice">Artifice</option>
-                                <option value="melee">Melee Combat</option>
-                                <option value="ranged">Ranged Combat</option>
-                                <option value="spellwork">Spellwork</option>
-                                <option value="stealth">Stealth</option>
-                            {{/select}}
-                            </select>
-                        {{else}}
-                            {{#switchon effect.type}}
-                                {{#switchcase "Texture"}}
-                                    <input class="formula" type="text"
-                                        name="data.targets.{{tkey}}.effects.{{ekey}}.texture"
-                                        value="{{effect.texture}}"/>
-                                {{/switchcase}}
-                                {{#switchcase "Text"}}
-                                    <input class="formula" type="text"
-                                        name="data.targets.{{tkey}}.effects.{{ekey}}.text"
-                                        value="{{effect.text}}"/>
-                                {{/switchcase}}
-                                {{#switchcase "Amount"}}
-                                    <input class="formula" type="text"
-                                        name="data.targets.{{tkey}}.effects.{{ekey}}.label"
-                                        value="{{effect.label}}"/>
-                                    <input class="formula" type="text"
-                                        name="data.targets.{{tkey}}.effects.{{ekey}}.formula"
-                                        value="{{effect.formula}}"/>
-                                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.color">
-                                    {{#select effect.color}}
-                                        <option value="">None</option>
-                                        <option value="yellow">Yellow</option>
-                                        <option value="red">Red</option>
-                                        <option value="blue">Blue</option>
-                                        <option value="green">Green</option>
-                                        <option value="orange">Orange</option>
-                                        <option value="purple">Purple</option>
-                                    {{/select}}
-                                    </select>
-                                {{/switchcase}}
-                            {{/switchon}}
-                        {{/ifoneof}}
 
 
-                        <a class="remove-effect-button"><i class="fas fa-trash"></i></a>
-                    </div>
-                {{/each}}
+                    <a class="remove-effect-button"><i class="fas fa-trash"></i></a>
                 </div>
             {{/each}}
             </div>
+        {{/each}}
         </div>
     </section>
 </form>

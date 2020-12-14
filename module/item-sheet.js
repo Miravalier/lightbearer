@@ -32,7 +32,6 @@ export class LightbearerItemSheet extends ItemSheet {
 			template: "systems/lightbearer/html/item-sheet.html",
 			width: 520,
 			height: 480,
-            tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "usage"}]
 		});
     }
 
@@ -46,16 +45,67 @@ export class LightbearerItemSheet extends ItemSheet {
 
     /* -------------------------------------------- */
 
-    /** @override */
-    setPosition(options={}) {
-        const position = super.setPosition(options);
-        const sheetBody = this.element.find(".sheet-body");
-        const bodyHeight = position.height - 140;
-        sheetBody.css("height", bodyHeight);
-        return position;
+    async swapTargets(targetKey, otherKey)
+    {
+        if (!targetKey || !otherKey)
+            return;
+
+        const keyPath = `data.targets.${targetKey}`;
+        const otherPath = `data.targets.${otherKey}`;
+
+        const targets = this.item.data.data.targets;
+        const updates = {};
+
+        for (const [k, v] of Object.entries(targets[targetKey]))
+        {
+            if (k == "effects") continue;
+            updates[`${otherPath}.${k}`] = v;
+        }
+        for (const [k, v] of Object.entries(targets[otherKey]))
+        {
+            if (k == "effects") continue;
+            updates[`${keyPath}.${k}`] = v;
+        }
+
+        for (const [k, v] of Object.entries(targets[targetKey].effects))
+        {
+            if (!k || v == null) continue;
+            updates[`${otherPath}.effects.${k}`] = v;
+            updates[`${keyPath}.effects.-=${k}`] = null;
+        }
+        for (const [k, v] of Object.entries(targets[otherKey].effects))
+        {
+            if (!k || v == null) continue;
+            updates[`${keyPath}.effects.${k}`] = v;
+            updates[`${otherPath}.effects.-=${k}`] = null;
+        }
+
+        this.object.update(updates);
     }
 
-    /* -------------------------------------------- */
+    async swapEffects(targetKey, effectKey, otherKey)
+    {
+        if (!targetKey || !effectKey || !otherKey)
+            return;
+
+        const keyPath = `data.targets.${targetKey}.effects.${effectKey}`;
+        const otherPath = `data.targets.${targetKey}.effects.${otherKey}`;
+
+        const effects = this.item.data.data.targets[targetKey].effects;
+        const updates = {};
+
+        for (const [k, v] of Object.entries(effects[effectKey]))
+        {
+            updates[`${otherPath}.${k}`] = v;
+        }
+        for (const [k, v] of Object.entries(effects[otherKey]))
+        {
+            updates[`${keyPath}.${k}`] = v;
+        }
+
+        this.object.update(updates);
+    }
+
 
     /** @override */
 	activateListeners(html) {
@@ -71,14 +121,53 @@ export class LightbearerItemSheet extends ItemSheet {
                 effects: {}
             };
             this.object.update(updates)
-            await this._onSubmit(ev);
+        });
+
+
+        html.find(".target-up").click(async ev => {
+            const target = $(ev.target.closest(".target"));
+            const targetKey = target.data("key");
+            const otherKey = target.prev().prev().data("key");
+
+            console.log(targetKey, otherKey);
+
+            await this.swapTargets(targetKey, otherKey);
+        });
+
+        html.find(".target-down").click(async ev => {
+            const target = $(ev.target.closest(".target"));
+            const targetKey = target.data("key");
+            const otherKey = target.next().next().data("key");
+
+            console.log(targetKey, otherKey);
+
+            await this.swapTargets(targetKey, otherKey);
+        });
+
+        html.find(".effect-up").click(async ev => {
+            const effectList = $(ev.target.closest(".effect-list"));
+            const effect = $(ev.target.closest(".effect"));
+            const targetKey = effectList.data("parentKey");
+            const effectKey = effect.data("key");
+            const otherKey = effect.prev().data("key");
+
+            await this.swapEffects(targetKey, effectKey, otherKey);
+        });
+
+        html.find(".effect-down").click(async ev => {
+            const effectList = $(ev.target.closest(".effect-list"));
+            const effect = $(ev.target.closest(".effect"));
+            const targetKey = effectList.data("parentKey");
+            const effectKey = effect.data("key");
+            const otherKey = effect.next().data("key");
+
+            await this.swapEffects(targetKey, effectKey, otherKey);
         });
 
         html.find(".remove-target-button").click(async ev => {
             const target = ev.target.closest(".target");
             this.deleteValue("data.targets", target.dataset.key);
-            target.parentElement.removeChild(target);
-            await this._onSubmit(ev);
+            //target.parentElement.removeChild(target);
         });
 
         html.find(".add-effect-button").click(async ev => {
@@ -88,18 +177,16 @@ export class LightbearerItemSheet extends ItemSheet {
                 "type": "Text"
             };
             this.object.update(updates)
-            await this._onSubmit(ev);
         });
 
         html.find(".remove-effect-button").click(async ev => {
             const effectList = ev.target.closest(".effect-list");
             const effect = ev.target.closest(".effect");
             this.deleteValue(
-                `data.targets.${effectList.dataset.key}.effects`,
+                `data.targets.${effectList.dataset.parentKey}.effects`,
                 effect.dataset.key
             );
-            effect.parentElement.removeChild(effect);
-            await this._onSubmit(ev);
+            //effect.parentElement.removeChild(effect);
         });
     }
 

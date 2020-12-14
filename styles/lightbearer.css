@@ -44,14 +44,23 @@ nav.sheet-tabs {
 .lightbearer .sheet-body {
     overflow: hidden;
 }
+
+/*
 .lightbearer .sheet-body .tab {
     height: 100%;
     overflow-y: auto;
 }
-.lightbearer .editor,
-.lightbearer .editor-content {
+.lightbearer .editor {
     height: 100%;
 }
+.lightbearer .editor-content {
+    height: 100%;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0px 4px;
+    border-radius: 4px;
+}
+*/
+
 .lightbearer.sheet.actor {
     min-width: 560px;
     min-height: 420px;
@@ -172,17 +181,25 @@ img.lightbearer.emoji {
     align-items: center;
 }
 
-.target-list .target i,
+.target-list .target i {
+    margin: 2px;
+}
+
 .target-list .target .field input,
 .target-list .target .field select {
     margin: 4px;
     flex: 1;
 }
 
+.target-list .target .field input[type="checkbox"] {
+    flex: 0 0 16px;
+}
+
 input.formula {
     font-family: monospace;
 }
 
+/*
 .sheet .sheet-body,
 .sheet .sheet-body .tab,
 .sheet .sheet-body .tab .editor,
@@ -191,9 +208,14 @@ input.formula {
     height: 100%;
 }
 
+.sheet .sheet-body .tab.noscroll {
+    overflow-y: hidden;
+}
+
 .sheet .tox.tox-tinymce {
     height: 100%;
 }
+*/
 
 .lightbearer.sheet .ability {
     display: flex;
@@ -201,6 +223,14 @@ input.formula {
     background: rgba(0, 0, 0, 0.05);
     border-radius: 4px;
     margin: 2px 0px;
+    align-items: center;
+}
+
+.lightbearer.sheet .ability .icon {
+    margin: 4px 0px 4px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .lightbearer.sheet .ability .name {
@@ -432,7 +462,7 @@ input.formula {
 }
 
 .roll-results .die.d4 {
-    background-image: url("/icons/svg/d6-grey.svg");
+    background-image: url("/icons/svg/d4-grey.svg");
 }
 
 .roll-results .die.d8 {
@@ -481,4 +511,15 @@ input.formula {
 
 a.editor-edit {
     display: block;
+}
+
+a.header-button.configure-sheet {
+    display: none;
+}
+
+.sheet-body textarea.paragraph {
+    height: 10em;
+    width: 100%;
+    resize: none;
+    font-family: "Signika", sans-serif;
 }

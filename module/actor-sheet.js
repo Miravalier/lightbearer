@@ -75,17 +75,6 @@ export class LightbearerActorSheet extends ActorSheet {
     /* -------------------------------------------- */
 
     /** @override */
-    setPosition(options={}) {
-        const position = super.setPosition(options);
-        const sheetBody = this.element.find(".sheet-body");
-        const bodyHeight = position.height - 150;
-        sheetBody.css("height", bodyHeight);
-        return position;
-    }
-
-    /* -------------------------------------------- */
-
-    /** @override */
     activateListeners(html) {
         super.activateListeners(html);
 
@@ -101,6 +90,14 @@ export class LightbearerActorSheet extends ActorSheet {
         html.find(".roll-skill").click(ev => {
             const skill = ev.target.closest(".skill");
             this.actor.send(skill.dataset.label, `2d6+@${skill.dataset.key}+@${skill.dataset.stat}`);
+        });
+
+        // New Ability
+        html.find('.new-ability').click(ev => {
+            this.actor.createOwnedItem({
+                name: "New Ability",
+                type: "Ability"
+            });
         });
 
         // Use Ability
@@ -120,8 +117,17 @@ export class LightbearerActorSheet extends ActorSheet {
         // Delete Ability
         html.find('.ability .control.delete').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
-            this.actor.deleteOwnedItem(li.data("itemId"));
-            li.slideUp(200, () => this.render(false));
+            const ability = this.actor.getOwnedItem(li.data("itemId"));
+            Dialog.confirm({
+                title: `Delete ${ability.name}?`,
+                content: "",
+                yes: html => {
+                    this.actor.deleteOwnedItem(li.data("itemId"));
+                    li.slideUp(200, () => this.render(false));
+                },
+                no: () => {},
+                defaultYes: false
+            });
         });
     }
 }

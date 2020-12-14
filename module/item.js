@@ -128,14 +128,16 @@ export class LightbearerItem extends Item {
                 if (template)
                 {
                     template.tokens.forEach(token => {
+                        let actor;
                         if (token.actor !== undefined)
-                        {
-                            actors.push(token.actor);
-                        }
+                            actor = token.actor;
                         else
-                        {
-                            actors.push(game.actors.get(token.actorId));
-                        }
+                            actor = game.actors.get(token.actorId);
+
+                        if (actor.id == this.actor.id && target.excludeSelf)
+                            return;
+
+                        actors.push(actor);
                     });
                 }
                 Object.values(target.effects).filter(e => e.type == "Texture").forEach(effect => {
@@ -275,22 +277,14 @@ export class LightbearerItem extends Item {
             }
         }
 
-        // Use action / reaction / cooldown status
+        // Use action / reaction
         if (this.data.data.action)
         {
             this.actor.useAction();
         }
         if (this.data.data.reaction)
         {
-            if (this.data.data.cooldown)
-            {
-                chat.ErrorMessage(`${this.name} is on cooldown.`);
-            }
-            else
-            {
-                this.actor.useReaction();
-                this.update({"data.cooldown": true});
-            }
+            this.actor.useReaction();
         }
 
         // Send complete template into the chat

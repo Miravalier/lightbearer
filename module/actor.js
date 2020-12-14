@@ -91,13 +91,6 @@ export class LightbearerActor extends Actor {
             "data.actions.value": data.actions.max,
             "data.reactions.value": data.reactions.max,
         });
-
-        this.items.forEach(item => {
-            if (item.data.data.cooldown)
-            {
-                item.update({"data.cooldown": false})
-            }
-        });
     }
 
     // Called when a round is reset

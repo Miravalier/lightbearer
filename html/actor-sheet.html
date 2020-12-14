@@ -12,19 +12,12 @@
 
     {{!-- Sheet Tab Navigation --}}
     <nav class="sheet-tabs tabs" data-group="primary">
-        <a class="item" data-tab="notes">Notes</a>
         <a class="item" data-tab="stats">Stats</a>
         <a class="item" data-tab="abilities">Abilities</a>
     </nav>
 
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-
-        {{!-- Notes Tab --}}
-        <div class="tab" data-group="primary" data-tab="notes">
-            {{editor content=data.notes target="data.notes" button=true owner=owner editable=editable}}
-        </div>
-
         {{!-- Abilities Tab --}}
         <div class="tab" data-group="primary" data-tab="abilities">
             <div class="row">
@@ -55,16 +48,22 @@
             <div class="abilities column">
             {{#each abilities as |ability id|}}
                 <div class="ability" data-item-id="{{ability._id}}">
-                    {{#if ability.data.cooldown}}
-                        <img class="ability-icon cooldown" src="systems/lightbearer/resources/cooldown_icon.svg" title="Cooldown"/>
-                    {{/if}}
-                    {{#if ability.data.action}}
-                        <img class="ability-icon action" src="systems/lightbearer/resources/action_icon.svg" title="Action"/>
-                    {{/if}}
-                    {{#if ability.data.reaction}}
-                        <img class="ability-icon reaction" src="systems/lightbearer/resources/reaction_icon.svg" title="Reaction"/>
+                    {{#ifeq ability.data.actionCost "action"}}
+                        <i class="icon fas fa-circle"></i>
+                    {{/ifeq}}
+                    {{#ifeq ability.data.actionCost "reaction"}}
+                        <i class="icon fas fa-exclamation-circle"></i>
+                    {{/ifeq}}
+                    {{#if ability.data.manaCost}}
+                        <div class="icon">
+                            <span>{{ability.data.manaCost}}</span>
+                            <i class="fas fa-bolt"></i>
+                        </div>
                     {{/if}}
                     <a class="name">{{ability.name}}</a>
+                    <a class="control edit" title="Show Ability">
+                        <i class="fas fa-comment-dots"></i>
+                    </a>
                     <a class="control edit" title="Edit Ability">
                         <i class="fas fa-edit"></i>
                     </a>
