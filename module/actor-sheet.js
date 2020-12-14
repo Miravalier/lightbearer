@@ -1,3 +1,5 @@
+import * as chat from "./chat.js";
+
 /**
  * Extends the basic ActorSheet.
  * @extends {ActorSheet}
@@ -105,6 +107,16 @@ export class LightbearerActorSheet extends ActorSheet {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
             ability.use();
+        });
+
+        // Show Ability
+        html.find('.ability .control.show').click(ev => {
+            const li = $(ev.currentTarget).parents(".ability");
+            const ability = this.actor.getOwnedItem(li.data("itemId"));
+            chat.send(chat.dedent(`
+                ${chat.templateHeader(ability)}
+                ${chat.templateDescription(ability.data.data.description)}
+            `));
         });
 
         // Update Ability
