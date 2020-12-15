@@ -8,7 +8,7 @@
   "templateVersion": 2,
   "author": "Miravalier",
   "esmodules": ["module/lightbearer.js"],
-  "styles": ["styles/lightbearer.css"],
+  "styles": ["styles/lightbearer.css", "styles/fa.css"],
   "packs": [],
   "languages": [],
   "gridDistance": 5,

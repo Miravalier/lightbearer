@@ -52,7 +52,7 @@ Hooks.once("init", async function() {
             "memory": iconize("Memory", "book-open"),
             "perception": iconize("Perception", "eye"),
             "artifice": iconize("Artifice", "cogs"),
-            "melee": iconize("Melee Combat", "shield-alt"),
+            "melee": iconize("Melee Combat", "swords"),
             "ranged": iconize("Ranged Combat", "crosshairs"),
             "spellwork": iconize("Spellwork", "hand-sparkles"),
             "stealth": iconize("Stealth", "low-vision"),

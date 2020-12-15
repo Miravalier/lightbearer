@@ -91,7 +91,7 @@ export class LightbearerActorSheet extends ActorSheet {
 
         html.find(".roll-skill").click(ev => {
             const skill = ev.target.closest(".skill");
-            this.actor.send(skill.dataset.label, `2d6+@${skill.dataset.key}+@${skill.dataset.stat}`);
+            this.actor.send(skill.dataset.label, `2d6+@${skill.dataset.key}`);
         });
 
         // New Ability

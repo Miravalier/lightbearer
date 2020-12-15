@@ -277,14 +277,28 @@ export class LightbearerItem extends Item {
             }
         }
 
-        // Use action / reaction
-        if (this.data.data.action)
-        {
-            this.actor.useAction();
-        }
-        if (this.data.data.reaction)
-        {
-            this.actor.useReaction();
+        if (game.combat && game.combat.combatant) {
+            const updates = {};
+
+            // Use action / reaction
+            if (this.data.data.actionCost == "action")
+            {
+                updates["data.actions.value"] = this.actor.data.data.actions.value - 1;
+
+            }
+            else if (this.data.data.actionCost == "reaction")
+            {
+                updates["data.reactions.value"] = this.actor.data.data.reactions.value - 1;
+            }
+
+            // Spend mana
+            const mana = this.data.data.manaCost;
+            if (mana)
+            {
+                updates["data.mana.value"] = this.actor.data.data.mana.value - mana;
+            }
+
+            this.actor.update(updates);
         }
 
         // Send complete template into the chat

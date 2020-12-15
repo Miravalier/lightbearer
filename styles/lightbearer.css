@@ -523,3 +523,22 @@ a.header-button.configure-sheet {
     resize: none;
     font-family: "Signika", sans-serif;
 }
+
+.sheet .sheet-body .tab.abilities .resources {
+    align-items: space-evenly;
+    justify-content: space-evenly;
+}
+.sheet .sheet-body .tab.abilities .resources .label {
+    min-width: fit-content;
+    padding: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.sheet .sheet-body .tab.abilities .resources .value {
+    width: 2em;
+}
+.sheet .sheet-body .tab.abilities .resources .hp .value {
+    width: 2.75em;
+}

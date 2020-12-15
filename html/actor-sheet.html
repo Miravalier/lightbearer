@@ -19,29 +19,54 @@
     {{!-- Sheet Body --}}
     <section class="sheet-body">
         {{!-- Abilities Tab --}}
-        <div class="tab" data-group="primary" data-tab="abilities">
-            <div class="row">
-                <div class="row">
-                    <div class="caption label">HP</div>
-                    <span class="value">{{data.health.value}}</span>
+        <div class="tab abilities" data-group="primary" data-tab="abilities">
+            <div class="resources row">
+                <div class="row hp">
+                    <div class="caption label"><i class="fas fa-plus-square"></i></div>
+                    <input class="value" type="number"
+                        name="data.health.value"
+                        value="{{data.health.value}}"/>
                     <span>/</span>
-                    <span class="value">{{data.health.max}}</span>
+                    <input class="value" type="number"
+                        name="data.health.max"
+                        value="{{data.health.max}}"/>
                 </div>
 
-                <div class="divider"></div>
-
-                <div class="row">
-                    <div class="caption label">Mana</div>
-                    <span class="value">{{data.mana.value}}</span>
+                <div class="row mana">
+                    <div class="caption label"><i class="fas fa-bolt"></i></div>
+                    <input class="value" type="number"
+                        name="data.mana.value"
+                        value="{{data.mana.value}}"/>
                     <span>/</span>
-                    <span class="value">{{data.mana.max}}</span>
+                    <input class="value" type="number"
+                        name="data.mana.max"
+                        value="{{data.mana.max}}"/>
                 </div>
 
-                <div class="divider"></div>
+                <div class="row actions">
+                    <div class="caption label"><i class="fas fa-circle"></i></div>
+                    <input class="value" type="number"
+                        name="data.actions.value"
+                        value="{{data.actions.value}}"/>
+                    <span>/</span>
+                    <input class="value" type="number"
+                        name="data.actions.max"
+                        value="{{data.actions.max}}"/>
+                </div>
 
-                <a class="new-ability label" title="New Ability">
+                <div class="row reactions">
+                    <div class="caption label"><i class="fas fa-exclamation-circle"></i></div>
+                    <input class="value" type="number"
+                        name="data.reactions.value"
+                        value="{{data.reactions.value}}"/>
+                    <span>/</span>
+                    <input class="value" type="number"
+                        name="data.reactions.max"
+                        value="{{data.reactions.max}}"/>
+                </div>
+
+                <a class="new-ability label">
                     <span>Add Ability</span>
-                    <i class="fas fa-plus"></i>
                 </a>
             </div>
 
@@ -78,34 +103,6 @@
         {{!-- Stats Tab --}}
         <div class="tab" data-group="primary" data-tab="stats">
             <div class="column">
-                <div class="row">
-                    <div class="row">
-                        <div class="caption label">HP</div>
-                        <input class="value" type="number"
-                            name="data.health.value"
-                            value="{{data.health.value}}"/>
-                        <span>/</span>
-                        <input class="value" type="number"
-                            name="data.health.max"
-                            value="{{data.health.max}}"/>
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <div class="row">
-                        <div class="caption label">Mana</div>
-                        <input class="value" type="number"
-                            name="data.mana.value"
-                            value="{{data.mana.value}}"/>
-                        <span>/</span>
-                        <input class="value" type="number"
-                            name="data.mana.max"
-                            value="{{data.mana.max}}"/>
-                    </div>
-                </div>
-
-                <div class="divider"></div>
-
                 <div class="row">
                     <div class="caption">Attributes</div>
                     {{#ifgt statTotal 80}}

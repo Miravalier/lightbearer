@@ -42,12 +42,12 @@ export class LightbearerActor extends Actor {
 
         for (const [key, skill] of Object.entries(actorData.skills))
         {
-            let skillBonus = 0;
-            if (skill.level === "Novice") skillBonus = 2;
-            else if (skill.level === "Skilled") skillBonus = 4;
-            else if (skill.level === "Expert") skillBonus = 6;
-            else if (skill.level === "Master") skillBonus = 8;
-            else if (skill.level === "Legend") skillBonus = 10;
+            let skillBonus = data[skill.stat];
+            if (skill.level === "Novice") skillBonus += 2;
+            else if (skill.level === "Skilled") skillBonus += 4;
+            else if (skill.level === "Expert") skillBonus += 6;
+            else if (skill.level === "Master") skillBonus += 8;
+            else if (skill.level === "Legend") skillBonus += 10;
 
             data[key] = skillBonus;
             data[skill.label] = skillBonus;
@@ -73,68 +73,46 @@ export class LightbearerActor extends Actor {
     send(label, formula) {
         chat.send(chat.dedent(`
             ${chat.templateHeader(this)}
-            ${chat.templateRow(label, formula, this.getRollData())}
+            ${chat.templateRow(label, formula, "", this.getRollData())}
         `));
     }
 
-    // Called when a new round begins
-    startRound(combat) {
-        const actorData = this.data
-        const data = actorData.data;
-
-        if (actorData.type !== "character")
-            return;
+    startCombat() {
+        const data = this.data.data;
 
         this.update({
+            "data.mana.previous": data.mana.value,
             "data.actions.previous": data.actions.value,
             "data.reactions.previous": data.reactions.value,
+            "data.mana.value": data.mana.max,
+            "data.actions.value": data.actions.max,
+            "data.reactions.value": data.reactions.max,
+        });
+    }
+
+    // Called when a new round begins
+    startRound() {
+        const data = this.data.data;
+
+        this.update({
+            "data.mana.previous": data.mana.value,
+            "data.actions.previous": data.actions.value,
+            "data.reactions.previous": data.reactions.value,
+            "data.mana.value": Math.min(data.mana.value + 1, data.mana.max),
             "data.actions.value": data.actions.max,
             "data.reactions.value": data.reactions.max,
         });
     }
 
     // Called when a round is reset
-    undoRound(combat) {
-        const actorData = this.data
-        const data = actorData.data;
-
-        if (actorData.type !== "character")
-            return;
+    undoRound() {
+        const data = this.data.data;
 
         this.update({
+            "data.mana.value": data.mana.previous,
             "data.actions.value": data.actions.previous,
             "data.reactions.value": data.reactions.previous,
         });
-    }
-
-    useAction() {
-        // Only applies in combat
-        if (!game.combat || !game.combat.combatant) return true;
-
-        let actions = this.data.data.actions.value;
-        if (actions <= 0) {
-            chat.ErrorMessage("Not enough actions.");
-            return false;
-        }
-        else {
-            this.update({"data.actions.value": actions - 1})
-            return true;
-        }
-    }
-
-    useReaction() {
-        // Only applies in combat
-        if (!game.combat || !game.combat.combatant) return true;
-
-        let reactions = this.data.data.reactions.value;
-        if (reactions <= 0) {
-            chat.ErrorMessage("Not enough reactions.");
-            return false;
-        }
-        else {
-            this.update({"data.reactions.value": reactions - 1})
-            return true;
-        }
     }
 
     focusOn() {
