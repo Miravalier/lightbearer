@@ -184,5 +184,5 @@ export function autoAttack(actorId, itemCriterion, targetCriterion)
         return;
 	}
 
-    attack.use(target);
+    attack.use(token);
 }

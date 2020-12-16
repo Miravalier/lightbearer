@@ -15,13 +15,21 @@ export class LightbearerItem extends Item {
 
     // Public methods
     async use(usingToken) {
+        // Try to find the token in the list of controlled tokens
+        if (!usingToken) {
+            usingToken = canvas.tokens.controlled.find(token => {
+                return token.actor.id == this.actor.id;
+            });
+        }
+        // Try to find the token in the active scene
         if (!usingToken) {
             const scene = game.scenes.get(game.user.viewedScene);
             usingToken = this.actor.getActiveTokens().find(token => {
                 return token.scene.id == scene.id;
-            })
+            });
         }
-        if (!this.actor) {
+        // If no token was found, return
+        if (!usingToken) {
             return;
         }
 
@@ -134,9 +142,22 @@ export class LightbearerItem extends Item {
                         else
                             actor = game.actors.get(token.actorId);
 
-                        if (actor.id == this.actor.id && target.excludeSelf)
+                        console.log(target.criteria, token.name, token.disposition, usingToken.data.disposition);
+
+                        if (actor.id == this.actor.id &&
+                                target.type.startsWith("Close") &&
+                                !target.includeSelf)
                             return;
 
+                        if (target.criteria == "Enemy" &&
+                                token.disposition == usingToken.data.disposition)
+                            return;
+
+                        if (target.criteria == "Ally" &&
+                                token.disposition != usingToken.data.disposition)
+                            return;
+
+                        
                         actors.push(actor);
                     });
                 }

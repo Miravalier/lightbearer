@@ -2,7 +2,11 @@
     "Actor": {
         "types": ["Character"],
         "Character": {
-            "category": "unique",
+            "category": "single",
+            "class": "Assassin",
+            "class_one": "Assassin",
+            "class_two": "Cleric",
+            "race": "Human",
             "notes": "",
             "actions": {
                 "value": 0,

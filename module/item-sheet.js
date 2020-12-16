@@ -118,6 +118,7 @@ export class LightbearerItemSheet extends ItemSheet {
             const updates = {};
             updates[`data.targets._${randomID(16)}`] = {
                 "type": "None",
+                "includeSelf": false,
                 effects: {}
             };
             this.object.update(updates)

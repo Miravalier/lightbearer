@@ -38,13 +38,12 @@
         <div class="target-list">
         {{#each data.targets as |target tkey|}}
             <div class="target" data-key="{{tkey}}">
-                <div class="field">
+                <div class="column">
                     <a class="target-up"><i class="fas fa-arrow-up"></i></a>
                     <a class="target-down"><i class="fas fa-arrow-down"></i></a>
                 </div>
 
                 <div class="field">
-                    <span>Target</span>
                     <select name="data.targets.{{tkey}}.type">
                     {{#select target.type}}
                         <option value="None">Self</option>
@@ -62,17 +61,9 @@
                     </select>
                 </div>
 
-                {{#ifoneof target.type "Creature,Group,Point,Sphere,Ray,Cone"}}
-                <div class="field">
-                    <span>Range</span>
-                    <input class="range" type="number"
-                        name="data.targets.{{tkey}}.range"
-                        value="{{target.range}}"/>
-                </div>
-                {{/ifoneof}}
                 {{#ifoneof target.type "Sphere,Close Sphere,Square,Close Square"}}
                 <div class="field">
-                    <span>Radius</span>
+                    <span>Size</span>
                     <input class="radius" type="number"
                         name="data.targets.{{tkey}}.radius"
                         value="{{target.radius}}"/>
@@ -80,20 +71,34 @@
                 {{/ifoneof}}
                 {{#ifoneof target.type "Ray,Cone,Close Ray,Close Cone"}}
                 <div class="field">
-                    <span>Length</span>
+                    <span>Size</span>
                     <input class="length" type="number"
                         name="data.targets.{{tkey}}.length"
                         value="{{target.length}}"/>
                 </div>
                 {{/ifoneof}}
 
-                {{#ifoneof target.type "Close Sphere, Close Square"}}
+                {{#ifnoneof target.type "None,Creature,Group"}}
                 <div class="field">
-                    <span>Exclude Self</span>
-                    <input type="checkbox"
-                        name="data.targets.{{tkey}}.excludeSelf"
-                        {{checked target.excludeSelf}}/>
+                    <select name="data.targets.{{tkey}}.criteria">
+                    {{#select target.criteria}}
+                        <option value="Any">Any</option>
+                        <option value="Ally">Ally</option>
+                        <option value="Enemy">Enemy</option>
+                    {{/select}}
+                    </select>
                 </div>
+                {{/ifnoneof}}
+
+                {{#ifoneof target.type "Close Sphere,Close Square"}}
+                {{#ifneq target.criteria "Enemy"}}
+                <div class="field">
+                    <span>Self</span>
+                    <input type="checkbox"
+                        name="data.targets.{{tkey}}.includeSelf"
+                        {{checked target.includeSelf}}/>
+                </div>
+                {{/ifneq}}
                 {{/ifoneof}}
 
                 <a class="add-effect-button"><i class="fas fa-plus"></i></a>

@@ -9,8 +9,14 @@ nav.sheet-tabs {
     margin: 0px;
     border: none;
 }
-.sheet .lightbearer.sheet-header h1.charname input {
+.item.sheet .lightbearer.sheet-header h1.charname input {
     height: 36px;
+    width: 100%;
+    margin: 4px 0px;
+}
+.actor.sheet .lightbearer.sheet-header h1.charname input {
+    width: calc(100% - 4px);
+    margin: 0px 4px;
 }
 .sheet .lightbearer.sheet-header .row {
     display: flex;
@@ -18,7 +24,7 @@ nav.sheet-tabs {
     justify-content: space-around;
     align-items: center;
 }
-.sheet .lightbearer.sheet-header .field {
+.sheet .field {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
@@ -541,4 +547,23 @@ a.header-button.configure-sheet {
 }
 .sheet .sheet-body .tab.abilities .resources .hp .value {
     width: 2.75em;
+}
+
+.lightbearer.sheet .known .ability.action {
+    order: 0;
+}
+.lightbearer.sheet .known .ability.reaction {
+    order: 1;
+}
+.lightbearer.sheet .known .ability.none {
+    order: 2;
+}
+.lightbearer .circle {
+    background: rgba(0, 0, 0, 0.075);
+    border-radius: 50%;
+    padding: 2px;
+    display: flex;
+}
+.lightbearer .grey {
+    color: #6d6d6d;
 }

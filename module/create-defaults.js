@@ -55,7 +55,7 @@ export function preCreateToken(scene, data, options, userId)
         data.bar2 = {attribute: "mana"};
     }
 
-    if (actor.data.data.category === "unique")
+    if (actor.data.data.category !== "npc")
     {
         data.actorLink = true;
     }

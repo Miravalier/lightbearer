@@ -1,5 +1,34 @@
 import * as chat from "./chat.js";
 
+function getAbility(folderName, abilityName)
+{
+    let folder = game.folders.find(f => f.name == folderName && f.type == "Item");
+    if (!folder) return null;
+
+    for (const item of folder.content)
+    {
+        if (item.name == abilityName)
+        {
+            return item;
+        }
+    }
+
+    return null;
+}
+
+function getAbilities(folderName)
+{
+    let folder = game.folders.find(f => f.name == folderName && f.type == "Item");
+    if (!folder) return [];
+
+    const abilities = [];
+    for (const item of folder.content)
+    {
+        abilities.push(item)
+    }
+    return abilities;
+}
+
 /**
  * Extends the basic ActorSheet.
  * @extends {ActorSheet}
@@ -13,7 +42,8 @@ export class LightbearerActorSheet extends ActorSheet {
   	        template: "systems/lightbearer/html/actor-sheet.html",
             width: 600,
             height: 600,
-            tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "abilities"}]
+            tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "abilities"}],
+            dragDrop: [{dragSelector: ".abilities .ability"}],
         });
     }
 
@@ -23,18 +53,60 @@ export class LightbearerActorSheet extends ActorSheet {
     getData() {
         const actorData = this.actor.data.data;
         const data = super.getData();
-        data.inventory = [];
         data.abilities = [];
         for (let item of data.items)
         {
-            if (item.type === "Item")
-            {
-                data.inventory.push(item);
-            }
-            else if (item.type === "Ability")
+            if (item.type === "Ability")
             {
                 data.abilities.push(item);
             }
+        }
+
+        // Find available abilities
+        data.available = [];
+        if (actorData.category == "single")
+        {
+            for (let ability of getAbilities(actorData['class']))
+            {
+                data.available.push({
+                    name: ability.name,
+                    source: actorData['class'],
+                    actionCost: ability.data.data.actionCost,
+                    manaCost: ability.data.data.manaCost,
+                });
+            }
+        }
+        else if (actorData.category == "dual")
+        {
+            for (let ability of getAbilities(actorData['class_one']))
+            {
+                if (ability.name.endsWith("+")) continue;
+                data.available.push({
+                    name: ability.name,
+                    source: actorData['class_one'],
+                    actionCost: ability.data.data.actionCost,
+                    manaCost: ability.data.data.manaCost,
+                });
+            }
+            for (let ability of getAbilities(actorData['class_two']))
+            {
+                if (ability.name.endsWith("+")) continue;
+                data.available.push({
+                    name: ability.name,
+                    source: actorData['class_two'],
+                    actionCost: ability.data.data.actionCost,
+                    manaCost: ability.data.data.manaCost,
+                });
+            }
+        }
+        for (let ability of getAbilities(actorData['race']))
+        {
+            data.available.push({
+                name: ability.name,
+                source: actorData['race'],
+                actionCost: ability.data.data.actionCost,
+                manaCost: ability.data.data.manaCost,
+            });
         }
 
         // Determine physique and cunning
@@ -83,6 +155,14 @@ export class LightbearerActorSheet extends ActorSheet {
         // Everything below here is only needed if the sheet is editable
         if (!this.options.editable) return;
 
+        html.find(".hide-available").click(ev => {
+            this.actor.update({"data.availableHidden": true});
+        });
+
+        html.find(".show-available").click(ev => {
+            this.actor.update({"data.availableHidden": false});
+        });
+
         // Stat rolls
         html.find(".roll-stat").click(ev => {
             const attribute = ev.target.closest(".attribute");
@@ -99,18 +179,38 @@ export class LightbearerActorSheet extends ActorSheet {
             this.actor.createOwnedItem({
                 name: "New Ability",
                 type: "Ability"
+            }, {renderSheet: true});
+        });
+
+        // Available ability preview
+        html.find('.available .ability .control.preview').click(ev => {
+            const li = $(ev.currentTarget).parents(".ability");
+            const ability = getAbility(li.data("source"), li.data("name"));
+            ability.sheet.render(true);
+        });
+
+        // Available ability select
+        html.find('.available .ability .control.select').click(ev => {
+            const li = $(ev.currentTarget).parents(".ability");
+            const ability = getAbility(li.data("source"), li.data("name"));
+
+            this.actor.createOwnedItem({
+                name: ability.name,
+                type: "Ability",
+                data: ability.data.data
             });
         });
 
+
         // Use Ability
-        html.find('.ability .name').click(ev => {
+        html.find('.known .ability .name').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
             ability.use();
         });
 
         // Show Ability
-        html.find('.ability .control.show').click(ev => {
+        html.find('.known .ability .control.show').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
             chat.send(chat.dedent(`
@@ -120,14 +220,14 @@ export class LightbearerActorSheet extends ActorSheet {
         });
 
         // Update Ability
-        html.find('.ability .control.edit').click(ev => {
+        html.find('.known .ability .control.edit').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
             ability.sheet.render(true);
         });
 
         // Delete Ability
-        html.find('.ability .control.delete').click(ev => {
+        html.find('.known .ability .control.delete').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
             Dialog.confirm({
