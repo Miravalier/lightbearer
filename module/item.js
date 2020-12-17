@@ -133,7 +133,7 @@ export class LightbearerItem extends Item {
                         origin: usingToken
                     });
                 }
-                if (template)
+                if (template && target.criteria != "None")
                 {
                     template.tokens.forEach(token => {
                         let actor;
@@ -243,6 +243,17 @@ export class LightbearerItem extends Item {
                             effect.formula,
                             effect.color,
                             actor.getRollData(),
+                        ));
+                    }
+                    else if (effect.type == "Table")
+                    {
+                        const choices = effect.choices.split(',').map(c => c.trim());
+                        const choice = choices[Math.floor(Math.random() * choices.length)];
+                        subitems.push(chat.templateRow(
+                            effect.label,
+                            choice,
+                            effect.color,
+                            actor.getRollData()
                         ));
                     }
                     else if (effect.type == "Check")

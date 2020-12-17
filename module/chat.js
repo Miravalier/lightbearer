@@ -585,6 +585,11 @@ export function templateRow(label, formula, color, rollData)
 {
     if (rollData === undefined)
         rollData = {};
+    if (color === undefined)
+        color = "";
+
+    if (!Roll.validate(formula))
+        return templateTextRow(label, formula, color);
 
     const roll = new Roll(formula, rollData);
     roll.roll();
@@ -640,6 +645,17 @@ export function templateRow(label, formula, color, rollData)
             <div class="roll" data-results="${resultString}">
                 ${Math.round(roll.total)}
             </div>
+        </div>
+    `);
+}
+
+
+export function templateTextRow(label, text, color)
+{
+    if (color === undefined) color = "";
+    return dedent(`
+        <div class="item ${color}">
+            <div class="label">${label}: ${text}</div>
         </div>
     `);
 }
