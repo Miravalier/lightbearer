@@ -33,7 +33,7 @@ export class LightbearerItem extends Item {
             return;
         }
 
-        const items = [];
+        const items = [chat.templateDescription(this.data.data.description)];
         const results = {};
 
         // For each target
@@ -301,11 +301,11 @@ export class LightbearerItem extends Item {
         for (const [actorId, subitems] of resultEntries)
         {
             const actor = game.actors.get(actorId);
-            if (resultEntries.length == 1 && actor.id == this.actor.id) {
-                items.push(chat.templateActor(actor, subitems.join('\n'), false));
+            if (actor.id == this.actor.id) {
+                items.push(chat.templateActor(actor, subitems.join('\n'), "Self"));
             }
             else {
-                items.push(chat.templateActor(actor, subitems.join('\n'), true));
+                items.push(chat.templateActor(actor, subitems.join('\n')));
             }
         }
 

@@ -92,14 +92,14 @@
                 {{/ifnoneof}}
 
                 {{#ifoneof target.type "Close Sphere,Close Square"}}
-                {{#ifneq target.criteria "Enemy"}}
+                {{#ifnoneof target.criteria "Enemy,None"}}
                 <div class="field">
                     <span>Self</span>
                     <input type="checkbox"
                         name="data.targets.{{tkey}}.includeSelf"
                         {{checked target.includeSelf}}/>
                 </div>
-                {{/ifneq}}
+                {{/ifnoneof}}
                 {{/ifoneof}}
 
                 <a class="add-effect-button"><i class="fas fa-plus"></i></a>
@@ -108,7 +108,7 @@
             <div class="effect-list" data-parent-key="{{tkey}}">
             {{#each target.effects as |effect ekey|}}
                 <div class="effect" data-key="{{ekey}}">
-                    <div>
+                    <div class="arrows">
                         <a class="effect-up"><i class="fas fa-arrow-up"></i></a>
                         <a class="effect-down"><i class="fas fa-arrow-down"></i></a>
                     </div>
@@ -117,7 +117,7 @@
                     {{#select effect.type}}
                         <option value="Text">Text</option>
                         <option value="Check">Check</option>
-                        <option value="Opposed Check">Opposed Check</option>
+                        <option value="Opposed Check">Opposed</option>
                         <option value="Amount">Amount</option>
                         {{#ifnoneof target.type "None,Creature,Group"}}
                         <option value="Texture">Texture</option>

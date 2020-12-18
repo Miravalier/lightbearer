@@ -551,7 +551,7 @@ export function send(content)
 export function templateActor(actor, content, displayName)
 {
     if (content === undefined) content = "";
-    if (displayName === undefined) displayName = true;
+    if (displayName === undefined) displayName = actor.name;
 
     let tags = "actor";
     if (actor.hasPlayerOwner) {
@@ -561,23 +561,12 @@ export function templateActor(actor, content, displayName)
         tags += " npc";
     }
 
-    if (displayName)
-    {
-        return dedent(`
-            <div class="${tags}">
-                <div class="name">${actor.name}</div>
-                ${content}
-            </div>
-        `);
-    }
-    else
-    {
-        return dedent(`
-            <div class="${tags}">
-                ${content}
-            </div>
-        `);
-    }
+    return dedent(`
+        <div class="${tags}">
+            <div class="name">${displayName}</div>
+            ${content}
+        </div>
+    `);
 }
 
 

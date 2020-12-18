@@ -567,3 +567,9 @@ a.header-button.configure-sheet {
 .lightbearer .grey {
     color: #6d6d6d;
 }
+.lightbearer .effect-list .effect .arrows {
+    display: flex;
+    flex-flow: column nowrap;
+    margin: 0px 4px;
+    flex: 0;
+}
