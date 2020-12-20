@@ -369,6 +369,20 @@
                             </select>
                         </div>
                     {{/ifneq}}
+
+                    <div class="field">
+                        <div class="label">Size</div>
+                        <select name="data.size">
+                        {{#select data.size}}
+                            <option value="Tiny">Tiny</option>
+                            <option value="Small">Small</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Large">Large</option>
+                            <option value="Huge">Huge</option>
+                            <option value="Gargantuan">Gargantuan</option>
+                        {{/select}}
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>

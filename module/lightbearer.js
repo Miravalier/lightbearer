@@ -38,6 +38,7 @@ Hooks.once("init", async function() {
         ActorMacro,
         OwnedItemMacro,
         getActor,
+        SetNPCNames: combatTracker.SetNPCNames,
         emoji: {
             'think': '/systems/lightbearer/emoji/think.gif',
             'oof': '/systems/lightbearer/emoji/oof.png',

@@ -160,7 +160,6 @@ export class LightbearerActor extends Actor {
 
 export function getActor(entity)
 {
-    console.log("Getting actor from:", entity);
     // Undefined, null, empty string
     if (!entity) return null;
 
@@ -177,7 +176,6 @@ export function getActor(entity)
         if (token) return getActor(token);
 
         // Return null, wrong type of string
-        console.log("Wrong type of string:", entity);
         return null;
     }
     // Full Actor
@@ -202,21 +200,19 @@ export function getActor(entity)
         if (token) return getActor(token) || entity;
 
         // No token exists for this actor, so just return the tokenless actor
-        console.log("No token exists for actor:", entity);
         return entity;
     }
     // Full Token
     else if (entity.constructor.name === "Token")
     {
-        console.log("Getting into here");
         // Check if an actor is already associated
         if (entity.actor) return entity.actor;
 
-        // Debug log
-        console.log("Full token with no actor:", entity);
+        // Should be unreachable, tokens have actors
+        console.error("Token does not have actor.");
         return null;
     }
-    // Token Data
+    // Generic Data Objects
     else
     {
         if (entity.actorId && entity._id)

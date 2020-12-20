@@ -8,6 +8,7 @@
             "class_two": "Cleric",
             "race": "Human",
             "notes": "",
+            "size": "Medium",
             "actions": {
                 "value": 0,
                 "max": 1

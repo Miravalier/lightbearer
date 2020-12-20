@@ -1,3 +1,4 @@
+import { getActor } from "./actor.js";
 import { TurnUpdateMessage, RoundUpdateMessage } from "./chat.js";
 
 function pointDistance(x1, y1, x2, y2)
@@ -105,4 +106,35 @@ export function onUpdateCombat(combat, update, options, userId)
     data.previousRound = update.round;
     data.previousName = combat.combatant.token.name;
     game.combat.update(data);
+}
+
+
+export function SetNPCNames()
+{
+    const originals = {};
+    const counts = {};
+    const updates = {};
+    canvas.tokens.ownedTokens.forEach(t => {
+        let actor = getActor(t.actor);
+        if (actor.data.data.category != "npc") return;
+        let token = actor.getToken();
+
+        let i = counts[actor.name];
+        if (!i) {
+            i = 1;
+            originals[actor.name] = token;
+            updates[token.id] = actor.name;
+        }
+        else {
+            updates[token.id] = actor.name + " " + i;
+        }
+        if (i == 2) {
+            updates[originals[actor.name].id] = actor.name + " 1";
+        }
+        counts[actor.name] = i + 1;
+    });
+    for (const [key, value] of Object.entries(updates))
+    {
+        canvas.tokens.get(key).update({name: value});
+    }
 }
