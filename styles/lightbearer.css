@@ -573,3 +573,12 @@ a.header-button.configure-sheet {
     margin: 0px 4px;
     flex: 0;
 }
+
+.ability-menu .control {
+    margin: 4px 0px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    padding: 3px;
+    font-weight: bold;
+    width: fit-content;
+}

@@ -5,7 +5,7 @@
  */
 
 // Import Modules
-import { LightbearerActor } from "./actor.js";
+import { getActor, LightbearerActor } from "./actor.js";
 import { LightbearerItem } from "./item.js";
 import { LightbearerItemSheet } from "./item-sheet.js";
 import { LightbearerActorSheet } from "./actor-sheet.js";
@@ -37,6 +37,7 @@ Hooks.once("init", async function() {
         ItemMacro,
         ActorMacro,
         OwnedItemMacro,
+        getActor,
         emoji: {
             'think': '/systems/lightbearer/emoji/think.gif',
             'oof': '/systems/lightbearer/emoji/oof.png',

@@ -6,6 +6,26 @@ import * as chat from "./chat.js";
  */
 export class LightbearerActor extends Actor {
 
+    getToken() {
+        // If this actor has a token, return it
+        if (this.token) return this.token;
+
+        // If one of the controlled tokens represents this actor,
+        // use that token.
+        let token = canvas.tokens.controlled.find(token => {
+            return token.actor.id == this.id
+        });
+        if (token) return token;
+
+        // If the active scene has any tokens representing this actor,
+        // use one of those.
+        const scene = game.scenes.get(game.user.viewedScene);
+        token = this.getActiveTokens().find(token => {
+            return token.scene.id == scene.id
+        });
+        if (token) return token;
+    }
+
     /** @override */
     getRollData() {
         const actorData = this.data.data;
@@ -134,5 +154,92 @@ export class LightbearerActor extends Actor {
         setTimeout(() => {
             token.setTarget(false);
         }, 2500);
+    }
+}
+
+
+export function getActor(entity)
+{
+    console.log("Getting actor from:", entity);
+    // Undefined, null, empty string
+    if (!entity) return null;
+
+    // ID of some kind
+    else if (typeof entity === "string")
+    {
+        // Try it as an actor ID
+        const actor = game.actors.get(entity);
+        if (actor) return getActor(actor);
+
+        // Try it as a token ID
+        const scene = game.scenes.get(game.user.viewedScene);
+        const token = scene.getEmbeddedEntity("Token", entity);
+        if (token) return getActor(token);
+
+        // Return null, wrong type of string
+        console.log("Wrong type of string:", entity);
+        return null;
+    }
+    // Full Actor
+    else if (entity.constructor.name === "LightbearerActor")
+    {
+        // If this actor has an associated token, return this actor
+        if (entity.token) return entity;
+
+        // If one of the controlled tokens represents this actor,
+        // use that token.
+        let token = canvas.tokens.controlled.find(token => {
+            return token.actor.id == entity.id
+        });
+        if (token) return getActor(token) || entity;
+
+        // If the active scene has any tokens representing this actor,
+        // use one of those.
+        const scene = game.scenes.get(game.user.viewedScene);
+        token = entity.getActiveTokens().find(token => {
+            return token.scene.id == scene.id
+        });
+        if (token) return getActor(token) || entity;
+
+        // No token exists for this actor, so just return the tokenless actor
+        console.log("No token exists for actor:", entity);
+        return entity;
+    }
+    // Full Token
+    else if (entity.constructor.name === "Token")
+    {
+        console.log("Getting into here");
+        // Check if an actor is already associated
+        if (entity.actor) return entity.actor;
+
+        // Debug log
+        console.log("Full token with no actor:", entity);
+        return null;
+    }
+    // Token Data
+    else
+    {
+        if (entity.actorId && entity._id)
+        {
+            const actor = game.actors.get(entity.actorId);
+            const token = actor.getActiveTokens().find(token => token.id == entity._id);
+            return getActor(token);
+        }
+        else if (entity.token)
+        {
+            return getActor(entity.token);
+        }
+        else if (entity.actor)
+        {
+            return getActor(entity.actor);
+        }
+        else if (entity.id)
+        {
+            return getActor(entity.id);
+        }
+        else
+        {
+            return getActor(entity._id);
+        }
     }
 }

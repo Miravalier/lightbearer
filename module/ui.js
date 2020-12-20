@@ -176,11 +176,11 @@ export async function selectFixedShape(data)
 export async function selectShape(data)
 {
     // Get default parameters set up
-    if (data.shape == "cone" && data.angle === undefined) data.angle = 100;
-    if (data.shape == "ray" && data.width === undefined) data.width = 5;
-    if (data.length === undefined) data.length = 15;
-    if (data.color === undefined) data.color = game.user.color;
-    if (data.origin === undefined) {
+    if (data.shape == "cone" && data.angle == undefined) data.angle = 100;
+    if (data.shape == "ray" && data.width == undefined) data.width = 5;
+    if (data.length == undefined) data.length = 15;
+    if (data.color == undefined) data.color = game.user.color;
+    if (data.origin == undefined) {
         data.position = await selectPosition(`Place the ${data.shape}'s origin.`);
     }
     else {

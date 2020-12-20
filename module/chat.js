@@ -1,4 +1,5 @@
-import * as ui from "./ui.js"
+import { getActor } from "./actor.js";
+import * as ui from "./ui.js";
 
 function spongebobCase(s)
 {
@@ -345,9 +346,69 @@ export async function onRenderChatMessage(html)
 async function onChatTemplateCaptionClicked(ev)
 {
     const caption = $(ev.currentTarget);
-    const message = game.messages.get(
-        caption.closest(".chat-message").data("messageId")
+
+    // Get source actor
+    const actor = getActor(caption.data("tokenId"));
+    if (!actor) return;
+
+    // Validate ownership of actor
+    if (!actor.owner) return;
+
+    // Get containing message
+    const message = game.messages.get(caption.closest(".chat-message").data("messageId"));
+
+    // Get ability context
+    const abilityData = JSON.parse(atob(caption.data("ability")));
+    console.log(abilityData);
+
+    // Render ability menu
+    const templateContent = await renderTemplate(
+        "systems/lightbearer/html/ability-menu.html",
+        abilityData
     );
+    Dialog.prompt({
+        title: "Ability Menu",
+        content: templateContent,
+        label: "Close",
+        callback: html => {},
+        render: html => {
+            html.on('click', '.undo', async ev => {
+                // Add mana and action back to character
+                if (game.combat && game.combat.combatant) {
+                    const updates = {};
+                    // Add action back
+                    if (abilityData.actionCost == "action")
+                    {
+                        updates["data.actions.value"] = Math.min(
+                            actor.data.data.actions.value + 1,
+                            actor.data.data.actions.max
+                        );
+                    }
+                    else if (abilityData.actionCost == "reaction")
+                    {
+                        updates["data.reactions.value"] = Math.min(
+                            actor.data.data.reactions.value + 1,
+                            actor.data.data.reactions.max
+                        );
+                    }
+                    // Add mana back
+                    if (abilityData.manaCost)
+                    {
+                        updates["data.mana.value"] = Math.min(
+                            actor.data.data.mana.value + abilityData.manaCost,
+                            actor.data.data.mana.max
+                        );
+                    }
+                    // Perform update
+                    actor.update(updates);
+                }
+
+                // Delete message and close dialog
+                await message.delete();
+                html.find('.dialog-button.ok').trigger('click');
+            });
+        }
+    });
 }
 
 
@@ -658,7 +719,19 @@ export function templateHeader(source)
     }
     else if (source.constructor.name == "LightbearerItem")
     {
-        return `<div class="caption">${source.actor.name}: ${source.name}</div>`;
+        const actor = getActor(source);
+        const token = actor.getToken();
+        const abilityData = btoa(JSON.stringify({
+            id: token.id,
+            name: source.name,
+            manaCost: source.data.data.manaCost,
+            actionCost: source.data.data.actionCost,
+        }));
+        return dedent(`
+            <div class="caption" data-token-id="${token.id}" data-ability="${abilityData}">
+                ${source.actor.name}: ${source.name}
+            </div>
+        `);
     }
     else
     {

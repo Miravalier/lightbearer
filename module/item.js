@@ -1,5 +1,6 @@
 import * as ui from "./ui.js";
 import * as chat from "./chat.js";
+import { getActor } from "./actor.js";
 
 /**
  * Base Item class
@@ -15,23 +16,16 @@ export class LightbearerItem extends Item {
 
     // Public methods
     async use(usingToken) {
-        // Try to find the token in the list of controlled tokens
-        if (!usingToken) {
-            usingToken = canvas.tokens.controlled.find(token => {
-                return token.actor.id == this.actor.id;
-            });
-        }
-        // Try to find the token in the active scene
-        if (!usingToken) {
-            const scene = game.scenes.get(game.user.viewedScene);
-            usingToken = this.actor.getActiveTokens().find(token => {
-                return token.scene.id == scene.id;
-            });
-        }
-        // If no token was found, return
-        if (!usingToken) {
-            return;
-        }
+        // Get the caster actor
+        let caster = null;
+        if (usingToken)
+            caster = getActor(usingToken);
+        else
+            caster = getActor(this.actor);
+
+        // Get the caster token
+        const casterToken = caster.getToken();
+        console.log("Caster Token", casterToken);
 
         const items = [chat.templateDescription(this.data.data.description)];
         const results = {};
@@ -43,7 +37,7 @@ export class LightbearerItem extends Item {
             let template = null;
             const actors = [];
             if (target.type == "None") {
-                actors.push(this.actor);
+                actors.push(caster);
             }
             else if (target.type == "Creature") {
                 const creature = await ui.selectCreature();
@@ -109,55 +103,50 @@ export class LightbearerItem extends Item {
                         width: size,
                         length: size,
                         offset: {x: -size * 10},
-                        origin: usingToken
+                        origin: casterToken.data
                     });
                 }
                 else if (target.type == "Close Sphere") {
                     template = await ui.selectFixedShape({
                         shape: "circle",
                         length: target.radius + 0.5,
-                        origin: usingToken
+                        origin: casterToken.data
                     });
                 }
                 else if (target.type == "Close Ray") {
                     template = await ui.selectShape({
                         shape: "ray",
                         length: target.length + 0.5,
-                        origin: usingToken
+                        origin: casterToken.data
                     });
                 }
                 else if (target.type == "Close Cone") {
                     template = await ui.selectShape({
                         shape: "cone",
                         length: target.length + 0.5,
-                        origin: usingToken
+                        origin: casterToken.data
                     });
                 }
                 if (template && target.criteria != "None")
                 {
                     template.tokens.forEach(token => {
-                        let actor;
-                        if (token.actor !== undefined)
-                            actor = token.actor;
-                        else
-                            actor = game.actors.get(token.actorId);
+                        let actor = getActor(token);
+                        let actorToken = actor.getToken();
 
-                        console.log(target.criteria, token.name, token.disposition, usingToken.data.disposition);
+                        let casterFaction = (caster.data.data.category == "npc");
+                        let otherFaction = (actor.data.data.category == "npc");
 
-                        if (actor.id == this.actor.id &&
+                        if (actorToken.id == casterToken.id &&
                                 target.type.startsWith("Close") &&
                                 !target.includeSelf)
                             return;
 
-                        if (target.criteria == "Enemy" &&
-                                token.disposition == usingToken.data.disposition)
+                        if (target.criteria == "Enemy" && casterFaction == otherFaction)
                             return;
 
-                        if (target.criteria == "Ally" &&
-                                token.disposition != usingToken.data.disposition)
+                        if (target.criteria == "Ally" && casterFaction != otherFaction)
                             return;
 
-                        
                         actors.push(actor);
                     });
                 }
@@ -225,13 +214,15 @@ export class LightbearerItem extends Item {
             for (const actor of actors)
             {
                 let subitems = [];
-                if (results[actor.id] !== undefined)
+                let token = actor.getToken();
+
+                if (results[token.id] !== undefined)
                 {
-                    subitems = results[actor.id];
+                    subitems = results[token.id];
                 }
                 else
                 {
-                    results[actor.id] = subitems;
+                    results[token.id] = subitems;
                 }
 
                 for (const effect of Object.values(target.effects))
@@ -278,7 +269,7 @@ export class LightbearerItem extends Item {
                             `Source ${game.lightbearer.statIcons[effect.stat]}`,
                             `2d6+@${effect.stat}`,
                             "",
-                            this.actor.getRollData()
+                            caster.getRollData()
                         ));
                     }
                     else if (effect.type == "Text")
@@ -298,10 +289,11 @@ export class LightbearerItem extends Item {
         }
 
         const resultEntries = Object.entries(results);
-        for (const [actorId, subitems] of resultEntries)
+        for (const [tokenId, subitems] of resultEntries)
         {
-            const actor = game.actors.get(actorId);
-            if (actor.id == this.actor.id) {
+            const actor = getActor(tokenId);
+            const token = actor.getToken();
+            if (token.id == casterToken.id) {
                 items.push(chat.templateActor(actor, subitems.join('\n'), "Self"));
             }
             else {
@@ -315,22 +307,24 @@ export class LightbearerItem extends Item {
             // Use action / reaction
             if (this.data.data.actionCost == "action")
             {
-                updates["data.actions.value"] = this.actor.data.data.actions.value - 1;
-
+                updates["data.actions.value"] = caster.data.data.actions.value - 1;
             }
             else if (this.data.data.actionCost == "reaction")
             {
-                updates["data.reactions.value"] = this.actor.data.data.reactions.value - 1;
+                updates["data.reactions.value"] = caster.data.data.reactions.value - 1;
             }
 
             // Spend mana
             const mana = this.data.data.manaCost;
             if (mana)
             {
-                updates["data.mana.value"] = this.actor.data.data.mana.value - mana;
+                updates["data.mana.value"] = Math.min(
+                    caster.data.data.mana.value - mana,
+                    caster.data.data.mana.max
+                );
             }
 
-            this.actor.update(updates);
+            caster.update(updates);
         }
 
         // Send complete template into the chat
