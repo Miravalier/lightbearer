@@ -351,6 +351,9 @@ Hooks.once("init", () => {
 
 Hooks.once("ready", () => {
     Hooks.on("hoverToken",  onHoverToken);
+});
+
+Hooks.on("canvasReady", (canvas) => {
     canvas.app.stage.addListener('click', ev => {
         const pos = ev.data.getLocalPosition(canvas.app.stage);
         pos.x = Math.floor(pos.x / 100) * 100;
