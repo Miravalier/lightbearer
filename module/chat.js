@@ -32,7 +32,7 @@ function memoteCommand(args)
         user: game.user._id,
         speaker: speaker,
         content: `<div class="lightbearer emote">
-            <img class="inline-img" src="Players/GM/spongebob.png" width=36 height=36/>
+            <img class="inline-img" src="Players/Gamemaster/spongebob.png" width=36 height=36/>
             ${spongebobCase(alias)} ${spongebobCase(args)}
         </div>`
     });
@@ -612,7 +612,10 @@ export function send(content)
 export function templateActor(actor, content, displayName)
 {
     if (content === undefined) content = "";
-    if (displayName === undefined) displayName = actor.name;
+    if (displayName === undefined) {
+        if (actor.token) displayName = actor.token.name;
+        else displayName = actor.name;
+    }
 
     let tags = "actor";
     if (actor.hasPlayerOwner) {
@@ -729,7 +732,7 @@ export function templateHeader(source)
         }));
         return dedent(`
             <div class="caption" data-token-id="${token.id}" data-ability="${abilityData}">
-                ${source.actor.name}: ${source.name}
+                ${token.name}: ${source.name}
             </div>
         `);
     }

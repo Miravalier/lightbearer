@@ -36,7 +36,7 @@ export function preCreateOwnedItem(actor, data, options, userId)
 
 export function preCreateActor(data, options, userId)
 {
-    data.img = "Players/default_image.svg";
+    data.img = `Players/${game.user.name}/default_image.svg`;
     if (userId !== game.lightbearer.gm.id)
     {
         data.permission = {'default': ENTITY_PERMISSIONS.LIMITED};

@@ -137,4 +137,8 @@ export function SetNPCNames()
     {
         canvas.tokens.get(key).update({name: value});
     }
+    for (const combatant of game.combat.combatants)
+    {
+        //combatant.upd
+    }
 }

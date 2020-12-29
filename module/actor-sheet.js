@@ -152,7 +152,23 @@ export class LightbearerActorSheet extends ActorSheet {
     activateListeners(html) {
         super.activateListeners(html);
 
-        // Everything below here is only needed if the sheet is editable
+        // Update Ability
+        html.find('.known .ability .name').click(ev => {
+            const li = $(ev.currentTarget).parents(".ability");
+            const ability = this.actor.getOwnedItem(li.data("itemId"));
+            ability.sheet.render(true);
+        });
+
+        // Available ability preview
+        html.find('.available .ability .name').click(ev => {
+            const li = $(ev.currentTarget).parents(".ability");
+            const ability = getAbility(li.data("source"), li.data("name"));
+            ability.sheet.render(true);
+        });
+
+        /*****************
+         * View-Only End *
+         *****************/
         if (!this.options.editable) return;
 
         html.find(".hide-available").click(ev => {
@@ -182,13 +198,6 @@ export class LightbearerActorSheet extends ActorSheet {
             }, {renderSheet: true});
         });
 
-        // Available ability preview
-        html.find('.available .ability .control.preview').click(ev => {
-            const li = $(ev.currentTarget).parents(".ability");
-            const ability = getAbility(li.data("source"), li.data("name"));
-            ability.sheet.render(true);
-        });
-
         // Available ability select
         html.find('.available .ability .control.select').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
@@ -201,9 +210,8 @@ export class LightbearerActorSheet extends ActorSheet {
             });
         });
 
-
         // Use Ability
-        html.find('.known .ability .name').click(ev => {
+        html.find('.known .ability .control.use').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
             ability.use();
@@ -217,13 +225,6 @@ export class LightbearerActorSheet extends ActorSheet {
                 ${chat.templateHeader(ability)}
                 ${chat.templateDescription(ability.data.data.description)}
             `));
-        });
-
-        // Update Ability
-        html.find('.known .ability .control.edit').click(ev => {
-            const li = $(ev.currentTarget).parents(".ability");
-            const ability = this.actor.getOwnedItem(li.data("itemId"));
-            ability.sheet.render(true);
         });
 
         // Delete Ability

@@ -74,7 +74,7 @@ export async function selectGroup(prompt)
 
 export async function selectCreature(prompt)
 {
-    if (!prompt) prompt = "Click on a token, or click the board to cancel.";
+    if (!prompt) prompt = "Click on a token.";
     document.body.style.cursor = "crosshair";
     ui.notifications.info(prompt);
     const token = await new Promise(resolve => {
