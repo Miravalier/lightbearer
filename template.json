@@ -40,6 +40,10 @@
                     "stat": "cunning",
                     "label": "Artifice"
                 },
+                "tracking": {
+                    "stat": "cunning",
+                    "label": "Tracking"
+                },
                 "spellwork": {
                     "stat": "cunning",
                     "label": "Spellwork"

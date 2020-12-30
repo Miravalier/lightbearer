@@ -574,13 +574,17 @@ a.header-button.configure-sheet {
     flex: 0;
 }
 
-.ability-menu .control {
+.activated-ability .control {
     margin: 4px 0px;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     padding: 3px;
     font-weight: bold;
     width: fit-content;
+}
+.activated-ability .description {
+    text-align: center;
+    font-style: italic;
 }
 
 @keyframes pulse {

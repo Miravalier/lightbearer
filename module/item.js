@@ -25,9 +25,8 @@ export class LightbearerItem extends Item {
 
         // Get the caster token
         const casterToken = caster.getToken();
-        console.log("Caster Token", casterToken);
 
-        const items = [chat.templateDescription(this.data.data.description)];
+        const items = [];
         const results = {};
 
         // For each target
@@ -328,6 +327,6 @@ export class LightbearerItem extends Item {
         }
 
         // Send complete template into the chat
-        chat.send(chat.templateHeader(this) + items.join('\n'));
+        chat.send(chat.templateHeader(this, casterToken) + items.join('\n'));
     }
 }

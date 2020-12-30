@@ -130,8 +130,6 @@ export class LightbearerItemSheet extends ItemSheet {
             const targetKey = target.data("key");
             const otherKey = target.prev().prev().data("key");
 
-            console.log(targetKey, otherKey);
-
             await this.swapTargets(targetKey, otherKey);
         });
 
@@ -139,8 +137,6 @@ export class LightbearerItemSheet extends ItemSheet {
             const target = $(ev.target.closest(".target"));
             const targetKey = target.data("key");
             const otherKey = target.next().next().data("key");
-
-            console.log(targetKey, otherKey);
 
             await this.swapTargets(targetKey, otherKey);
         });

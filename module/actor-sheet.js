@@ -152,7 +152,12 @@ export class LightbearerActorSheet extends ActorSheet {
     activateListeners(html) {
         super.activateListeners(html);
 
-        // Update Ability
+        // Edit Ability: name or edit button
+        html.find('.known .ability .control.edit').click(ev => {
+            const li = $(ev.currentTarget).parents(".ability");
+            const ability = this.actor.getOwnedItem(li.data("itemId"));
+            ability.sheet.render(true);
+        });
         html.find('.known .ability .name').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
@@ -221,10 +226,7 @@ export class LightbearerActorSheet extends ActorSheet {
         html.find('.known .ability .control.show').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.getOwnedItem(li.data("itemId"));
-            chat.send(chat.dedent(`
-                ${chat.templateHeader(ability)}
-                ${chat.templateDescription(ability.data.data.description)}
-            `));
+            chat.send(chat.templateHeader(ability));
         });
 
         // Delete Ability

@@ -351,23 +351,28 @@ async function onChatTemplateCaptionClicked(ev)
     const actor = getActor(caption.data("tokenId"));
     if (!actor) return;
 
-    // Validate ownership of actor
-    if (!actor.owner) return;
+    // Get current ability object
+    const ability = actor.getOwnedItem(caption.data("abilityId"));
+    if (!ability) return;
 
     // Get containing message
     const message = game.messages.get(caption.closest(".chat-message").data("messageId"));
 
-    // Get ability context
-    const abilityData = JSON.parse(atob(caption.data("ability")));
+    // Get template data
+    const abilityData = ability.getRollData();
+    abilityData.actorName = actor.name;
+    abilityData.itemName = ability.name;
+    abilityData.owned = actor.owner;
+
     console.log(abilityData);
 
     // Render ability menu
     const templateContent = await renderTemplate(
-        "systems/lightbearer/html/ability-menu.html",
+        "systems/lightbearer/html/activated-ability.html",
         abilityData
     );
     Dialog.prompt({
-        title: "Ability Menu",
+        title: "Activated Ability",
         content: templateContent,
         label: "Close",
         callback: html => {},
@@ -483,7 +488,6 @@ async function onChatTemplateRollClicked(ev)
                 modifyTotal(html, 0);
             });
             html.on('click', '.roll-controls .increment', ev => {
-                console.log(resultData.modified);
                 if (typeof resultData.modified === "number")
                     modifyTotal(html, parseInt(resultData.modified) + 1);
                 else
@@ -714,7 +718,7 @@ export function templateTextRow(label, text, color)
 }
 
 
-export function templateHeader(source)
+export function templateHeader(source, token)
 {
     if (source.constructor.name == "LightbearerActor")
     {
@@ -722,16 +726,11 @@ export function templateHeader(source)
     }
     else if (source.constructor.name == "LightbearerItem")
     {
-        const actor = getActor(source);
-        const token = actor.getToken();
-        const abilityData = btoa(JSON.stringify({
-            id: token.id,
-            name: source.name,
-            manaCost: source.data.data.manaCost,
-            actionCost: source.data.data.actionCost,
-        }));
+        // If no token is passed, find a token
+        if (!token) token = getActor(source).getToken();
+
         return dedent(`
-            <div class="caption" data-token-id="${token.id}" data-ability="${abilityData}">
+            <div class="caption" data-token-id="${token.id}" data-ability-id="${source.id}">
                 ${token.name}: ${source.name}
             </div>
         `);
