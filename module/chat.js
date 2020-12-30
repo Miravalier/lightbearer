@@ -730,9 +730,9 @@ export function templateHeader(source, token)
         if (!token) token = getActor(source).getToken();
 
         return dedent(`
-            <div class="caption" data-token-id="${token.id}" data-ability-id="${source.id}">
+            <a class="caption" data-token-id="${token.id}" data-ability-id="${source.id}">
                 ${token.name}: ${source.name}
-            </div>
+            </a>
         `);
     }
     else
