@@ -27,6 +27,7 @@
                 "min": 0,
                 "max": 3
             },
+            "armor": 0,
             "stats": {
                 "agility": 10,
                 "endurance": 10,

@@ -36,7 +36,10 @@ export function preCreateOwnedItem(actor, data, options, userId)
 
 export function preCreateActor(data, options, userId)
 {
-    data.img = `Players/${game.user.name}/default_image.svg`;
+    if (!data.img)
+    {
+        data.img = `Players/${game.user.name}/default_image.svg`;
+    }
     if (userId !== game.lightbearer.gm.id)
     {
         data.permission = {'default': ENTITY_PERMISSIONS.LIMITED};
@@ -50,10 +53,7 @@ export function preCreateToken(scene, data, options, userId)
     data.name = actor.name;
     data.img = actor.img;
     data.bar1 = {attribute: "health"};
-    if (actor.data.data.mana.max)
-    {
-        data.bar2 = {attribute: "mana"};
-    }
+    data.bar2 = {attribute: "armor"};
 
     if (actor.data.data.category !== "npc")
     {
