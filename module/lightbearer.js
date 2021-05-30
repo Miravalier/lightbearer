@@ -67,9 +67,9 @@ Hooks.once("init", async function() {
         decimals: 0
     };
 
-	// Define custom Entity classes
-    CONFIG.Actor.entityClass = LightbearerActor;
-    CONFIG.Item.entityClass = LightbearerItem;
+	// Define custom document classes
+    CONFIG.Actor.documentClass = LightbearerActor;
+    CONFIG.Item.documentClass = LightbearerItem;
 
     // Register sheet application classes
     Actors.unregisterSheet("core", ActorSheet);
@@ -78,6 +78,10 @@ Hooks.once("init", async function() {
     Items.registerSheet("lightbearer", LightbearerItemSheet, {makeDefault: true});
 
     // Handlebars helpers
+    Handlebars.registerHelper('log', function (value, options) {
+        console.log("HANDLEBAR LOG:", value);
+    });
+
     Handlebars.registerHelper('ifcontains', function (a, b, options) {
         if (a.includes(b)) { return options.fn(this); }
         return options.inverse(this);
@@ -142,7 +146,7 @@ Hooks.once("init", async function() {
 
 Hooks.once("ready", function() {
     // Link in other namespace items after initialization
-    game.lightbearer.gm = game.users.entities.find(u => u.isGM);
+    game.lightbearer.gm = game.users.find(u => u.isGM);
     // Register hooks
     Hooks.on("updateCombat", combatTracker.onUpdateCombat);
     Hooks.on("hotbarDrop", createMacro);
@@ -179,7 +183,7 @@ async function createMacro(bar, data, slot) {
         return;
     }
 
-    let macro = game.macros.entities.find(m => (m.data.command === command));
+    let macro = game.macros.find(m => (m.data.command === command));
     if (!macro) {
         macro = await Macro.create({
             name: source.name,

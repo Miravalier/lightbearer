@@ -67,7 +67,10 @@
     "Item": {
         "types": ["Ability"],
         "Ability": {
+            "category": "npc",
             "description": "",
+            "upgradedDescription": "",
+            "upgraded": false,
             "targets": {},
             "actionCost": "action",
             "manaCost": 0

@@ -25,44 +25,44 @@
                     <div class="caption label"><i class="fas fa-plus-square"></i></div>
                     <input class="value" type="number"
                         name="data.health.value"
-                        value="{{data.health.value}}"/>
+                        value="{{data.data.health.value}}"/>
                     <span>/</span>
                     <input class="value" type="number"
                         name="data.health.max"
-                        value="{{data.health.max}}"/>
+                        value="{{data.data.health.max}}"/>
                 </div>
 
                 <div class="row mana">
                     <div class="caption label"><i class="fas fa-bolt"></i></div>
                     <input class="value" type="number"
                         name="data.mana.value"
-                        value="{{data.mana.value}}"/>
+                        value="{{data.data.mana.value}}"/>
                     <span>/</span>
                     <input class="value" type="number"
                         name="data.mana.max"
-                        value="{{data.mana.max}}"/>
+                        value="{{data.data.mana.max}}"/>
                 </div>
 
                 <div class="row actions">
                     <div class="caption label"><i class="fas fa-circle"></i></div>
                     <input class="value" type="number"
                         name="data.actions.value"
-                        value="{{data.actions.value}}"/>
+                        value="{{data.data.actions.value}}"/>
                     <span>/</span>
                     <input class="value" type="number"
                         name="data.actions.max"
-                        value="{{data.actions.max}}"/>
+                        value="{{data.data.actions.max}}"/>
                 </div>
 
                 <div class="row reactions">
                     <div class="caption label"><i class="fas fa-exclamation-circle"></i></div>
                     <input class="value" type="number"
                         name="data.reactions.value"
-                        value="{{data.reactions.value}}"/>
+                        value="{{data.data.reactions.value}}"/>
                     <span>/</span>
                     <input class="value" type="number"
                         name="data.reactions.max"
-                        value="{{data.reactions.max}}"/>
+                        value="{{data.data.reactions.max}}"/>
                 </div>
 
                 <a class="new-ability label">
@@ -106,7 +106,7 @@
             {{/each}}
             </div>
 
-            {{#ifneq data.category "npc"}}
+            {{#ifneq data.data.category "npc"}}
                 <div class="row">
                     {{#unless data.availableHidden}}
                     <span class="caption row">Available Abilities</span>
@@ -180,7 +180,7 @@
                                 <div class="label">Agility</div>
                                 <input class="value" type="number"
                                     name="data.stats.agility"
-                                    value="{{data.stats.agility}}"/>
+                                    value="{{data.data.stats.agility}}"/>
                             </div>
 
                             <div class="attribute" data-key="endurance" data-label="Endurance">
@@ -190,7 +190,7 @@
                                 <div class="label">Endurance</div>
                                 <input class="value" type="number"
                                     name="data.stats.endurance"
-                                    value="{{data.stats.endurance}}"/>
+                                    value="{{data.data.stats.endurance}}"/>
                             </div>
 
                             <div class="attribute" data-key="power" data-label="Power">
@@ -200,7 +200,7 @@
                                 <div class="label">Power</div>
                                 <input class="value" type="number"
                                     name="data.stats.power"
-                                    value="{{data.stats.power}}"/>
+                                    value="{{data.data.stats.power}}"/>
                             </div>
                         </div>
                     </div>
@@ -222,7 +222,7 @@
                                 <div class="label">Charisma</div>
                                 <input class="value" type="number"
                                     name="data.stats.charisma"
-                                    value="{{data.stats.charisma}}"/>
+                                    value="{{data.data.stats.charisma}}"/>
                             </div>
 
                             <div class="attribute" data-key="memory" data-label="Memory">
@@ -232,7 +232,7 @@
                                 <div class="label">Memory</div>
                                 <input class="value" type="number"
                                     name="data.stats.memory"
-                                    value="{{data.stats.memory}}"/>
+                                    value="{{data.data.stats.memory}}"/>
                             </div>
 
                             <div class="attribute" data-key="perception" data-label="Perception">
@@ -242,7 +242,7 @@
                                 <div class="label">Perception</div>
                                 <input class="value" type="number"
                                     name="data.stats.perception"
-                                    value="{{data.stats.perception}}"/>
+                                    value="{{data.data.stats.perception}}"/>
                             </div>
                         </div>
                     </div>
@@ -288,7 +288,7 @@
                     <div class="field">
                         <div class="label">Category</div>
                         <select name="data.category">
-                        {{#select data.category}}
+                        {{#select data.data.category}}
                             <option value="single">Single Class</option>
                             <option value="dual">Dual Class</option>
                             <option value="npc">NPC</option>
@@ -296,12 +296,12 @@
                         </select>
                     </div>
 
-                    {{#switchon data.category}}
+                    {{#switchon data.data.category}}
                         {{#switchcase "single"}}
                         <div class="field">
                             <div class="label">Class</div>
                             <select name="data.class">
-                            {{#select data.class}}
+                            {{#select data.data.class}}
                                 <option value="Assassin">Assassin</option>
                                 <option value="Bard">Bard</option>
                                 <option value="Berserker">Berserker</option>
@@ -319,7 +319,7 @@
                         <div class="field">
                             <div class="label">First Class</div>
                             <select name="data.class_one">
-                            {{#select data.class_one}}
+                            {{#select data.data.class_one}}
                                 <option value="Assassin">Assassin</option>
                                 <option value="Bard">Bard</option>
                                 <option value="Berserker">Berserker</option>
@@ -335,7 +335,7 @@
                         <div class="field">
                             <div class="label">Second Class</div>
                             <select name="data.class_two">
-                            {{#select data.class_two}}
+                            {{#select data.data.class_two}}
                                 <option value="Assassin">Assassin</option>
                                 <option value="Bard">Bard</option>
                                 <option value="Berserker">Berserker</option>
@@ -355,7 +355,7 @@
                         <div class="field">
                             <div class="label">Race</div>
                             <select name="data.race">
-                            {{#select data.race}}
+                            {{#select data.data.race}}
                                 <option value="Aarakocra">Aarakocra</option>
                                 <option value="Centaur">Centaur</option>
                                 <option value="Dragonborn">Dragonborn</option>
@@ -379,7 +379,7 @@
                     <div class="field">
                         <div class="label">Size</div>
                         <select name="data.size">
-                        {{#select data.size}}
+                        {{#select data.data.size}}
                             <option value="Tiny">Tiny</option>
                             <option value="Small">Small</option>
                             <option value="Medium">Medium</option>

@@ -9,12 +9,12 @@
 
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-        <textarea class="paragraph" name="data.description">{{data.description}}</textarea>
+        <textarea class="paragraph" name="data.description">{{data.data.description}}</textarea>
 
         <div class="row">
             <span class="label">Action Type</span>
             <select name="data.actionCost">
-            {{#select data.actionCost}}
+            {{#select data.data.actionCost}}
                 <option value="none">None</option>
                 <option value="action">Action</option>
                 <option value="reaction">Reaction</option>
@@ -26,7 +26,7 @@
             <span class="label">Mana Cost</span>
             <input class="value" type="number"
                 name="data.manaCost"
-                value="{{data.manaCost}}"/>
+                value="{{data.data.manaCost}}"/>
 
             <div class="divider"></div>
 
@@ -36,7 +36,7 @@
         </div>
 
         <div class="target-list">
-        {{#each data.targets as |target tkey|}}
+        {{#each data.data.targets as |target tkey|}}
             <div class="target" data-key="{{tkey}}">
                 <div class="column">
                     <a class="target-up"><i class="fas fa-arrow-up"></i></a>

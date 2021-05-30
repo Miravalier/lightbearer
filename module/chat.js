@@ -85,7 +85,7 @@ function narrateCommand(args)
 
 function UserLookup(name)
 {
-    let user = game.users.entities.find(u => (u.name === name || u.charname === name));
+    let user = game.users.find(u => (u.name === name || u.charname === name));
     if (user)
     {
         return user.id;
@@ -301,7 +301,7 @@ export function onChatExport()
     output += `<ol id="chat-log">`;
 
     // Chat log body
-    for (let message of game.messages.entities)
+    for (let message of game.messages.contents)
     {
         output += `<li class="message flexcol">`;
 
