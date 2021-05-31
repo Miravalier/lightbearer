@@ -228,7 +228,7 @@ export class LightbearerItem extends Item {
                 {
                     if (effect.type == "Amount")
                     {
-                        subitems.push(chat.templateRow(
+                        subitems.push(await chat.templateRow(
                             effect.label,
                             effect.formula,
                             effect.color,
@@ -239,7 +239,7 @@ export class LightbearerItem extends Item {
                     {
                         const choices = effect.choices.split(',').map(c => c.trim());
                         const choice = choices[Math.floor(Math.random() * choices.length)];
-                        subitems.push(chat.templateRow(
+                        subitems.push(await chat.templateRow(
                             effect.label,
                             choice,
                             effect.color,
@@ -248,7 +248,7 @@ export class LightbearerItem extends Item {
                     }
                     else if (effect.type == "Check")
                     {
-                        subitems.push(chat.templateRow(
+                        subitems.push(await chat.templateRow(
                             `${game.lightbearer.statIcons[effect.stat]} Check`,
                             `2d6+@${effect.stat}`,
                             "",
@@ -257,14 +257,14 @@ export class LightbearerItem extends Item {
                     }
                     else if (effect.type == "Opposed Check")
                     {
-                        subitems.push(chat.templateRow(
+                        subitems.push(await chat.templateRow(
                             `Target ${game.lightbearer.statIcons[effect.stat]}`,
                             `2d6+@${effect.stat}`,
                             "",
                             actor.getRollData()
                         ));
 
-                        subitems.push(chat.templateRow(
+                        subitems.push(await chat.templateRow(
                             `Source ${game.lightbearer.statIcons[effect.stat]}`,
                             `2d6+@${effect.stat}`,
                             "",

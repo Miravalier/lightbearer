@@ -260,7 +260,7 @@
                     {{/ifgt}}
                 </div>
                 <div class="column">
-                    {{#each actor.data.skills as |skill key|}}
+                    {{#each actor.data.data.skills as |skill key|}}
                         <div class="skill" data-key="{{key}}"
                         data-label="{{label}}" data-stat="{{stat}}">
                             <a class="roll-skill" title="Roll {{label}}">

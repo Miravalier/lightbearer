@@ -30,29 +30,29 @@ export class LightbearerActor extends Actor {
     getRollData() {
         const actorData = this.data.data;
         const data = super.getRollData();
-        data['health'] = data.health.value;
-        data['maxHealth'] = data.health.max;
-        data['hp'] = data.health.value;
-        data['maxHp'] = data.health.max;
-        data['mana'] = data.mana.value;
-        data['maxMana'] = data.mana.max;
-        data['actions'] = data.actions.value;
-        data['maxActions'] = data.actions.max;
-        data['reactions'] = data.reactions.value;
-        data['maxReactions'] = data.reactions.max;
+        const rollData = {};
+
+        rollData['health'] = data.health.value;
+        rollData['maxHealth'] = data.health.max;
+        rollData['mana'] = data.mana.value;
+        rollData['maxMana'] = data.mana.max;
+        rollData['actions'] = data.actions.value;
+        rollData['maxActions'] = data.actions.max;
+        rollData['reactions'] = data.reactions.value;
+        rollData['maxReactions'] = data.reactions.max;
 
         for (const [stat, value] of Object.entries(actorData.stats))
         {
-            data[stat] = parseInt(value / 2);
+            rollData[stat] = parseInt(value / 2);
         }
-        data['physique'] = Math.round(
+        rollData['physique'] = Math.round(
             (
                 actorData.stats.agility
                 + actorData.stats.endurance
                 + actorData.stats.power
             ) / 6 // Half of average
         );
-        data['cunning'] = Math.round(
+        rollData['cunning'] = Math.round(
             (
                 actorData.stats.charisma
                 + actorData.stats.memory
@@ -62,20 +62,20 @@ export class LightbearerActor extends Actor {
 
         for (const [key, skill] of Object.entries(actorData.skills))
         {
-            let skillBonus = data[skill.stat];
+            let skillBonus = rollData[skill.stat];
             if (skill.level === "Novice") skillBonus += 2;
             else if (skill.level === "Skilled") skillBonus += 4;
             else if (skill.level === "Expert") skillBonus += 6;
             else if (skill.level === "Master") skillBonus += 8;
             else if (skill.level === "Legend") skillBonus += 10;
 
-            data[key] = skillBonus;
-            data[skill.label] = skillBonus;
-            data[key + "_level"] = skill.level;
-            data[skill.label + "_level"] = skill.level;
+            rollData[key] = skillBonus;
+            rollData[skill.label] = skillBonus;
+            rollData[key + "_level"] = skill.level;
+            rollData[skill.label + "_level"] = skill.level;
         }
 
-        return data;
+        return rollData;
     }
 
     // Public extensions
@@ -90,10 +90,10 @@ export class LightbearerActor extends Actor {
         }
     }
 
-    send(label, formula) {
-        chat.send(chat.dedent(`
+    async send(label, formula) {
+        await chat.send(chat.dedent(`
             ${chat.templateHeader(this)}
-            ${chat.templateRow(label, formula, "", this.getRollData())}
+            ${await chat.templateRow(label, formula, "", this.getRollData())}
         `));
     }
 

@@ -29,7 +29,7 @@ function memoteCommand(args)
     let alias = speaker.alias;
     speaker.alias = game.user.name;
     ChatMessage.create({
-        user: game.user._id,
+        user: game.user.id,
         speaker: speaker,
         content: `<div class="lightbearer emote">
             <img class="inline-img" src="Players/Gamemaster/spongebob.png" width=36 height=36/>
@@ -43,7 +43,7 @@ function oocCommand(args)
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
     ChatMessage.create({
-        user: game.user._id,
+        user: game.user.id,
         speaker: speaker,
         content: `<div class="lightbearer ooc">${args}</div>`
     });
@@ -55,7 +55,7 @@ function emoteCommand(args)
     let alias = speaker.alias;
     speaker.alias = game.user.name;
     ChatMessage.create({
-        user: game.user._id,
+        user: game.user.id,
         speaker: speaker,
         content: `<div class="lightbearer emote">${alias} ${args}</div>`
     });
@@ -66,7 +66,7 @@ function storyCommand(args)
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
     ChatMessage.create({
-        user: game.user._id,
+        user: game.user.id,
         speaker: speaker,
         content: `<div class="lightbearer story">${args}</div>`
     });
@@ -77,7 +77,7 @@ function narrateCommand(args)
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
     ChatMessage.create({
-        user: game.user._id,
+        user: game.user.id,
         speaker: speaker,
         content: `<div class="lightbearer narrate">${args}</div>`
     });
@@ -239,7 +239,7 @@ export function RoundUpdateMessage(round)
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = " ";
     ChatMessage.create({
-        user: game.user._id,
+        user: game.user.id,
         speaker: speaker,
         content: `<div class="lightbearer round-update">Round ${numberToWords(round)}</div>`
     });
@@ -250,7 +250,7 @@ export function TurnUpdateMessage(name, alias)
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = alias;
     ChatMessage.create({
-        user: game.user._id,
+        user: game.user.id,
         speaker: speaker,
         content: `<div class="lightbearer turn-update">${name}</div>`
     });
@@ -261,10 +261,10 @@ export function SystemMessage(content, source)
     let speaker = ChatMessage.getSpeaker();
     if (source) speaker.alias = source;
     ChatMessage.create({
-        user: game.user._id,
+        user: game.user.id,
         speaker: speaker,
         content: `<div class="lightbearer system">${content}</div>`,
-        whisper: [game.user._id]
+        whisper: [game.user.id]
     });
 }
 
@@ -273,10 +273,10 @@ export function ErrorMessage(content, source)
     let speaker = ChatMessage.getSpeaker();
     if (source) speaker.alias = source;
     ChatMessage.create({
-        user: game.user._id,
+        user: game.user.id,
         speaker: speaker,
         content: `<div class="lightbearer error">${content}</div>`,
-        whisper: [game.user._id]
+        whisper: [game.user.id]
     });
 }
 
@@ -462,11 +462,11 @@ async function onChatTemplateRollClicked(ev)
         label: "Close",
         callback: html => {},
         render: html => {
-            html.on('click', '.roll-controls .add', ev => {
+            html.on('click', '.roll-controls .add', async ev => {
                 const item = content.find(".chat-template .item").filter(function () {
                     return $(this).data("rowId") == rowId;
                 });
-                const newItem = templateRow(resultData.label, resultData.formula, resultData.color);
+                const newItem = await templateRow(resultData.label, resultData.formula, resultData.color);
                 item.after(newItem);
                 message.update({
                     content: content.html()
@@ -597,12 +597,12 @@ export function templateUsage(source, targetNames)
 }
 
 
-export function send(content)
+export async function send(content)
 {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
-    ChatMessage.create({
-        user: game.user._id,
+    return await ChatMessage.create({
+        user: game.user.id,
         speaker: speaker,
         content: dedent(`
             <div class="chat-template">
@@ -638,7 +638,7 @@ export function templateActor(actor, content, displayName)
 }
 
 
-export function templateRow(label, formula, color, rollData)
+export async function templateRow(label, formula, color, rollData)
 {
     if (rollData === undefined)
         rollData = {};
