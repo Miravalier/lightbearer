@@ -2,6 +2,7 @@ export async function preCreateItem(item, data, options, userId)
 {
     const updates = {};
     updates['permission.default'] = CONST.ENTITY_PERMISSIONS.LIMITED;
+    updates['img'] = "systems/lightbearer/resources/unknown-active.png";
     await item.data.update(updates);
 }
 
