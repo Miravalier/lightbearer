@@ -1,72 +1,47 @@
-export function preCreateItem(data, options, userId)
+export async function preCreateItem(item, data, options, userId)
 {
-    if (data.type === "Ability")
-    {
-        data.img = "systems/lightbearer/resources/unknown-active.png";
-    }
-    else if (data.type === "Item")
-    {
-        data.img = "systems/lightbearer/resources/unknown-weapon.png";
-    }
-    else
-    {
-        data.img = "systems/lightbearer/resources/unknown-misc.png";
-    }
-    data.permission = {'default': ENTITY_PERMISSIONS.LIMITED};
+    const updates = {};
+    updates['permission.default'] = CONST.ENTITY_PERMISSIONS.LIMITED;
+    await item.data.update(updates);
 }
 
-export function preCreateOwnedItem(actor, data, options, userId)
+export async function preCreateActor(actor, data, options, userId)
 {
-    if (!data.img)
+    const updates = {};
+    if (!actor.img || actor.img == "icons/svg/mystery-man.svg")
     {
-        if (data.type === "Ability")
-        {
-            data.img = "systems/lightbearer/resources/unknown-active.png";
-        }
-        else if (data.type === "Item")
-        {
-            data.img = "systems/lightbearer/resources/unknown-weapon.png";
-        }
-        else
-        {
-            data.img = "systems/lightbearer/resources/unknown-misc.png";
-        }
-    }
-}
-
-export function preCreateActor(data, options, userId)
-{
-    if (!data.img)
-    {
-        data.img = `Players/${game.user.name}/default_image.svg`;
+        updates['img'] =  `Players/${game.user.name}/default_image.svg`;
     }
     if (userId !== game.lightbearer.gm.id)
     {
-        data.permission = {'default': ENTITY_PERMISSIONS.LIMITED};
+        updates['permission.default'] = CONST.ENTITY_PERMISSIONS.LIMITED;
     }
+
+    await actor.data.update(updates);
 }
 
-export function preCreateToken(scene, data, options, userId)
+export async function preCreateToken(token, data, options, userId)
 {
+    const updates = {};
     const actor = game.actors.get(data.actorId);
 
-    data.name = actor.name;
-    data.img = actor.img;
-    data.bar1 = {attribute: "health"};
-    data.bar2 = {attribute: "armor"};
+    updates.name = actor.name;
+    updates.img = actor.img;
+    updates.bar1 = {attribute: "health"};
+    updates.bar2 = {attribute: "armor"};
 
     if (actor.data.data.category !== "npc")
     {
-        data.actorLink = true;
+        updates.actorLink = true;
     }
     else
     {
-        data.actorLink = false;
+        updates.actorLink = false;
         if (actor.data.data.health.formula)
         {
             const roll = new Roll(actor.data.data.health.formula, actor.getRollData());
             roll.roll();
-            data.actorData = {
+            updates.actorData = {
                 data: {
                     health: {
                         value: roll.total,
@@ -79,19 +54,19 @@ export function preCreateToken(scene, data, options, userId)
 
     if (actor.hasPlayerOwner)
     {
-        data.displayBars = TOKEN_DISPLAY_MODES.ALWAYS;
-        data.displayName = TOKEN_DISPLAY_MODES.HOVER;
-        data.disposition = TOKEN_DISPOSITIONS.FRIENDLY;
-        data.vision = true;
-        data.brightSight = 100;
-        data.dimSight = 100;
+        updates.displayBars = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
+        updates.displayName = CONST.TOKEN_DISPLAY_MODES.HOVER;
+        updates.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+        updates.vision = true;
+        updates.brightSight = 100;
+        updates.dimSight = 100;
     }
     else
     {
-        data.displayBars = TOKEN_DISPLAY_MODES.OWNER;
-        data.displayName = TOKEN_DISPLAY_MODES.HOVER;
-        data.disposition = TOKEN_DISPOSITIONS.HOSTILE;
-        data.vision = false;
+        updates.displayBars = CONST.TOKEN_DISPLAY_MODES.OWNER;
+        updates.displayName = CONST.TOKEN_DISPLAY_MODES.HOVER;
+        updates.disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+        updates.vision = false;
     }
 
     let size = 1;
@@ -118,6 +93,8 @@ export function preCreateToken(scene, data, options, userId)
         }
         break;
     }
-    data.width = size;
-    data.height = size;
+    updates.width = size;
+    updates.height = size;
+
+    await token.data.update(updates);
 }

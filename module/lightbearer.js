@@ -153,7 +153,6 @@ Hooks.once("ready", function() {
     Hooks.on("preCreateToken", createDefaults.preCreateToken);
     Hooks.on("preCreateActor", createDefaults.preCreateActor);
     Hooks.on("preCreateItem", createDefaults.preCreateItem);
-    Hooks.on("preCreateOwnedItem", createDefaults.preCreateOwnedItem);
     Hooks.on("chatMessage", chat.preChatMessage);
     // Hook game members
     Messages.prototype.export = chat.onChatExport;

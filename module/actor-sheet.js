@@ -143,6 +143,8 @@ export class LightbearerActorSheet extends ActorSheet {
             else if (skill.level === 'Legend') data.skillTotal += 12;
         }
 
+        console.log("ActorData", actorData);
+        console.log("Data", data);
         return data;
     }
 
