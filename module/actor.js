@@ -172,7 +172,7 @@ export function getActor(entity)
 
         // Try it as a token ID
         const scene = game.scenes.get(game.user.viewedScene);
-        const token = scene.getEmbeddedEntity("Token", entity);
+        const token = scene.getEmbeddedDocument("Token", entity);
         if (token) return getActor(token);
 
         // Return null, wrong type of string

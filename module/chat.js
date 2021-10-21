@@ -649,7 +649,7 @@ export async function templateRow(label, formula, color, rollData)
         return templateTextRow(label, formula, color);
 
     const roll = new Roll(formula, rollData);
-    roll.roll();
+    await roll.roll({async: true});
     const resultData = [];
     let crit = true;
     let fail = true;

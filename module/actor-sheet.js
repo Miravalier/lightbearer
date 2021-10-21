@@ -155,12 +155,12 @@ export class LightbearerActorSheet extends ActorSheet {
         // Edit Ability: name or edit button
         html.find('.known .ability .control.edit').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
-            const ability = this.actor.getOwnedItem(li.data("itemId"));
+            const ability = this.actor.items.get(li.data("itemId"));
             ability.sheet.render(true);
         });
         html.find('.known .ability .name').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
-            const ability = this.actor.getOwnedItem(li.data("itemId"));
+            const ability = this.actor.items.get(li.data("itemId"));
             ability.sheet.render(true);
         });
 
@@ -197,10 +197,14 @@ export class LightbearerActorSheet extends ActorSheet {
 
         // New Ability
         html.find('.new-ability').click(ev => {
-            this.actor.createOwnedItem({
-                name: "New Ability",
-                type: "Ability"
-            }, {renderSheet: true});
+            this.actor.createEmbeddedDocuments(
+                "Item",
+                [{
+                    name: "New Ability",
+                    type: "Ability"
+                }],
+                {renderSheet: true}
+            );
         });
 
         // Available ability select
@@ -208,36 +212,39 @@ export class LightbearerActorSheet extends ActorSheet {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = getAbility(li.data("source"), li.data("name"));
 
-            this.actor.createOwnedItem({
-                name: ability.name,
-                type: "Ability",
-                data: ability.data.data
-            });
+            this.actor.createEmbeddedDocuments(
+                "Item",
+                [{
+                    name: ability.name,
+                    type: "Ability",
+                    data: ability.data.data
+                }]
+            );
         });
 
         // Use Ability
         html.find('.known .ability .control.use').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
-            const ability = this.actor.getOwnedItem(li.data("itemId"));
+            const ability = this.actor.items.get(li.data("itemId"));
             ability.use();
         });
 
         // Show Ability
         html.find('.known .ability .control.show').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
-            const ability = this.actor.getOwnedItem(li.data("itemId"));
+            const ability = this.actor.items.get(li.data("itemId"));
             chat.send(chat.templateHeader(ability));
         });
 
         // Delete Ability
         html.find('.known .ability .control.delete').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
-            const ability = this.actor.getOwnedItem(li.data("itemId"));
+            const ability = this.actor.items.get(li.data("itemId"));
             Dialog.confirm({
                 title: `Delete ${ability.name}?`,
                 content: "",
                 yes: html => {
-                    this.actor.deleteOwnedItem(li.data("itemId"));
+                    this.actor.deleteEmbeddedDocuments("Item", [li.data("itemId")]);
                     li.slideUp(200, () => this.render(false));
                 },
                 no: () => {},
