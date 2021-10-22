@@ -1,14 +1,11 @@
 import * as chat from "./chat.js";
 
-function getAbility(folderName, abilityName)
-{
+function getAbility(folderName, abilityName) {
     let folder = game.folders.find(f => f.name == folderName && f.type == "Item");
     if (!folder) return null;
 
-    for (const item of folder.content)
-    {
-        if (item.name == abilityName)
-        {
+    for (const item of folder.content) {
+        if (item.name == abilityName) {
             return item;
         }
     }
@@ -16,14 +13,12 @@ function getAbility(folderName, abilityName)
     return null;
 }
 
-function getAbilities(folderName)
-{
+function getAbilities(folderName) {
     let folder = game.folders.find(f => f.name == folderName && f.type == "Item");
     if (!folder) return [];
 
     const abilities = [];
-    for (const item of folder.content)
-    {
+    for (const item of folder.content) {
         abilities.push(item)
     }
     return abilities;
@@ -36,14 +31,14 @@ function getAbilities(folderName)
 export class LightbearerActorSheet extends ActorSheet {
 
     /** @override */
-	static get defaultOptions() {
-	    return mergeObject(super.defaultOptions, {
-  	        classes: ["lightbearer", "sheet", "actor"],
-  	        template: "systems/lightbearer/html/actor-sheet.html",
+    static get defaultOptions() {
+        return mergeObject(super.defaultOptions, {
+            classes: ["lightbearer", "sheet", "actor"],
+            template: "systems/lightbearer/html/actor-sheet.html",
             width: 600,
             height: 600,
-            tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "abilities"}],
-            dragDrop: [{dragSelector: ".abilities .ability"}],
+            tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "abilities" }],
+            dragDrop: [{ dragSelector: ".abilities .ability" }],
         });
     }
 
@@ -54,58 +49,50 @@ export class LightbearerActorSheet extends ActorSheet {
         const actorData = this.actor.data.data;
         const data = super.getData();
         data.abilities = [];
-        for (let item of data.items)
-        {
-            if (item.type === "Ability")
-            {
+        for (let item of data.items) {
+            if (item.type === "Ability") {
                 data.abilities.push(item);
             }
         }
 
         // Find available abilities
         data.available = [];
-        if (actorData.category == "single")
-        {
-            for (let ability of getAbilities(actorData['class']))
-            {
+        if (actorData.category == "single") {
+            for (let ability of getAbilities(actorData['class'])) {
                 data.available.push({
                     name: ability.name,
                     source: actorData['class'],
                     actionCost: ability.data.data.actionCost,
-                    manaCost: ability.data.data.manaCost,
+                    cooldown: ability.data.data.cooldown,
                 });
             }
         }
-        else if (actorData.category == "dual")
-        {
-            for (let ability of getAbilities(actorData['class_one']))
-            {
+        else if (actorData.category == "dual") {
+            for (let ability of getAbilities(actorData['class_one'])) {
                 if (ability.name.endsWith("+")) continue;
                 data.available.push({
                     name: ability.name,
                     source: actorData['class_one'],
                     actionCost: ability.data.data.actionCost,
-                    manaCost: ability.data.data.manaCost,
+                    cooldown: ability.data.data.cooldown,
                 });
             }
-            for (let ability of getAbilities(actorData['class_two']))
-            {
+            for (let ability of getAbilities(actorData['class_two'])) {
                 if (ability.name.endsWith("+")) continue;
                 data.available.push({
                     name: ability.name,
                     source: actorData['class_two'],
                     actionCost: ability.data.data.actionCost,
-                    manaCost: ability.data.data.manaCost,
+                    cooldown: ability.data.data.cooldown,
                 });
             }
         }
-        for (let ability of getAbilities(actorData['race']))
-        {
+        for (let ability of getAbilities(actorData['race'])) {
             data.available.push({
                 name: ability.name,
                 source: actorData['race'],
                 actionCost: ability.data.data.actionCost,
-                manaCost: ability.data.data.manaCost,
+                cooldown: ability.data.data.cooldown,
             });
         }
 
@@ -127,15 +114,13 @@ export class LightbearerActorSheet extends ActorSheet {
 
         // Sum up the stat total
         data.statTotal = 0;
-        for (const value of Object.values(actorData.stats))
-        {
+        for (const value of Object.values(actorData.stats)) {
             data.statTotal += value;
         }
 
         // Sum up the skill total
         data.skillTotal = 0;
-        for (const skill of Object.values(actorData.skills))
-        {
+        for (const skill of Object.values(actorData.skills)) {
             if (skill.level === 'Novice') data.skillTotal += 1;
             else if (skill.level === 'Skilled') data.skillTotal += 2;
             else if (skill.level === 'Expert') data.skillTotal += 3;
@@ -177,11 +162,11 @@ export class LightbearerActorSheet extends ActorSheet {
         if (!this.options.editable) return;
 
         html.find(".hide-available").click(ev => {
-            this.actor.update({"data.availableHidden": true});
+            this.actor.update({ "data.availableHidden": true });
         });
 
         html.find(".show-available").click(ev => {
-            this.actor.update({"data.availableHidden": false});
+            this.actor.update({ "data.availableHidden": false });
         });
 
         // Stat rolls
@@ -203,7 +188,7 @@ export class LightbearerActorSheet extends ActorSheet {
                     name: "New Ability",
                     type: "Ability"
                 }],
-                {renderSheet: true}
+                { renderSheet: true }
             );
         });
 
@@ -247,7 +232,7 @@ export class LightbearerActorSheet extends ActorSheet {
                     this.actor.deleteEmbeddedDocuments("Item", [li.data("itemId")]);
                     li.slideUp(200, () => this.render(false));
                 },
-                no: () => {},
+                no: () => { },
                 defaultYes: false
             });
         });

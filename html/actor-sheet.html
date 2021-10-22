@@ -3,9 +3,9 @@
     {{!-- Sheet Header --}}
     <header class="lightbearer sheet-header">
         <div class="row">
-            <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+            <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
             <h1 class="charname">
-                <input name="name" type="text" value="{{actor.name}}" placeholder="Name"/>
+                <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
             </h1>
         </div>
     </header>
@@ -23,46 +23,24 @@
             <div class="resources row">
                 <div class="row hp">
                     <div class="caption label"><i class="fas fa-plus-square"></i></div>
-                    <input class="value" type="number"
-                        name="data.health.value"
-                        value="{{data.data.health.value}}"/>
+                    <input class="value" type="number" name="data.health.value" value="{{data.data.health.value}}" />
                     <span>/</span>
-                    <input class="value" type="number"
-                        name="data.health.max"
-                        value="{{data.data.health.max}}"/>
-                </div>
-
-                <div class="row mana">
-                    <div class="caption label"><i class="fas fa-bolt"></i></div>
-                    <input class="value" type="number"
-                        name="data.mana.value"
-                        value="{{data.data.mana.value}}"/>
-                    <span>/</span>
-                    <input class="value" type="number"
-                        name="data.mana.max"
-                        value="{{data.data.mana.max}}"/>
+                    <input class="value" type="number" name="data.health.max" value="{{data.data.health.max}}" />
                 </div>
 
                 <div class="row actions">
                     <div class="caption label"><i class="fas fa-circle"></i></div>
-                    <input class="value" type="number"
-                        name="data.actions.value"
-                        value="{{data.data.actions.value}}"/>
+                    <input class="value" type="number" name="data.actions.value" value="{{data.data.actions.value}}" />
                     <span>/</span>
-                    <input class="value" type="number"
-                        name="data.actions.max"
-                        value="{{data.data.actions.max}}"/>
+                    <input class="value" type="number" name="data.actions.max" value="{{data.data.actions.max}}" />
                 </div>
 
                 <div class="row reactions">
                     <div class="caption label"><i class="fas fa-exclamation-circle"></i></div>
-                    <input class="value" type="number"
-                        name="data.reactions.value"
-                        value="{{data.data.reactions.value}}"/>
+                    <input class="value" type="number" name="data.reactions.value"
+                        value="{{data.data.reactions.value}}" />
                     <span>/</span>
-                    <input class="value" type="number"
-                        name="data.reactions.max"
-                        value="{{data.data.reactions.max}}"/>
+                    <input class="value" type="number" name="data.reactions.max" value="{{data.data.reactions.max}}" />
                 </div>
 
                 <a class="new-ability label">
@@ -73,26 +51,27 @@
             <span class="caption row">Known Abilities</span>
 
             <div class="known abilities column">
-            {{#each abilities as |ability id|}}
+                {{#each abilities as |ability id|}}
                 <div class="ability {{ability.data.actionCost}}" data-item-id="{{ability._id}}">
                     {{#ifeq ability.data.actionCost "action"}}
-                        <i class="icon fas fa-circle"></i>
+                    <i class="icon fas fa-circle"></i>
                     {{/ifeq}}
                     {{#ifeq ability.data.actionCost "reaction"}}
-                        <i class="icon fas fa-exclamation-circle"></i>
+                    <i class="icon fas fa-exclamation-circle"></i>
                     {{/ifeq}}
-                    {{#if ability.data.manaCost}}
-                        <div class="icon">
-                            <span>{{ability.data.manaCost}}</span>
-                            <i class="fas fa-bolt"></i>
-                        </div>
-                    {{/if}}
-                    <a class="name">{{ability.name}}</a>
-                    <!--
-                    <a class="control show" title="Show Ability">
-                        <i class="fas fa-comment-dots"></i>
-                    </a>
-                    -->
+                    {{#ifeq ability.data.actionCost "free"}}
+                    <i class="icon far fa-circle"></i>
+                    {{/ifeq}}
+                    {{#ifneq ability.data.actionCost "passive"}}
+                    {{#ifneq ability.data.cooldown "0"}}
+                    <div class="icon">
+                        <span>{{ability.data.cooldown}}</span>
+                        <i class="fas fa-hourglass"></i>
+                    </div>
+                    {{/ifneq}}
+                    {{/ifneq}}
+                    <a class="{{ability.data.actionCost}} name">{{ability.name}}</a>
+
                     <a class="control use" title="Use Ability">
                         <i class="fas fa-dice-d20"></i>
                     </a>
@@ -103,50 +82,53 @@
                         <i class="fas fa-trash"></i>
                     </a>
                 </div>
-            {{/each}}
+                {{/each}}
             </div>
 
             {{#ifneq data.data.category "npc"}}
-                <div class="row">
-                    {{#unless data.availableHidden}}
-                    <span class="caption row">Available Abilities</span>
-                    <a class="hide-available circle" title="Hide Available Abilities">
-                        <i class="fas fa-chevron-up"></i>
-                    </a>
-                    {{else}}
-                    <span class="caption row grey">Available Abilities</span>
-                    <a class="show-available circle grey" title="Show Available Abilities">
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    {{/unless}}
-                </div>
-
+            <div class="row">
                 {{#unless data.availableHidden}}
-                    <div class="available abilities column">
-                    {{#each available as |ability|}}
-                        <div class="ability {{ability.actionCost}}"
-                                data-source={{ability.source}}
-                                data-name="{{ability.name}}">
-                            {{#ifeq ability.actionCost "action"}}
-                                <i class="icon fas fa-circle"></i>
-                            {{/ifeq}}
-                            {{#ifeq ability.actionCost "reaction"}}
-                                <i class="icon fas fa-exclamation-circle"></i>
-                            {{/ifeq}}
-                            {{#if ability.manaCost}}
-                                <div class="icon">
-                                    <span>{{ability.manaCost}}</span>
-                                    <i class="fas fa-bolt"></i>
-                                </div>
-                            {{/if}}
-                            <a class="name">{{ability.source}}: {{ability.name}}</a>
-                            <a class="control select" title="Select Ability">
-                                <i class="fas fa-check-circle"></i>
-                            </a>
-                        </div>
-                    {{/each}}
-                    </div>
+                <span class="caption row">Available Abilities</span>
+                <a class="hide-available circle" title="Hide Available Abilities">
+                    <i class="fas fa-chevron-up"></i>
+                </a>
+                {{else}}
+                <span class="caption row grey">Available Abilities</span>
+                <a class="show-available circle grey" title="Show Available Abilities">
+                    <i class="fas fa-chevron-down"></i>
+                </a>
                 {{/unless}}
+            </div>
+
+            {{#unless data.availableHidden}}
+            <div class="available abilities column">
+                {{#each available as |ability|}}
+                <div class="ability {{ability.actionCost}}" data-source={{ability.source}} data-name="{{ability.name}}">
+                    {{#ifeq ability.actionCost "action"}}
+                    <i class="icon fas fa-circle"></i>
+                    {{/ifeq}}
+                    {{#ifeq ability.actionCost "reaction"}}
+                    <i class="icon fas fa-exclamation-circle"></i>
+                    {{/ifeq}}
+                    {{#ifeq ability.actionCost "free"}}
+                    <i class="icon far fa-circle"></i>
+                    {{/ifeq}}
+                    {{#ifneq ability.actionCost "passive"}}
+                    {{#ifneq ability.cooldown "0"}}
+                    <div class="icon">
+                        <span>{{ability.cooldown}}</span>
+                        <i class="fas fa-hourglass"></i>
+                    </div>
+                    {{/ifneq}}
+                    {{/ifneq}}
+                    <a class="{{ability.actionCost}} name">{{ability.source}}: {{ability.name}}</a>
+                    <a class="control select" title="Select Ability">
+                        <i class="fas fa-check-circle"></i>
+                    </a>
+                </div>
+                {{/each}}
+            </div>
+            {{/unless}}
             {{/ifneq}}
         </div>
 
@@ -156,9 +138,9 @@
                 <div class="row">
                     <div class="caption">Attributes</div>
                     {{#ifgt statTotal 80}}
-                        <span class="value red">{{statTotal}}</span>
+                    <span class="value red">{{statTotal}}</span>
                     {{else}}
-                        <span class="value">{{statTotal}}</span>
+                    <span class="value">{{statTotal}}</span>
                     {{/ifgt}}
                 </div>
 
@@ -178,9 +160,8 @@
                                     <i class="fas fa-dice-d20"></i>
                                 </a>
                                 <div class="label">Agility</div>
-                                <input class="value" type="number"
-                                    name="data.stats.agility"
-                                    value="{{data.data.stats.agility}}"/>
+                                <input class="value" type="number" name="data.stats.agility"
+                                    value="{{data.data.stats.agility}}" />
                             </div>
 
                             <div class="attribute" data-key="endurance" data-label="Endurance">
@@ -188,9 +169,8 @@
                                     <i class="fas fa-dice-d20"></i>
                                 </a>
                                 <div class="label">Endurance</div>
-                                <input class="value" type="number"
-                                    name="data.stats.endurance"
-                                    value="{{data.data.stats.endurance}}"/>
+                                <input class="value" type="number" name="data.stats.endurance"
+                                    value="{{data.data.stats.endurance}}" />
                             </div>
 
                             <div class="attribute" data-key="power" data-label="Power">
@@ -198,9 +178,8 @@
                                     <i class="fas fa-dice-d20"></i>
                                 </a>
                                 <div class="label">Power</div>
-                                <input class="value" type="number"
-                                    name="data.stats.power"
-                                    value="{{data.data.stats.power}}"/>
+                                <input class="value" type="number" name="data.stats.power"
+                                    value="{{data.data.stats.power}}" />
                             </div>
                         </div>
                     </div>
@@ -220,9 +199,8 @@
                                     <i class="fas fa-dice-d20"></i>
                                 </a>
                                 <div class="label">Charisma</div>
-                                <input class="value" type="number"
-                                    name="data.stats.charisma"
-                                    value="{{data.data.stats.charisma}}"/>
+                                <input class="value" type="number" name="data.stats.charisma"
+                                    value="{{data.data.stats.charisma}}" />
                             </div>
 
                             <div class="attribute" data-key="memory" data-label="Memory">
@@ -230,9 +208,8 @@
                                     <i class="fas fa-dice-d20"></i>
                                 </a>
                                 <div class="label">Memory</div>
-                                <input class="value" type="number"
-                                    name="data.stats.memory"
-                                    value="{{data.data.stats.memory}}"/>
+                                <input class="value" type="number" name="data.stats.memory"
+                                    value="{{data.data.stats.memory}}" />
                             </div>
 
                             <div class="attribute" data-key="perception" data-label="Perception">
@@ -240,9 +217,8 @@
                                     <i class="fas fa-dice-d20"></i>
                                 </a>
                                 <div class="label">Perception</div>
-                                <input class="value" type="number"
-                                    name="data.stats.perception"
-                                    value="{{data.data.stats.perception}}"/>
+                                <input class="value" type="number" name="data.stats.perception"
+                                    value="{{data.data.stats.perception}}" />
                             </div>
                         </div>
                     </div>
@@ -254,30 +230,29 @@
                 <div class="row">
                     <div class="caption">Skills</div>
                     {{#ifgt skillTotal 6}}
-                        <span class="value red">{{skillTotal}}</span>
+                    <span class="value red">{{skillTotal}}</span>
                     {{else}}
-                        <span class="value">{{skillTotal}}</span>
+                    <span class="value">{{skillTotal}}</span>
                     {{/ifgt}}
                 </div>
                 <div class="column">
                     {{#each actor.data.data.skills as |skill key|}}
-                        <div class="skill" data-key="{{key}}"
-                        data-label="{{label}}" data-stat="{{stat}}">
-                            <a class="roll-skill" title="Roll {{label}}">
-                                <i class="fas fa-dice-d20"></i>
-                            </a>
-                            <div class="label">{{label}}</div>
-                            <select name="data.skills.{{key}}.level">
+                    <div class="skill" data-key="{{key}}" data-label="{{label}}" data-stat="{{stat}}">
+                        <a class="roll-skill" title="Roll {{label}}">
+                            <i class="fas fa-dice-d20"></i>
+                        </a>
+                        <div class="label">{{label}}</div>
+                        <select name="data.skills.{{key}}.level">
                             {{#select skill.level}}
-                                <option value="Untrained">Untrained</option>
-                                <option value="Novice">Novice</option>
-                                <option value="Skilled">Skilled</option>
-                                <option value="Expert">Expert</option>
-                                <option value="Master">Master</option>
-                                <option value="Legend">Legend</option>
+                            <option value="Untrained">Untrained</option>
+                            <option value="Novice">Novice</option>
+                            <option value="Skilled">Skilled</option>
+                            <option value="Expert">Expert</option>
+                            <option value="Master">Master</option>
+                            <option value="Legend">Legend</option>
                             {{/select}}
-                            </select>
-                        </div>
+                        </select>
+                    </div>
                     {{/each}}
                 </div>
 
@@ -288,105 +263,105 @@
                     <div class="field">
                         <div class="label">Category</div>
                         <select name="data.category">
-                        {{#select data.data.category}}
+                            {{#select data.data.category}}
                             <option value="single">Single Class</option>
                             <option value="dual">Dual Class</option>
                             <option value="npc">NPC</option>
-                        {{/select}}
+                            {{/select}}
                         </select>
                     </div>
 
                     {{#switchon data.data.category}}
-                        {{#switchcase "single"}}
-                        <div class="field">
-                            <div class="label">Class</div>
-                            <select name="data.class">
+                    {{#switchcase "single"}}
+                    <div class="field">
+                        <div class="label">Class</div>
+                        <select name="data.class">
                             {{#select data.data.class}}
-                                <option value="Assassin">Assassin</option>
-                                <option value="Bard">Bard</option>
-                                <option value="Berserker">Berserker</option>
-                                <option value="Cleric">Cleric</option>
-                                <option value="Druid">Druid</option>
-                                <option value="Elementalist">Elementalist</option>
-                                <option value="Guardian">Guardian</option>
-                                <option value="Illusionist">Illusionist</option>
-                                <option value="Necromancer">Necromancer</option>
+                            <option value="Assassin">Assassin</option>
+                            <option value="Bard">Bard</option>
+                            <option value="Berserker">Berserker</option>
+                            <option value="Cleric">Cleric</option>
+                            <option value="Druid">Druid</option>
+                            <option value="Elementalist">Elementalist</option>
+                            <option value="Guardian">Guardian</option>
+                            <option value="Illusionist">Illusionist</option>
+                            <option value="Necromancer">Necromancer</option>
                             {{/select}}
-                            </select>
-                        </div>
-                        {{/switchcase}}
-                        {{#switchcase "dual"}}
-                        <div class="field">
-                            <div class="label">First Class</div>
-                            <select name="data.class_one">
+                        </select>
+                    </div>
+                    {{/switchcase}}
+                    {{#switchcase "dual"}}
+                    <div class="field">
+                        <div class="label">First Class</div>
+                        <select name="data.class_one">
                             {{#select data.data.class_one}}
-                                <option value="Assassin">Assassin</option>
-                                <option value="Bard">Bard</option>
-                                <option value="Berserker">Berserker</option>
-                                <option value="Cleric">Cleric</option>
-                                <option value="Druid">Druid</option>
-                                <option value="Elementalist">Elementalist</option>
-                                <option value="Guardian">Guardian</option>
-                                <option value="Illusionist">Illusionist</option>
-                                <option value="Necromancer">Necromancer</option>
+                            <option value="Assassin">Assassin</option>
+                            <option value="Bard">Bard</option>
+                            <option value="Berserker">Berserker</option>
+                            <option value="Cleric">Cleric</option>
+                            <option value="Druid">Druid</option>
+                            <option value="Elementalist">Elementalist</option>
+                            <option value="Guardian">Guardian</option>
+                            <option value="Illusionist">Illusionist</option>
+                            <option value="Necromancer">Necromancer</option>
                             {{/select}}
-                            </select>
-                        </div>
-                        <div class="field">
-                            <div class="label">Second Class</div>
-                            <select name="data.class_two">
+                        </select>
+                    </div>
+                    <div class="field">
+                        <div class="label">Second Class</div>
+                        <select name="data.class_two">
                             {{#select data.data.class_two}}
-                                <option value="Assassin">Assassin</option>
-                                <option value="Bard">Bard</option>
-                                <option value="Berserker">Berserker</option>
-                                <option value="Cleric">Cleric</option>
-                                <option value="Druid">Druid</option>
-                                <option value="Elementalist">Elementalist</option>
-                                <option value="Guardian">Guardian</option>
-                                <option value="Illusionist">Illusionist</option>
-                                <option value="Necromancer">Necromancer</option>
+                            <option value="Assassin">Assassin</option>
+                            <option value="Bard">Bard</option>
+                            <option value="Berserker">Berserker</option>
+                            <option value="Cleric">Cleric</option>
+                            <option value="Druid">Druid</option>
+                            <option value="Elementalist">Elementalist</option>
+                            <option value="Guardian">Guardian</option>
+                            <option value="Illusionist">Illusionist</option>
+                            <option value="Necromancer">Necromancer</option>
                             {{/select}}
-                            </select>
-                        </div>
-                        {{/switchcase}}
+                        </select>
+                    </div>
+                    {{/switchcase}}
                     {{/switchon}}
 
-                    {{#ifneq data.category "npc"}}
-                        <div class="field">
-                            <div class="label">Race</div>
-                            <select name="data.race">
+                    {{#ifneq data.data.category "npc"}}
+                    <div class="field">
+                        <div class="label">Race</div>
+                        <select name="data.race">
                             {{#select data.data.race}}
-                                <option value="Aarakocra">Aarakocra</option>
-                                <option value="Centaur">Centaur</option>
-                                <option value="Dragonborn">Dragonborn</option>
-                                <option value="Dwarf">Dwarf</option>
-                                <option value="Elf">Elf</option>
-                                <option value="Gnome">Gnome</option>
-                                <option value="Goliath">Goliath</option>
-                                <option value="Orc">Orc</option>
-                                <option value="Halfling">Halfling</option>
-                                <option value="Human">Human</option>
-                                <option value="Satyr">Satyr</option>
-                                <option value="Tabaxi">Tabaxi</option>
-                                <option value="Tiefling">Tiefling</option>
-                                <option value="Triton">Triton</option>
-                                <option value="Warforged">Warforged</option>
+                            <option value="Aarakocra">Aarakocra</option>
+                            <option value="Centaur">Centaur</option>
+                            <option value="Dragonborn">Dragonborn</option>
+                            <option value="Dwarf">Dwarf</option>
+                            <option value="Elf">Elf</option>
+                            <option value="Gnome">Gnome</option>
+                            <option value="Goliath">Goliath</option>
+                            <option value="Orc">Orc</option>
+                            <option value="Halfling">Halfling</option>
+                            <option value="Human">Human</option>
+                            <option value="Satyr">Satyr</option>
+                            <option value="Tabaxi">Tabaxi</option>
+                            <option value="Tiefling">Tiefling</option>
+                            <option value="Triton">Triton</option>
+                            <option value="Warforged">Warforged</option>
                             {{/select}}
-                            </select>
-                        </div>
+                        </select>
+                    </div>
                     {{/ifneq}}
 
                     <div class="field">
                         <div class="label">Size</div>
                         <select name="data.size">
-                        {{#select data.data.size}}
+                            {{#select data.data.size}}
                             <option value="Tiny">Tiny</option>
                             <option value="Small">Small</option>
                             <option value="Medium">Medium</option>
                             <option value="Large">Large</option>
                             <option value="Huge">Huge</option>
                             <option value="Gargantuan">Gargantuan</option>
-                        {{/select}}
+                            {{/select}}
                         </select>
                     </div>
                 </div>
@@ -394,4 +369,3 @@
         </div>
     </section>
 </form>
-

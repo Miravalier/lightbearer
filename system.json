@@ -2,13 +2,18 @@
   "name": "lightbearer",
   "title": "The Lightbearer Ruleset",
   "description": "Miravalier's lightbearer ruleset.",
-  "version": 1.4,
-  "minimumCoreVersion": "0.8.5",
-  "compatibleCoreVersion": "0.8.5",
+  "version": 2.0,
+  "minimumCoreVersion": "0.8.9",
+  "compatibleCoreVersion": "0.8.9",
   "templateVersion": 2,
   "author": "Miravalier",
-  "esmodules": ["module/lightbearer.js"],
-  "styles": ["styles/lightbearer.css", "styles/fa.css"],
+  "esmodules": [
+    "module/lightbearer.js"
+  ],
+  "styles": [
+    "styles/lightbearer.css",
+    "styles/fa.css"
+  ],
   "packs": [],
   "languages": [],
   "gridDistance": 5,

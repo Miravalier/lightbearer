@@ -1,8 +1,7 @@
 import { getActor } from "./actor.js";
 import * as ui from "./ui.js";
 
-function spongebobCase(s)
-{
+function spongebobCase(s) {
     let capital = true;
     return s.replace(/[a-z]/gi, letter => {
         capital = !capital;
@@ -15,16 +14,14 @@ const NUMBER_WORDS = [
     "Zero", "One", "Two", "Three", "Four", "Five",
     "Six", "Seven", "Eight", "Nine", "Ten"
 ];
-function numberToWords(x)
-{
+function numberToWords(x) {
     if (x >= 0 && x <= 10) {
         return NUMBER_WORDS[x];
     }
     return x.toString();
 }
 
-function memoteCommand(args)
-{
+function memoteCommand(args) {
     let speaker = ChatMessage.getSpeaker();
     let alias = speaker.alias;
     speaker.alias = game.user.name;
@@ -38,8 +35,7 @@ function memoteCommand(args)
     });
 }
 
-function oocCommand(args)
-{
+function oocCommand(args) {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
     ChatMessage.create({
@@ -49,8 +45,7 @@ function oocCommand(args)
     });
 }
 
-function emoteCommand(args)
-{
+function emoteCommand(args) {
     let speaker = ChatMessage.getSpeaker();
     let alias = speaker.alias;
     speaker.alias = game.user.name;
@@ -61,8 +56,7 @@ function emoteCommand(args)
     });
 }
 
-function storyCommand(args)
-{
+function storyCommand(args) {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
     ChatMessage.create({
@@ -72,8 +66,7 @@ function storyCommand(args)
     });
 }
 
-function narrateCommand(args)
-{
+function narrateCommand(args) {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
     ChatMessage.create({
@@ -83,19 +76,16 @@ function narrateCommand(args)
     });
 }
 
-function UserLookup(name)
-{
+function UserLookup(name) {
     let user = game.users.find(u => (u.name === name || u.charname === name));
-    if (user)
-    {
+    if (user) {
         return user.id;
     }
 
     return null;
 }
 
-function helpCommand(args)
-{
+function helpCommand(args) {
     SystemMessage(
         `
             <p><b>/?</b> display this help message</p>
@@ -108,12 +98,10 @@ function helpCommand(args)
     );
 }
 
-function sendRegularMessage(message)
-{
+function sendRegularMessage(message) {
     let speaker = ChatMessage.getSpeaker();
     let character = game.user.character;
-    if (character)
-    {
+    if (character) {
         speaker.alias = character.name;
     }
     ChatMessage.create({
@@ -151,23 +139,20 @@ const COMMANDS = {
 };
 
 const WHISPER_PATTERN = /^\s*("[^"]*?"|[a-z0-9_-]+)\s*/i;
-function whisperCommand(args)
-{
+function whisperCommand(args) {
     let target = null;
     let content = args.replace(WHISPER_PATTERN, (_, m) => {
         target = m;
         return "";
     });
 
-    if (!target)
-    {
+    if (!target) {
         ErrorMessage("No whisper target specified.");
         return;
     }
 
     let targetId = UserLookup(target);
-    if (!targetId)
-    {
+    if (!targetId) {
         ErrorMessage(`No user exists with the name ${target}.`);
         return;
     }
@@ -183,8 +168,7 @@ function whisperCommand(args)
 }
 
 const CMD_PATTERN = /^\s*\/([a-z0-9?_-]+)\s*/i;
-export function preChatMessage(chatLog, message, chatData)
-{
+export function preChatMessage(chatLog, message, chatData) {
     // Replace italics and bold
     message = message.replace(/\*\*\*([^*]+)\*\*\*/, (_, m) => {
         return `<span style="font-weight: bold; font-style: italic;">${m}</span>`;
@@ -197,12 +181,10 @@ export function preChatMessage(chatLog, message, chatData)
     });
     message = message.replace(/\:([0-9a-zA-Z_-]+)\:/, (_, m) => {
         const img = game.lightbearer.emoji[m];
-        if (img)
-        {
+        if (img) {
             return `<img class="lightbearer emoji" src="${img}" width=24 height=24/>`;
         }
-        else
-        {
+        else {
             return `&lt;unrecognized emoji: ${m}&gt;`;
         }
     });
@@ -213,17 +195,14 @@ export function preChatMessage(chatLog, message, chatData)
         command = m;
         return "";
     });
-    if (command)
-    {
+    if (command) {
         // Dispatch command
         const command_function = COMMANDS[command];
-        if (command_function)
-        {
+        if (command_function) {
             command_function(message);
             return false;
         }
-        else
-        {
+        else {
             ErrorMessage(`Unknown command '${command}'.`, game.user.name);
             return false;
         }
@@ -234,8 +213,7 @@ export function preChatMessage(chatLog, message, chatData)
     return false;
 }
 
-export function RoundUpdateMessage(round)
-{
+export function RoundUpdateMessage(round) {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = " ";
     ChatMessage.create({
@@ -245,8 +223,17 @@ export function RoundUpdateMessage(round)
     });
 }
 
-export function TurnUpdateMessage(name, alias)
-{
+export function EventMessage(content, source) {
+    let speaker = ChatMessage.getSpeaker();
+    if (source) speaker.alias = source;
+    ChatMessage.create({
+        user: game.user.id,
+        speaker: speaker,
+        content: `<div class="lightbearer event">${content}</div>`,
+    });
+}
+
+export function TurnUpdateMessage(name, alias) {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = alias;
     ChatMessage.create({
@@ -256,8 +243,7 @@ export function TurnUpdateMessage(name, alias)
     });
 }
 
-export function SystemMessage(content, source)
-{
+export function SystemMessage(content, source) {
     let speaker = ChatMessage.getSpeaker();
     if (source) speaker.alias = source;
     ChatMessage.create({
@@ -268,8 +254,7 @@ export function SystemMessage(content, source)
     });
 }
 
-export function ErrorMessage(content, source)
-{
+export function ErrorMessage(content, source) {
     let speaker = ChatMessage.getSpeaker();
     if (source) speaker.alias = source;
     ChatMessage.create({
@@ -281,8 +266,7 @@ export function ErrorMessage(content, source)
 }
 
 // Chat Message Creation Hook
-export function onChatExport()
-{
+export function onChatExport() {
     let date = new Date().toDateString().replace(/\s/g, "-");
     let output = "<!DOCTYPE html>";
 
@@ -301,8 +285,7 @@ export function onChatExport()
     output += `<ol id="chat-log">`;
 
     // Chat log body
-    for (let message of game.messages.contents)
-    {
+    for (let message of game.messages.contents) {
         output += `<li class="message flexcol">`;
 
         output += `<div class="message-header flexrow">`;
@@ -331,20 +314,17 @@ export function onChatExport()
 }
 
 
-export async function onRenderChatLog(html)
-{
+export async function onRenderChatLog(html) {
 }
 
 
-export async function onRenderChatMessage(html)
-{
+export async function onRenderChatMessage(html) {
     html.on('click', '.chat-template .caption', onChatTemplateCaptionClicked);
     html.on('click', '.chat-template .roll', onChatTemplateRollClicked);
 }
 
 
-async function onChatTemplateCaptionClicked(ev)
-{
+async function onChatTemplateCaptionClicked(ev) {
     const caption = $(ev.currentTarget);
 
     // Get source actor
@@ -364,8 +344,6 @@ async function onChatTemplateCaptionClicked(ev)
     abilityData.itemName = ability.name;
     abilityData.owned = actor.owner;
 
-    console.log(abilityData);
-
     // Render ability menu
     const templateContent = await renderTemplate(
         "systems/lightbearer/html/activated-ability.html",
@@ -375,33 +353,23 @@ async function onChatTemplateCaptionClicked(ev)
         title: "Activated Ability",
         content: templateContent,
         label: "Close",
-        callback: html => {},
+        callback: html => { },
         render: html => {
             html.on('click', '.undo', async ev => {
-                // Add mana and action back to character
+                // Add action back to character
                 if (game.combat && game.combat.combatant) {
                     const updates = {};
                     // Add action back
-                    if (abilityData.actionCost == "action")
-                    {
+                    if (abilityData.actionCost == "action") {
                         updates["data.actions.value"] = Math.min(
                             actor.data.data.actions.value + 1,
                             actor.data.data.actions.max
                         );
                     }
-                    else if (abilityData.actionCost == "reaction")
-                    {
+                    else if (abilityData.actionCost == "reaction") {
                         updates["data.reactions.value"] = Math.min(
                             actor.data.data.reactions.value + 1,
                             actor.data.data.reactions.max
-                        );
-                    }
-                    // Add mana back
-                    if (abilityData.manaCost)
-                    {
-                        updates["data.mana.value"] = Math.min(
-                            actor.data.data.mana.value + abilityData.manaCost,
-                            actor.data.data.mana.max
                         );
                     }
                     // Perform update
@@ -417,8 +385,7 @@ async function onChatTemplateCaptionClicked(ev)
 }
 
 
-async function onChatTemplateRollClicked(ev)
-{
+async function onChatTemplateRollClicked(ev) {
     const rollItem = $(ev.currentTarget);
     const rowId = rollItem.closest(".chat-template .item").data("rowId");
     const resultData = JSON.parse(atob(rollItem.data("results")));
@@ -430,7 +397,7 @@ async function onChatTemplateRollClicked(ev)
         rollItem.closest(".chat-message").data("messageId")
     );
     // Get message's contents
-    const content = $("<div>"+message.data.content+"</div>");
+    const content = $("<div>" + message.data.content + "</div>");
     // Find roll total element
     const roll = content.find(".chat-template .item").filter(function () {
         return $(this).data("rowId") == rowId;
@@ -460,7 +427,7 @@ async function onChatTemplateRollClicked(ev)
         title: "Roll Results",
         content: templateContent,
         label: "Close",
-        callback: html => {},
+        callback: html => { },
         render: html => {
             html.on('click', '.roll-controls .add', async ev => {
                 const item = content.find(".chat-template .item").filter(function () {
@@ -537,14 +504,13 @@ export function titlecase(str) {
 
 
 export function dedent(str) {
-	str = str.replace(/^\n/, "");
-	let match = str.match(/^\s+/);
-	return match ? str.replace(new RegExp("^"+match[0], "gm"), "") : str;
+    str = str.replace(/^\n/, "");
+    let match = str.match(/^\s+/);
+    return match ? str.replace(new RegExp("^" + match[0], "gm"), "") : str;
 }
 
 
-export function indent(str, count)
-{
+export function indent(str, count) {
     if (!count) count = 1;
     return str.replace(/^/gm, "    ".repeat(count));
 }
@@ -555,19 +521,17 @@ function oxfordList(array) {
     else if (array.length == 1) return array[0];
     else if (array.length == 2) return array.join(" and ");
     array = array.slice();
-    array[array.length-1] = `and ${array[array.length-1]}`;
+    array[array.length - 1] = `and ${array[array.length - 1]}`;
     return array.join(", ");
 }
 
 
-export function templateDescription(description)
-{
+export function templateDescription(description) {
     return (`<div class="description">${description}</div>`);
 }
 
 
-export function templateUsage(source, targetNames)
-{
+export function templateUsage(source, targetNames) {
     const templates = Object.values(source.data.data.usage_phrases);
     if (templates.length == 0) return "";
     const template = templates[Math.floor(Math.random() * templates.length)];
@@ -597,8 +561,7 @@ export function templateUsage(source, targetNames)
 }
 
 
-export async function send(content)
-{
+export async function send(content) {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
     return await ChatMessage.create({
@@ -613,8 +576,7 @@ export async function send(content)
 }
 
 
-export function templateActor(actor, content, displayName)
-{
+export function templateActor(actor, content, displayName) {
     if (content === undefined) content = "";
     if (displayName === undefined) {
         if (actor.token) displayName = actor.token.name;
@@ -638,8 +600,7 @@ export function templateActor(actor, content, displayName)
 }
 
 
-export async function templateRow(label, formula, color, rollData)
-{
+export async function templateRow(label, formula, color, rollData) {
     if (rollData === undefined)
         rollData = {};
     if (color === undefined)
@@ -649,7 +610,7 @@ export async function templateRow(label, formula, color, rollData)
         return templateTextRow(label, formula, color);
 
     const roll = new Roll(formula, rollData);
-    await roll.roll({async: true});
+    await roll.roll({ async: true });
     const resultData = [];
     let crit = true;
     let fail = true;
@@ -707,8 +668,7 @@ export async function templateRow(label, formula, color, rollData)
 }
 
 
-export function templateTextRow(label, text, color)
-{
+export function templateTextRow(label, text, color) {
     if (color === undefined) color = "";
     return dedent(`
         <div class="item ${color}">
@@ -718,14 +678,11 @@ export function templateTextRow(label, text, color)
 }
 
 
-export function templateHeader(source, token)
-{
-    if (source.constructor.name == "LightbearerActor")
-    {
+export function templateHeader(source, token) {
+    if (source.constructor.name == "LightbearerActor") {
         return `<div class="caption">${source.name}</div>`;
     }
-    else if (source.constructor.name == "LightbearerItem")
-    {
+    else if (source.constructor.name == "LightbearerItem") {
         // If no token is passed, find a token
         if (!token) token = getActor(source).getToken();
 
@@ -735,8 +692,7 @@ export function templateHeader(source, token)
             </a>
         `);
     }
-    else
-    {
+    else {
         return `<div class="caption">ERROR: Unknown source</div>`;
     }
 }

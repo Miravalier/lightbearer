@@ -2,7 +2,7 @@
     <header class="lightbearer sheet-header">
         <div class="row">
             <h1 class="charname">
-                <input name="name" type="text" value="{{item.name}}" placeholder="Name"/>
+                <input name="name" type="text" value="{{item.name}}" placeholder="Name" />
             </h1>
         </div>
     </header>
@@ -14,19 +14,27 @@
         <div class="row">
             <span class="label">Action Type</span>
             <select name="data.actionCost">
-            {{#select data.data.actionCost}}
-                <option value="none">None</option>
+                {{#select data.data.actionCost}}
+                <option value="passive">Passive</option>
+                <option value="free">Free</option>
                 <option value="action">Action</option>
                 <option value="reaction">Reaction</option>
-            {{/select}}
+                {{/select}}
             </select>
 
+            {{#ifneq data.data.actionCost "passive"}}
             <div class="divider"></div>
 
-            <span class="label">Mana Cost</span>
-            <input class="value" type="number"
-                name="data.manaCost"
-                value="{{data.data.manaCost}}"/>
+            <span class="label">Cooldown</span>
+            <select name="data.cooldown">
+                {{#select data.data.cooldown}}
+                <option value="0">None</option>
+                <option value="1">1 Round</option>
+                <option value="2">2 Rounds</option>
+                <option value="3">3 Rounds</option>
+                {{/select}}
+            </select>
+            {{/ifneq}}
 
             <div class="divider"></div>
 
@@ -36,7 +44,7 @@
         </div>
 
         <div class="target-list">
-        {{#each data.data.targets as |target tkey|}}
+            {{#each data.data.targets as |target tkey|}}
             <div class="target" data-key="{{tkey}}">
                 <div class="column">
                     <a class="target-up"><i class="fas fa-arrow-up"></i></a>
@@ -45,7 +53,7 @@
 
                 <div class="field">
                     <select name="data.targets.{{tkey}}.type">
-                    {{#select target.type}}
+                        {{#select target.type}}
                         <option value="None">Self</option>
                         <option value="Creature">Creature</option>
                         <option value="Group">Group</option>
@@ -57,36 +65,32 @@
                         <option value="Close Sphere">Close Sphere</option>
                         <option value="Close Ray">Close Ray</option>
                         <option value="Close Cone">Close Cone</option>
-                    {{/select}}
+                        {{/select}}
                     </select>
                 </div>
 
                 {{#ifoneof target.type "Sphere,Close Sphere,Square,Close Square"}}
                 <div class="field">
                     <span>Size</span>
-                    <input class="radius" type="number"
-                        name="data.targets.{{tkey}}.radius"
-                        value="{{target.radius}}"/>
+                    <input class="radius" type="number" name="data.targets.{{tkey}}.radius" value="{{target.radius}}" />
                 </div>
                 {{/ifoneof}}
                 {{#ifoneof target.type "Ray,Cone,Close Ray,Close Cone"}}
                 <div class="field">
                     <span>Size</span>
-                    <input class="length" type="number"
-                        name="data.targets.{{tkey}}.length"
-                        value="{{target.length}}"/>
+                    <input class="length" type="number" name="data.targets.{{tkey}}.length" value="{{target.length}}" />
                 </div>
                 {{/ifoneof}}
 
                 {{#ifnoneof target.type "None,Creature,Group"}}
                 <div class="field">
                     <select name="data.targets.{{tkey}}.criteria">
-                    {{#select target.criteria}}
+                        {{#select target.criteria}}
                         <option value="Any">Any</option>
                         <option value="Ally">Ally</option>
                         <option value="Enemy">Enemy</option>
                         <option value="None">None</option>
-                    {{/select}}
+                        {{/select}}
                     </select>
                 </div>
                 {{/ifnoneof}}
@@ -95,9 +99,7 @@
                 {{#ifnoneof target.criteria "Enemy,None"}}
                 <div class="field">
                     <span>Self</span>
-                    <input type="checkbox"
-                        name="data.targets.{{tkey}}.includeSelf"
-                        {{checked target.includeSelf}}/>
+                    <input type="checkbox" name="data.targets.{{tkey}}.includeSelf" {{checked target.includeSelf}} />
                 </div>
                 {{/ifnoneof}}
                 {{/ifoneof}}
@@ -106,7 +108,7 @@
                 <a class="remove-target-button"><i class="fas fa-trash"></i></a>
             </div>
             <div class="effect-list" data-parent-key="{{tkey}}">
-            {{#each target.effects as |effect ekey|}}
+                {{#each target.effects as |effect ekey|}}
                 <div class="effect" data-key="{{ekey}}">
                     <div class="arrows">
                         <a class="effect-up"><i class="fas fa-arrow-up"></i></a>
@@ -114,7 +116,7 @@
                     </div>
 
                     <select name="data.targets.{{tkey}}.effects.{{ekey}}.type">
-                    {{#select effect.type}}
+                        {{#select effect.type}}
                         <option value="Text">Text</option>
                         <option value="Check">Check</option>
                         <option value="Opposed Check">Opposed</option>
@@ -123,87 +125,81 @@
                         <option value="Texture">Texture</option>
                         {{/ifnoneof}}
                         <option value="Table">Table</option>
-                    {{/select}}
+                        {{/select}}
                     </select>
 
                     {{#ifoneof effect.type "Check,Opposed Check"}}
-                        <select name="data.targets.{{tkey}}.effects.{{ekey}}.stat">
+                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.stat">
                         {{#select effect.stat}}
-                            <option value="physique">Physique</option>
-                            <option value="agility">Agility</option>
-                            <option value="endurance">Endurance</option>
-                            <option value="power">Power</option>
-                            <option value="cunning">Cunning</option>
-                            <option value="charisma">Charisma</option>
-                            <option value="memory">Memory</option>
-                            <option value="perception">Perception</option>
-                            <option value="artifice">Artifice</option>
-                            <option value="tracking">Tracking</option>
-                            <option value="melee">Melee Combat</option>
-                            <option value="ranged">Ranged Combat</option>
-                            <option value="spellwork">Spellwork</option>
-                            <option value="stealth">Stealth</option>
+                        <option value="physique">Physique</option>
+                        <option value="agility">Agility</option>
+                        <option value="endurance">Endurance</option>
+                        <option value="power">Power</option>
+                        <option value="cunning">Cunning</option>
+                        <option value="charisma">Charisma</option>
+                        <option value="memory">Memory</option>
+                        <option value="perception">Perception</option>
+                        <option value="artifice">Artifice</option>
+                        <option value="tracking">Tracking</option>
+                        <option value="melee">Melee Combat</option>
+                        <option value="ranged">Ranged Combat</option>
+                        <option value="spellwork">Spellwork</option>
+                        <option value="stealth">Stealth</option>
                         {{/select}}
-                        </select>
+                    </select>
                     {{else}}
-                        {{#switchon effect.type}}
-                            {{#switchcase "Texture"}}
-                                <input class="formula" type="text"
-                                    name="data.targets.{{tkey}}.effects.{{ekey}}.texture"
-                                    value="{{effect.texture}}"/>
-                            {{/switchcase}}
-                            {{#switchcase "Text"}}
-                                <input class="formula" type="text"
-                                    name="data.targets.{{tkey}}.effects.{{ekey}}.text"
-                                    value="{{effect.text}}"/>
-                            {{/switchcase}}
-                            {{#switchcase "Table"}}
-                                <input class="formula" type="text"
-                                    name="data.targets.{{tkey}}.effects.{{ekey}}.label"
-                                    value="{{effect.label}}"/>
-                                <input class="formula" type="text"
-                                    name="data.targets.{{tkey}}.effects.{{ekey}}.choices"
-                                    value="{{effect.choices}}"/>
-                                <select name="data.targets.{{tkey}}.effects.{{ekey}}.color">
-                                {{#select effect.color}}
-                                    <option value="">None</option>
-                                    <option value="yellow">Yellow</option>
-                                    <option value="red">Red</option>
-                                    <option value="blue">Blue</option>
-                                    <option value="green">Green</option>
-                                    <option value="orange">Orange</option>
-                                    <option value="purple">Purple</option>
-                                {{/select}}
-                                </select>
-                            {{/switchcase}}
-                            {{#switchcase "Amount"}}
-                                <input class="formula" type="text"
-                                    name="data.targets.{{tkey}}.effects.{{ekey}}.label"
-                                    value="{{effect.label}}"/>
-                                <input class="formula" type="text"
-                                    name="data.targets.{{tkey}}.effects.{{ekey}}.formula"
-                                    value="{{effect.formula}}"/>
-                                <select name="data.targets.{{tkey}}.effects.{{ekey}}.color">
-                                {{#select effect.color}}
-                                    <option value="">None</option>
-                                    <option value="yellow">Yellow</option>
-                                    <option value="red">Red</option>
-                                    <option value="blue">Blue</option>
-                                    <option value="green">Green</option>
-                                    <option value="orange">Orange</option>
-                                    <option value="purple">Purple</option>
-                                {{/select}}
-                                </select>
-                            {{/switchcase}}
-                        {{/switchon}}
+                    {{#switchon effect.type}}
+                    {{#switchcase "Texture"}}
+                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.texture"
+                        value="{{effect.texture}}" />
+                    {{/switchcase}}
+                    {{#switchcase "Text"}}
+                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.text"
+                        value="{{effect.text}}" />
+                    {{/switchcase}}
+                    {{#switchcase "Table"}}
+                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.label"
+                        value="{{effect.label}}" />
+                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.choices"
+                        value="{{effect.choices}}" />
+                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.color">
+                        {{#select effect.color}}
+                        <option value="">None</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="red">Red</option>
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                        <option value="orange">Orange</option>
+                        <option value="purple">Purple</option>
+                        {{/select}}
+                    </select>
+                    {{/switchcase}}
+                    {{#switchcase "Amount"}}
+                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.label"
+                        value="{{effect.label}}" />
+                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.formula"
+                        value="{{effect.formula}}" />
+                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.color">
+                        {{#select effect.color}}
+                        <option value="">None</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="red">Red</option>
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                        <option value="orange">Orange</option>
+                        <option value="purple">Purple</option>
+                        {{/select}}
+                    </select>
+                    {{/switchcase}}
+                    {{/switchon}}
                     {{/ifoneof}}
 
 
                     <a class="remove-effect-button"><i class="fas fa-trash"></i></a>
                 </div>
-            {{/each}}
+                {{/each}}
             </div>
-        {{/each}}
+            {{/each}}
         </div>
     </section>
 </form>

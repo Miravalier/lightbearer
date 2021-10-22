@@ -1,9 +1,8 @@
 import { distance, centerpoint } from "./points.js";
 
-export async function createTemplate(data)
-{
+export async function createTemplate(data) {
     if (data === undefined) data = {};
-    if (data.position === undefined) data.position = {x: 0, y: 0};
+    if (data.position === undefined) data.position = { x: 0, y: 0 };
     if (data.position.x === undefined) data.position.x = 0;
     if (data.position.y === undefined) data.position.y = 0;
     if (data.shape === undefined) data.shape = 'circle';
@@ -12,7 +11,7 @@ export async function createTemplate(data)
     if (data.angle === undefined) data.angle = 100;
     if (data.direction === undefined) data.direction = 0;
     if (data.width === undefined) data.width = 5;
-    if (data.offset === undefined) data.offset = {x: 0, y: 0};
+    if (data.offset === undefined) data.offset = { x: 0, y: 0 };
     if (data.offset.x === undefined) data.offset.x = 0;
     if (data.offset.y === undefined) data.offset.y = 0;
 
@@ -32,8 +31,7 @@ export async function createTemplate(data)
     }]);
 }
 
-export async function selectGroup(prompt)
-{
+export async function selectGroup(prompt) {
     if (!prompt) prompt = "Select any number of tokens, then click the board.";
     game.uitools.hoveredToken = null;
     const selectedTokens = new Set();
@@ -45,14 +43,12 @@ export async function selectGroup(prompt)
             Hooks.once("clickToken", resolve);
         });
         if (token) {
-            if (selectedTokens.has(token))
-            {
+            if (selectedTokens.has(token)) {
                 selectedTokens.delete(token);
                 token.targeted.delete(game.user);
                 token.refresh();
             }
-            else
-            {
+            else {
                 selectedTokens.add(token);
                 token.targeted.add(game.user);
                 token.refresh();
@@ -72,8 +68,7 @@ export async function selectGroup(prompt)
 }
 
 
-export async function selectCreature(prompt)
-{
+export async function selectCreature(prompt) {
     if (!prompt) prompt = "Click on a token.";
     document.body.style.cursor = "crosshair";
     ui.notifications.info(prompt);
@@ -85,8 +80,7 @@ export async function selectCreature(prompt)
 }
 
 
-export async function selectPosition(prompt)
-{
+export async function selectPosition(prompt) {
     if (!prompt) prompt = "Click on a square.";
     document.body.style.cursor = "crosshair";
     ui.notifications.info(prompt);
@@ -98,24 +92,23 @@ export async function selectPosition(prompt)
 }
 
 
-export async function selectFixedShape(data)
-{
+export async function selectFixedShape(data) {
     if (data.length === undefined) data.length = 15;
     if (data.color === undefined) data.color = game.user.color;
-    if (data.offset === undefined) data.offset = {x: 0, y: 0};
+    if (data.offset === undefined) data.offset = { x: 0, y: 0 };
     if (data.offset.x === undefined) data.offset.x = 0;
     if (data.offset.y === undefined) data.offset.y = 0;
     if (data.origin === undefined) {
         data.fixed = false;
-        data.position = {x: 0, y: 0}
+        data.position = { x: 0, y: 0 }
     }
     else {
         data.fixed = true;
-        data.position = {x: data.origin.x, y: data.origin.y};
+        data.position = { x: data.origin.x, y: data.origin.y };
     }
     data.position.x += data.offset.x + 50;
     data.position.y += data.offset.y + 50;
-    
+
     // Find the current scene
     const scene = game.scenes.get(game.user.viewedScene);
 
@@ -133,13 +126,12 @@ export async function selectFixedShape(data)
         fillColor: data.color,
     }]);
     const template = templates[0];
-    console.log(template);
 
     // Start moving the shape to the mouse periodically
     let moveInterval;
     if (!data.fixed) {
         const mouse = canvas.app.renderer.plugins.interaction.mouse;
-        moveInterval = setInterval(function() {
+        moveInterval = setInterval(function () {
             const mousePosition = mouse.getLocalPosition(canvas.app.stage);
             mousePosition.x += data.offset.x;
             mousePosition.y += data.offset.y;
@@ -161,24 +153,21 @@ export async function selectFixedShape(data)
 
     // Get all combatants under the template
     const selected = getTokensUnderTemplate(scene, template);
-    console.log("Selected");
-    console.log(selected);
 
     // Delete template
     await scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.data._id]);
 
     // Return the position and the tokens under the drawn template
     if (data.fixed) {
-        return {position: data.position, tokens: selected};
+        return { position: data.position, tokens: selected };
     }
     else {
-        return {position: position, tokens: selected};
+        return { position: position, tokens: selected };
     }
 }
 
 
-export async function selectShape(data)
-{
+export async function selectShape(data) {
     // Get default parameters set up
     if (data.shape == "cone" && data.angle == undefined) data.angle = 100;
     if (data.shape == "ray" && data.width == undefined) data.width = 5;
@@ -188,7 +177,7 @@ export async function selectShape(data)
         data.position = await selectPosition(`Place the ${data.shape}'s origin.`);
     }
     else {
-        data.position = {x: data.origin.x, y: data.origin.y};
+        data.position = { x: data.origin.x, y: data.origin.y };
     }
     data.position.x += 50;
     data.position.y += 50;
@@ -198,7 +187,7 @@ export async function selectShape(data)
     const scene = game.scenes.get(game.user.viewedScene);
 
     // Create shape template
-    const template = await scene.createEmbeddedDocuments("MeasuredTemplate", [{
+    const templates = await scene.createEmbeddedDocuments("MeasuredTemplate", [{
         t: data.shape,
         user: game.user.id,
         x: data.position.x,
@@ -210,10 +199,11 @@ export async function selectShape(data)
         borderColor: "#000000",
         fillColor: data.color,
     }]);
+    const template = templates[0];
 
     // Start rotating the shape toward the mouse periodically
     const mouse = canvas.app.renderer.plugins.interaction.mouse;
-    const rotateInterval = setInterval(async function() {
+    const rotateInterval = setInterval(async function () {
         const mousePosition = mouse.getLocalPosition(canvas.app.stage);
         data.direction = await rotateTemplateToFace(scene, template, mousePosition);
     }, 50);
@@ -232,54 +222,43 @@ export async function selectShape(data)
     const selected = getTokensUnderTemplate(scene, template);
 
     // Delete template
-    await scene.deleteEmbeddedDocuments("MeasuredTemplate", [template._id]);
+    await scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.data._id]);
 
     // Return the tokens under the drawn template
-    return {position: data.position, tokens: selected, direction: data.direction};
+    return { position: data.position, tokens: selected, direction: data.direction };
 }
 
 
-function onHoverToken(token, selected)
-{
-    if (selected)
-    {
+function onHoverToken(token, selected) {
+    if (selected) {
         game.uitools.hoveredToken = token;
     }
-    else
-    {
-        if (game.uitools.hoveredToken === token)
-        {
+    else {
+        if (game.uitools.hoveredToken === token) {
             game.uitools.hoveredToken = null;
         }
     }
 }
 
 
-export function getTokensAtPosition(position)
-{
-    if (game.combat)
-    {
+export function getTokensAtPosition(position) {
+    if (game.combat) {
         return game.combat.combatants.filter(combatant => {
-            return distance(template.data, {x: combatant.token.x + 50, y: combatant.token.y + 50}) <= template.distance * 20;
+            return distance(template.data, { x: combatant.token.x + 50, y: combatant.token.y + 50 }) <= template.distance * 20;
         });
     }
-    else
-    {
+    else {
         const scene = game.scenes.get(game.user.viewedScene);
         return scene.getEmbeddedCollection("Token").filter(token => {
-            return distance(template.data, {x: token.x + 50, y: token.y + 50}) <= template.distance * 20;
+            return distance(template.data, { x: token.x + 50, y: token.y + 50 }) <= template.distance * 20;
         });
     }
 }
 
 
-export function getTokensUnderTemplate(scene, template)
-{
-    if (template.data.t == "circle")
-    {
-        if (game.combat)
-        {
-            console.log("Combat - Circle");
+export function getTokensUnderTemplate(scene, template) {
+    if (template.data.t == "circle") {
+        if (game.combat) {
             return game.combat.combatants.filter(combatant => {
                 if (!combatant.token) {
                     return false;
@@ -288,9 +267,7 @@ export function getTokensUnderTemplate(scene, template)
                 return value <= (template.data.distance * 20);
             });
         }
-        else
-        {
-            console.log("No Combat - Circle");
+        else {
             return scene.getEmbeddedCollection("Token").filter(token => {
                 return distance(template.data, centerpoint(token.data)) <= template.data.distance * 20;
             });
@@ -298,9 +275,7 @@ export function getTokensUnderTemplate(scene, template)
     }
 
     const bounds = canvas.templates.get(template.data._id).shape;
-    console.log("Bounds", bounds);
-    if (game.combat)
-    {
+    if (game.combat) {
         return game.combat.combatants.filter(combatant => {
             if (!combatant.token) {
                 return false;
@@ -312,8 +287,7 @@ export function getTokensUnderTemplate(scene, template)
             );
         });
     }
-    else
-    {
+    else {
         return scene.getEmbeddedCollection("Token").filter(token => {
             const token_centerpoint = centerpoint(token.data);
             return bounds.contains(
@@ -325,8 +299,7 @@ export function getTokensUnderTemplate(scene, template)
 }
 
 
-async function moveTemplateToPosition(scene, template, point)
-{
+async function moveTemplateToPosition(scene, template, point) {
     await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
         _id: template.data._id,
         x: point.x,
@@ -335,8 +308,7 @@ async function moveTemplateToPosition(scene, template, point)
 }
 
 
-async function rotateTemplateToFace(scene, template, point)
-{
+async function rotateTemplateToFace(scene, template, point) {
     const rotation = Math.atan2(point.y - template.data.y, point.x - template.data.x) * 180 / Math.PI;
     await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
         _id: template.data._id,
@@ -354,8 +326,9 @@ Hooks.once("init", () => {
 
 
 Hooks.once("ready", () => {
-    Hooks.on("hoverToken",  onHoverToken);
+    Hooks.on("hoverToken", onHoverToken);
 });
+
 
 Hooks.on("canvasReady", (canvas) => {
     canvas.app.stage.addListener('click', ev => {
@@ -365,12 +338,10 @@ Hooks.on("canvasReady", (canvas) => {
 
         Hooks.call("clickBoard", pos);
 
-        if (game.uitools.hoveredToken)
-        {
+        if (game.uitools.hoveredToken) {
             Hooks.call("clickToken", game.uitools.hoveredToken);
         }
-        else
-        {
+        else {
             Hooks.call("clickToken", null);
         }
     });

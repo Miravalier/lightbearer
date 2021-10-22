@@ -1,6 +1,8 @@
 {
     "Actor": {
-        "types": ["Character"],
+        "types": [
+            "Character"
+        ],
         "Character": {
             "category": "single",
             "class": "Assassin",
@@ -17,15 +19,11 @@
                 "value": 0,
                 "max": 3
             },
+            "cooldowns": null,
             "health": {
                 "value": 20,
                 "min": 0,
                 "max": 20
-            },
-            "mana": {
-                "value": 3,
-                "min": 0,
-                "max": 3
             },
             "armor": 0,
             "stats": {
@@ -65,7 +63,9 @@
         }
     },
     "Item": {
-        "types": ["Ability"],
+        "types": [
+            "Ability"
+        ],
         "Ability": {
             "category": "npc",
             "description": "",
@@ -73,7 +73,7 @@
             "upgraded": false,
             "targets": {},
             "actionCost": "action",
-            "manaCost": 0
+            "cooldown": 0
         }
     }
 }

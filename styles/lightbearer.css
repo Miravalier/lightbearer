@@ -245,6 +245,10 @@ input.formula {
     margin: 4px;
 }
 
+.lightbearer.sheet .ability .passive.name {
+    font-style: italic;
+}
+
 .lightbearer.sheet .ability .control {
     flex: 0;
     margin: 4px;
@@ -292,7 +296,7 @@ input.formula {
     line-height: 24px;
     margin: 4px;
     font-weight: bold;
-} 
+}
 
 .lightbearer.sheet .label {
     min-width: 7em;
@@ -302,7 +306,7 @@ input.formula {
     height: 24px;
     line-height: 24px;
     margin: 4px;
-} 
+}
 
 .lightbearer.sheet .value {
     border-radius: 8px;

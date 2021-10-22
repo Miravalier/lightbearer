@@ -1,18 +1,32 @@
 import { getActor } from "./actor.js";
-import { TurnUpdateMessage, RoundUpdateMessage } from "./chat.js";
+import { TurnUpdateMessage, RoundUpdateMessage, EventMessage } from "./chat.js";
 
-function pointDistance(x1, y1, x2, y2)
-{
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+export function setFlag(key, value) {
+    if (game.combat) {
+        game.combat.setFlag("lightbearer", key, value);
+    }
 }
 
-export function pingCombatant()
-{
+export function getFlag(key, default_value) {
+    try {
+        const result = game.combat.getFlag("lightbearer", key);
+        if (result === null || result === undefined) {
+            return default_value;
+        }
+        else {
+            return result;
+        }
+    } catch (error) {
+        return default_value;
+    }
+}
+
+export function pingCombatant() {
     if (!game.combat || !game.combat.combatant) return;
 
     const combat = game.combat;
     const actor = combat.combatant.actor;
-    const token = actor.getActiveTokens().find(t => t.id === combat.combatant.token._id);
+    const token = actor.getActiveTokens().find(t => t.id === combat.combatant.token.id);
     if (token) {
         token.setTarget(true);
         canvas.animatePan({
@@ -26,80 +40,116 @@ export function pingCombatant()
     }
 }
 
-
-function roundAdvance(combat, round)
-{
+function advanceRound(combat, round) {
     RoundUpdateMessage(round);
-
-    if (round == 1)
-    {
-        for (const combatant of combat.combatants)
-        {
+    if (round == 1) {
+        setFlag("rounds", 0);
+        setFlag("turns", 0);
+        for (const combatant of combat.combatants) {
             combatant.actor.startCombat();
         }
     }
-    else
-    {
-        for (const combatant of combat.combatants)
-        {
-            combatant.actor.startRound();
+    else {
+        setFlag("rounds", getFlag("rounds", 0) + 1);
+        for (const combatant of combat.combatants) {
+            combatant.actor.advanceRound();
+        }
+        const rounds_elapsed = getFlag("rounds");
+        const messages = getFlag("round_messages", []);
+        for (const i = messages.length - 1; i >= 0; i--) {
+            const message = messages[i];
+            if (rounds_elapsed >= message.expiration) {
+                EventMessage(message.text, message.source);
+                messages.splice(i, 1);
+            }
+        }
+        setFlag("round_messages", messages);
+    }
+}
+
+function revertRound(combat, round) {
+    setFlag("rounds", getFlag("rounds", 0) - 1);
+    for (const combatant of combat.combatants) {
+        combatant.actor.revertRound();
+    }
+}
+
+export function queueRoundMessage(rounds, source, text) {
+    const messages = getFlag("round_messages", []);
+    messages.push({
+        expiration: getFlag("rounds", 0) + rounds,
+        text: text,
+        source: source
+    })
+    setFlag("round_messages", messages);
+}
+
+export function queueTurnMessage(turns, source, text) {
+    const messages = getFlag("turn_messages", []);
+    messages.push({
+        expiration: getFlag("turns", 0) + turns,
+        text: text,
+        source: source
+    });
+    setFlag("turn_messages", messages);
+}
+
+function advanceTurn(combat, turn) {
+    TurnUpdateMessage(combat.combatant.name, "Turn Start");
+    setFlag("turns", getFlag("turns", 0) + 1);
+    for (const combatant of combat.combatants) {
+        combatant.actor.advanceTurn();
+    }
+    const turns_elapsed = getFlag("turns");
+    const messages = getFlag("turn_messages", []);
+    for (const i = messages.length - 1; i >= 0; i--) {
+        const message = messages[i];
+        if (turns_elapsed >= message.expiration) {
+            EventMessage(message.text, message.source);
+            messages.splice(i, 1);
         }
     }
+    setFlag("turn_messages", messages);
 }
 
-function roundRevert(combat, round)
-{
-    for (const combatant of combat.combatants)
-    {
-        combatant.actor.undoRound();
+function revertTurn(combat, turn) {
+    for (const combatant of combat.combatants) {
+        combatant.actor.revertTurn();
     }
-}
-
-function turnAdvance(combat, turn)
-{
-    TurnUpdateMessage(combat.combatant.name, "Turn Start");
-}
-
-function turnRevert(combat, turn)
-{
+    setFlag("turns", getFlag("turns", 0) - 1);
 }
 
 
-export function onUpdateCombat(combat, update, options, userId)
-{
+export function onUpdateCombat(combat, update, options, userId) {
     if (!game.user.isGM) return;
     if (!combat.combatant) return;
-    if (combat.combatant.token.name == game.combat.data.previousName) return;
+    if (update.flags) return;
 
     const data = game.combat.data || {};
 
     // Set previous defaults
-    if (data.previousTurn == undefined) data.previousTurn = 0;
-    if (data.previousRound == undefined) data.previousRound = 0;
+    if (!data.previousTurn) data.previousTurn = 0;
+    if (!data.previousRound) data.previousRound = 0;
 
     // Make sure update has a round and a turn
-    if (update.round == undefined) update.round = game.combat.data.previousRound;
-    if (update.turn == undefined) update.turn = game.combat.data.previousTurn;
+    if (!update.round) update.round = data.previousRound;
+    if (!update.turn) update.turn = data.previousTurn;
 
     pingCombatant();
 
-    if (update.round > game.combat.data.previousRound)
-    {
-        roundAdvance(combat, update.round);
-        turnAdvance(combat, update.turn);
+    if (update.round > data.previousRound) {
+        advanceRound(combat, update.round);
+        advanceTurn(combat, update.turn);
     }
-    else if (update.round < game.combat.data.previousRound)
-    {
-        turnRevert(combat, update.round);
-        roundRevert(combat, update.round);
+    else if (update.round < data.previousRound) {
+        revertTurn(combat, update.round);
+        revertRound(combat, update.round);
     }
-    else if (update.turn > game.combat.data.previousTurn)
-    {
-        turnAdvance(combat, update.turn);
+    else if (update.turn > data.previousTurn) {
+        advanceTurn(combat, update.turn);
     }
-    else if (update.turn < game.combat.data.previousTurn)
-    {
-        turnRevert(combat, update.round);
+    else if (update.turn < data.previousTurn) {
+        revertTurn(combat, update.round);
     }
 
     data.previousTurn = update.turn;
@@ -109,8 +159,7 @@ export function onUpdateCombat(combat, update, options, userId)
 }
 
 
-export function SetNPCNames()
-{
+export function SetNPCNames() {
     const originals = {};
     const counts = {};
     const updates = {};
@@ -133,15 +182,7 @@ export function SetNPCNames()
         }
         counts[actor.name] = i + 1;
     });
-    for (const [key, value] of Object.entries(updates))
-    {
-        canvas.tokens.get(key).update({name: value});
-    }
-    if (game.combat)
-    {
-        for (const combatant of game.combat.combatants)
-        {
-            //combatant.upd
-        }
+    for (const [key, value] of Object.entries(updates)) {
+        canvas.tokens.get(key).document.update({ name: value });
     }
 }

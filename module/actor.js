@@ -34,15 +34,12 @@ export class LightbearerActor extends Actor {
 
         rollData['health'] = data.health.value;
         rollData['maxHealth'] = data.health.max;
-        rollData['mana'] = data.mana.value;
-        rollData['maxMana'] = data.mana.max;
         rollData['actions'] = data.actions.value;
         rollData['maxActions'] = data.actions.max;
         rollData['reactions'] = data.reactions.value;
         rollData['maxReactions'] = data.reactions.max;
 
-        for (const [stat, value] of Object.entries(actorData.stats))
-        {
+        for (const [stat, value] of Object.entries(actorData.stats)) {
             rollData[stat] = parseInt(value / 2);
         }
         rollData['physique'] = Math.round(
@@ -60,8 +57,7 @@ export class LightbearerActor extends Actor {
             ) / 6 // Half of average
         );
 
-        for (const [key, skill] of Object.entries(actorData.skills))
-        {
+        for (const [key, skill] of Object.entries(actorData.skills)) {
             let skillBonus = rollData[skill.stat];
             if (skill.level === "Novice") skillBonus += 2;
             else if (skill.level === "Skilled") skillBonus += 4;
@@ -80,12 +76,10 @@ export class LightbearerActor extends Actor {
 
     // Public extensions
     get player() {
-        if (this.hasPlayerOwner)
-        {
+        if (this.hasPlayerOwner) {
             return game.users.get(Object.keys(this.data.permission).find(p => p !== "default"));
         }
-        else
-        {
+        else {
             return game.lightbearer.gm;
         }
     }
@@ -101,35 +95,59 @@ export class LightbearerActor extends Actor {
         const data = this.data.data;
 
         this.update({
-            "data.mana.previous": data.mana.value,
             "data.actions.previous": data.actions.value,
             "data.reactions.previous": data.reactions.value,
-            "data.mana.value": data.mana.max,
             "data.actions.value": data.actions.max,
             "data.reactions.value": data.reactions.max,
+            "data.cooldowns": null,
+        });
+    }
+
+    // Called when a new turn starts
+    advanceTurn() {
+        const cooldowns = this.data.data.cooldowns;
+        if (cooldowns === null) {
+            return;
+        }
+        for (const [_id, cooldown] of Object.entries(cooldowns)) {
+            cooldowns[_id] = cooldown - 1;
+        }
+        this.update({
+            "data.cooldowns": cooldowns,
+        });
+    }
+
+    // Called when the turn ending is un-done
+    revertTurn() {
+        const cooldowns = this.data.data.cooldowns;
+        if (cooldowns === null) {
+            return;
+        }
+        for (const [_id, cooldown] of Object.entries(cooldowns)) {
+            cooldowns[_id] = cooldown + 1;
+        }
+        this.update({
+            "data.cooldowns": cooldowns,
         });
     }
 
     // Called when a new round begins
-    startRound() {
+    advanceRound() {
         const data = this.data.data;
 
         this.update({
-            "data.mana.previous": data.mana.value,
             "data.actions.previous": data.actions.value,
             "data.reactions.previous": data.reactions.value,
-            "data.mana.value": Math.min(data.mana.value + 1, data.mana.max),
             "data.actions.value": data.actions.max,
             "data.reactions.value": data.reactions.max,
         });
     }
 
     // Called when a round is reset
-    undoRound() {
+    revertRound() {
         const data = this.data.data;
 
         this.update({
-            "data.mana.value": data.mana.previous,
             "data.actions.value": data.actions.previous,
             "data.reactions.value": data.reactions.previous,
         });
@@ -158,14 +176,12 @@ export class LightbearerActor extends Actor {
 }
 
 
-export function getActor(entity)
-{
+export function getActor(entity) {
     // Undefined, null, empty string
     if (!entity) return null;
 
     // ID of some kind
-    else if (typeof entity === "string")
-    {
+    else if (typeof entity === "string") {
         // Try it as an actor ID
         const actor = game.actors.get(entity);
         if (actor) return getActor(actor);
@@ -179,8 +195,7 @@ export function getActor(entity)
         return null;
     }
     // Full Actor
-    else if (entity.constructor.name === "LightbearerActor")
-    {
+    else if (entity.constructor.name === "LightbearerActor") {
         // If this actor has an associated token, return this actor
         if (entity.token) return entity;
 
@@ -203,8 +218,7 @@ export function getActor(entity)
         return entity;
     }
     // Full Token
-    else if (entity.constructor.name === "Token")
-    {
+    else if (entity.constructor.name === "Token") {
         // Check if an actor is already associated
         if (entity.actor) return entity.actor;
 
@@ -213,28 +227,22 @@ export function getActor(entity)
         return null;
     }
     // Generic Data Objects
-    else
-    {
-        if (entity.actorId && entity._id)
-        {
+    else {
+        if (entity.actorId && entity._id) {
             const actor = game.actors.get(entity.actorId);
             const token = actor.getActiveTokens().find(token => token.id == entity._id);
             return getActor(token);
         }
-        else if (entity.token)
-        {
+        else if (entity.token) {
             return getActor(entity.token);
         }
-        else if (entity.actor)
-        {
+        else if (entity.actor) {
             return getActor(entity.actor);
         }
-        else if (entity.id)
-        {
+        else if (entity.id) {
             return getActor(entity.id);
         }
-        else
-        {
+        else {
             return getActor(entity._id);
         }
     }
