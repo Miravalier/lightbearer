@@ -335,7 +335,7 @@ async function onChatTemplateCaptionClicked(ev) {
     if (!actor) return;
 
     // Get current ability object
-    const ability = actor.getOwnedItem(caption.data("abilityId"));
+    const ability = actor.items.get(caption.data("abilityId"));
     if (!ability) return;
 
     // Get containing message
@@ -345,7 +345,7 @@ async function onChatTemplateCaptionClicked(ev) {
     const abilityData = ability.getRollData();
     abilityData.actorName = actor.name;
     abilityData.itemName = ability.name;
-    abilityData.owned = actor.owner;
+    abilityData.owned = actor.isOwner;
 
     // Render ability menu
     const templateContent = await renderTemplate(

@@ -1,5 +1,6 @@
 import { getAbilities, getAbility } from "./utilities.js";
 import * as chat from "./chat.js";
+import * as halloween from "./halloween.js";
 
 /**
  * Extends the basic ActorSheet.
@@ -146,6 +147,15 @@ export class LightbearerActorSheet extends ActorSheet {
          *****************/
         if (!this.options.editable) return;
 
+        // Event buttons
+        html.find(".level-up.button").click(async ev => {
+            await this.actor.update({
+                "data.resources.level_ups": this.actor.data.data.resources.level_ups - 1,
+            });
+            await halloween.levelup(this.actor);
+        });
+
+        // Ability hiding
         html.find(".hide-available").click(ev => {
             this.actor.update({ "data.availableHidden": true });
         });

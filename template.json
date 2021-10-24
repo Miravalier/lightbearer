@@ -12,6 +12,9 @@
             "race": "Human",
             "notes": "",
             "size": "Medium",
+            "resources": {
+                "level_ups": 0
+            },
             "actions": {
                 "value": 0,
                 "max": 1

@@ -589,7 +589,15 @@ a.header-button.configure-sheet {
 }
 
 .lightbearer.halloween .selectable:hover {
-    box-shadow: 0 0 2px 2px #ff9600;
+    box-shadow: 0 0 2px 2px #ff9600 !important;
+}
+
+.lightbearer.halloween.level-up .selectable {
+    background: rgba(0, 0, 0, 0.05);
+    margin: 4px;
+    padding: 2px;
+    border-radius: 4px;
+    box-shadow: 2px 2px rgb(0 0 0 / 10%);
 }
 
 .lightbearer.halloween .hero {
@@ -601,7 +609,7 @@ a.header-button.configure-sheet {
 }
 
 .lightbearer.halloween .selected {
-    background: rgb(255 170 60 / 25%);
+    background: rgb(255 170 60 / 25%) !important;
 }
 
 .lightbearer.halloween .hero .value {

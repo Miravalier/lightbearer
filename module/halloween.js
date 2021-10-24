@@ -99,6 +99,122 @@ function halloweenDialog(data) {
     return dialog;
 }
 
+// On /levelup, open level up dialog
+export async function levelup(character) {
+    // Figure out new abilities and stat increases
+    const data = {
+        available_abilities: [],
+        selected_ability: null,
+        selected_stat: null,
+        selected_hp_style: null,
+        attributes: character.data.data.stats,
+        increased_attributes: {},
+    };
+    for (let [attribute, value] of Object.entries(data.attributes)) {
+        if (value >= 24) {
+            data.increased_attributes[attribute] = value + 1;
+        }
+        else {
+            data.increased_attributes[attribute] = value + 2;
+        }
+    }
+    for (let _class of character.data.data.classes.split('/')) {
+        for (let ability of getAbilities(_class)) {
+            if (ability.name.endsWith("+")) continue;
+            if (character.items.find(item => item.name === ability.name)) continue;
+            data.available_abilities.push({
+                name: ability.name,
+                source: _class,
+                actionCost: ability.data.data.actionCost,
+                cooldown: ability.data.data.cooldown,
+                description: ability.data.data.description,
+            });
+        }
+    }
+    shuffle(data.available_abilities);
+    data.available_abilities = data.available_abilities.splice(0, 3);
+
+    // Load template
+    const templateContent = await renderTemplate(
+        "systems/lightbearer/html/halloween/level-up.html",
+        data
+    );
+    // Display html in dialog
+    const dialog = halloweenDialog({
+        title: `Level Up: ${character.name}`,
+        content: templateContent,
+        render: html => {
+            // Select an hp style
+            html.on('click', '.hp-style', ev => {
+                const card = $(ev.currentTarget);
+                data.selected_hp_style = card.data("style");
+                html.find(".selected.hp-style").removeClass("selected");
+                card.toggleClass("selected");
+            });
+            // Select a stat to increase
+            html.on('click', '.attribute', ev => {
+                const card = $(ev.currentTarget);
+                data.selected_stat = card.data("stat");
+                html.find(".selected.attribute").removeClass("selected");
+                card.toggleClass("selected");
+            });
+            // Select an ability
+            html.on('click', '.abilities .ability', ev => {
+                const card = $(ev.currentTarget);
+                const ability = getAbility(card.data("source"), card.data("name"));
+                if (card.hasClass("selected")) {
+                    data.selected_ability = null;
+                }
+                else {
+                    html.find(".selected.ability").removeClass("selected");
+                    data.selected_ability = ability;
+                }
+                card.toggleClass("selected");
+            });
+
+            // Finish
+            html.on('click', '.finish', async ev => {
+                console.log("Data", data);
+                if (!data.selected_hp_style) {
+                    ui.notifications.error("You must select an HP increase style.");
+                    return;
+                }
+                if (!data.selected_stat) {
+                    ui.notifications.error("You must select a stat to increase.");
+                    return;
+                }
+                if (!data.selected_ability) {
+                    ui.notifications.error("You must select a new ability to learn.");
+                    return;
+                }
+                // Increase stats
+                const updates = {};
+                let hp_increase = 5;
+                if (data.selected_hp_style === "random") {
+                    const roll = new Roll("2d4", {});
+                    await roll.roll({ async: true });
+                    hp_increase = roll.total;
+                    ui.notifications.info(`You gain ${hp_increase} max health.`);
+                }
+                updates["data.health.max"] = character.data.data.health.max + hp_increase;
+                updates["data.health.value"] = character.data.data.health.value + hp_increase;
+                updates[`data.stats.${data.selected_stat}`] = data.increased_attributes[data.selected_stat];
+                await character.update(updates);
+                // Add new ability
+                await character.createEmbeddedDocuments("Item", [
+                    {
+                        name: data.selected_ability.name,
+                        type: "Ability",
+                        data: data.selected_ability.data.data
+                    }
+                ]);
+                // Close the dialog
+                dialog.close();
+            });
+        },
+    });
+}
+
 // On /awaken, create a halloween character
 export function awakenCommand(_args) {
     // Send chat message
@@ -107,7 +223,7 @@ export function awakenCommand(_args) {
     ChatMessage.create({
         user: game.user.id,
         speaker: speaker,
-        content: `<div class="lightbearer story">${game.user.name} is beginning to awaken ...</div>`
+        content: `<div class="lightbearer story">${game.user.name}'s character is beginning to awaken ...</div>`
     });
 
     // Generate awaken data
@@ -211,7 +327,6 @@ async function heroSelect(data) {
                 card.toggleClass("selected");
             });
             html.on('click', '.next', ev => {
-                console.log("Data", data);
                 if (Object.keys(data.selected_heroes).length != 2) {
                     ui.notifications.error("You must select two heroes.");
                     return;
@@ -245,7 +360,6 @@ async function attributeSelect(data) {
                 data[`selected_${card.data("type")}`] = data.selected_heroes[card.parent().data("id")];
             });
             html.on('click', '.next', ev => {
-                console.log("Data", data);
                 if (!data.selected_mental || !data.selected_physical) {
                     ui.notifications.error("You must select attributes.");
                     return;
@@ -300,10 +414,8 @@ async function powerSelect(data) {
                     data.selected_abilities[ability.id] = ability;
                 }
                 card.toggleClass("selected");
-
             });
             html.on('click', '.finish', async ev => {
-                console.log("Final Data", data);
                 // Make sure 3 abilities are selected
                 if (Object.keys(data.selected_abilities).length != 3) {
                     ui.notifications.error("You must select three abilities.");

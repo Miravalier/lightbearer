@@ -171,7 +171,7 @@ async function createMacro(bar, data, slot) {
     if (data.type === "Item") {
         if (data.actorId) {
             command = `game.lightbearer.OwnedItemMacro("${data.actorId}", "${data.data._id}");`;
-            source = game.actors.get(data.actorId).getOwnedItem(data.data._id);
+            source = game.actors.get(data.actorId).items.get(data.data._id);
         }
         else {
             command = `game.lightbearer.ItemMacro("${data.id}");`;
@@ -219,7 +219,7 @@ function ItemMacro(item_id) {
 
 function OwnedItemMacro(actor_id, item_id) {
     try {
-        game.actors.get(actor_id).getOwnedItem(item_id).use();
+        game.actors.get(actor_id).items.get(item_id).use();
     }
     catch {
         chat.ErrorMessage("Either the actor or item this macro references no longer exist.");

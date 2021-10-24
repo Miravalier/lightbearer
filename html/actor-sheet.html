@@ -10,6 +10,15 @@
         </div>
     </header>
 
+    {{!-- Event Buttons --}}
+    {{#ifeq data.data.gamemode "halloween"}}
+    {{#if data.data.resources.level_ups}}
+    <div class="lightbearer halloween events row">
+        <div class="level-up button">Level Up!</div>
+    </div>
+    {{/if}}
+    {{/ifeq}}
+
     {{!-- Sheet Tab Navigation --}}
     <nav class="sheet-tabs tabs" data-group="primary">
         <a class="item" data-tab="stats">Stats</a>

@@ -144,7 +144,7 @@ export class LightbearerItem extends Item {
                 Object.values(target.effects).filter(e => e.type == "Texture").forEach(effect => {
                     const templateData = { position: template.position };
                     if (effect.texture) {
-                        templateData.texture = effect.texture;
+                        templateData.texture = `Textures/${effect.texture}.png`;
                     }
                     templateData.offset = { x: -50, y: -50 };
 

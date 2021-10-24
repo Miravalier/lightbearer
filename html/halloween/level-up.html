@@ -1,0 +1,82 @@
+<div class="lightbearer halloween level-up">
+    <h1>Select an attribute to increase.</h1>
+    <div class="attributes row">
+        <div class="selectable attribute row" data-stat="agility">
+            <div class="label">Agility</div>
+            <div class="value">{{attributes.agility}}</div>
+            <div class="operator">-></div>
+            <div class="value">{{increased_attributes.agility}}</div>
+        </div>
+        <div class="selectable attribute row" data-stat="endurance">
+            <div class="label">Endurance</div>
+            <div class="value">{{attributes.endurance}}</div>
+            <div class="operator">-></div>
+            <div class="value">{{increased_attributes.endurance}}</div>
+        </div>
+        <div class="selectable attribute row" data-stat="power">
+            <div class="label">Power</div>
+            <div class="value">{{attributes.power}}</div>
+            <div class="operator">-></div>
+            <div class="value">{{increased_attributes.power}}</div>
+        </div>
+        <div class="selectable attribute row" data-stat="charisma">
+            <div class="label">Charisma</div>
+            <div class="value">{{attributes.charisma}}</div>
+            <div class="operator">-></div>
+            <div class="value">{{increased_attributes.charisma}}</div>
+        </div>
+        <div class="selectable attribute row" data-stat="memory">
+            <div class="label">Memory</div>
+            <div class="value">{{attributes.memory}}</div>
+            <div class="operator">-></div>
+            <div class="value">{{increased_attributes.memory}}</div>
+        </div>
+        <div class="selectable attribute row" data-stat="perception">
+            <div class="label">Perception</div>
+            <div class="value">{{attributes.perception}}</div>
+            <div class="operator">-></div>
+            <div class="value">{{increased_attributes.perception}}</div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <h1>Select an HP increase strategy.</h1>
+    <div class="hp-styles row">
+        <div class="selectable hp-style" data-style="average">
+            Gain 5 Health
+        </div>
+        <div class="selectable hp-style" data-style="random">
+            Gain 2d4 Health
+        </div>
+    </div>
+    <div class="divider"></div>
+    <h1>Select a new power.</h1>
+    <div class="abilities column">
+        {{#each available_abilities as |ability|}}
+        <div class="selectable ability {{ability.actionCost}}" data-source={{ability.source}}
+            data-name="{{ability.name}}">
+            {{#ifeq ability.actionCost "action"}}
+            <i class="icon fas fa-circle"></i>
+            {{/ifeq}}
+            {{#ifeq ability.actionCost "reaction"}}
+            <i class="icon fas fa-exclamation-circle"></i>
+            {{/ifeq}}
+            {{#ifeq ability.actionCost "free"}}
+            <i class="icon far fa-circle"></i>
+            {{/ifeq}}
+            {{#ifneq ability.actionCost "passive"}}
+            {{#ifneq ability.cooldown "0"}}
+            <div class="icon">
+                <span>{{ability.cooldown}}</span>
+                <i class="fas fa-hourglass"></i>
+            </div>
+            {{/ifneq}}
+            {{/ifneq}}
+            <div class="{{ability.actionCost}} name">{{ability.source}}: {{ability.name}}</div>
+        </div>
+        <div class="description">{{ability.description}}</div>
+        {{/each}}
+    </div>
+    <div class="buttons row">
+        <div class="button finish" title="Finish">Finish</div>
+    </div>
+</div>
