@@ -282,6 +282,18 @@ export class LightbearerItem extends Item {
             else if (this.data.data.actionCost == "reaction") {
                 updates["data.reactions.value"] = caster.data.data.reactions.value - 1;
             }
+            // Activate cooldown
+            const cooldown = parseInt(this.data.data.cooldown);
+            if (cooldown > 0) {
+                if (caster.data.data.cooldowns === null) {
+                    const cd_update = {};
+                    cd_update[this.id] = cooldown;
+                    updates["data.cooldowns"] = cd_update;
+                }
+                else {
+                    updates[`data.cooldowns.${this.id}`] = cooldown;
+                }
+            }
 
             caster.update(updates);
         }

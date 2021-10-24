@@ -115,7 +115,7 @@ export class LightbearerActor extends Actor {
     advanceRound() {
         const data = this.data.data;
 
-        const cooldowns = data.cooldowns;
+        let cooldowns = data.cooldowns;
         if (cooldowns === null) {
             cooldowns = {};
         }

@@ -155,7 +155,8 @@ export function onUpdateCombat(combat, update, options, userId) {
     data.previousTurn = update.turn;
     data.previousRound = update.round;
     data.previousName = combat.combatant.token.name;
-    game.combat.update(data);
+
+    game.combat.update({ "data": data });
 }
 
 

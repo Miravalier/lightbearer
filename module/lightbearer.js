@@ -21,14 +21,13 @@ import * as createDefaults from "./create-defaults.js";
 /* -------------------------------------------- */
 
 
-function iconize(title, name, style)
-{
+function iconize(title, name, style) {
     if (style === undefined) style = "fas";
     return `<a title="${title}"><i class="${style} fa-${name}"></i></a>`;
 }
 
 
-Hooks.once("init", async function() {
+Hooks.once("init", async function () {
     console.log(`Initializing Lightbearer Ruleset`);
 
     // Create lightbearer namespace
@@ -62,20 +61,20 @@ Hooks.once("init", async function() {
         }
     };
 
-	CONFIG.Combat.initiative = {
-	    formula: "2d6+@agility",
+    CONFIG.Combat.initiative = {
+        formula: "2d6+@agility",
         decimals: 0
     };
 
-	// Define custom document classes
+    // Define custom document classes
     CONFIG.Actor.documentClass = LightbearerActor;
     CONFIG.Item.documentClass = LightbearerItem;
 
     // Register sheet application classes
     Actors.unregisterSheet("core", ActorSheet);
-    Actors.registerSheet("lightbearer", LightbearerActorSheet, {makeDefault: true});
+    Actors.registerSheet("lightbearer", LightbearerActorSheet, { makeDefault: true });
     Items.unregisterSheet("core", ItemSheet);
-    Items.registerSheet("lightbearer", LightbearerItemSheet, {makeDefault: true});
+    Items.registerSheet("lightbearer", LightbearerItemSheet, { makeDefault: true });
 
     // Handlebars helpers
     Handlebars.registerHelper('log', function (value, options) {
@@ -129,11 +128,19 @@ Hooks.once("init", async function() {
 
     Handlebars.registerHelper('switchon', function (value, options) {
         this.switch_value = value;
+        this.switch_hit = false;
         return options.fn(this);
     });
 
     Handlebars.registerHelper('switchcase', function (value, options) {
         if (value == this.switch_value) {
+            this.switch_hit = true;
+            return options.fn(this);
+        }
+    });
+
+    Handlebars.registerHelper('switchdefault', function (options) {
+        if (!this.switch_hit) {
             return options.fn(this);
         }
     });
@@ -144,7 +151,7 @@ Hooks.once("init", async function() {
     Hooks.on("renderChatMessage", (app, html, data) => chat.onRenderChatMessage(html));
 });
 
-Hooks.once("ready", function() {
+Hooks.once("ready", function () {
     // Link in other namespace items after initialization
     game.lightbearer.gm = game.users.find(u => u.isGM);
     // Register hooks
@@ -161,8 +168,7 @@ Hooks.once("ready", function() {
 async function createMacro(bar, data, slot) {
     let command = "";
     let source = null;
-    if (data.type === "Item")
-    {
+    if (data.type === "Item") {
         if (data.actorId) {
             command = `game.lightbearer.OwnedItemMacro("${data.actorId}", "${data.data._id}");`;
             source = game.actors.get(data.actorId).getOwnedItem(data.data._id);
@@ -172,13 +178,11 @@ async function createMacro(bar, data, slot) {
             source = game.items.get(data.id);
         }
     }
-    else if (data.type === "Actor")
-    {
+    else if (data.type === "Actor") {
         command = `game.lightbearer.ActorMacro("${data.id}");`;
         source = game.actors.get(data.id);
     }
-    else
-    {
+    else {
         return;
     }
 
@@ -195,8 +199,7 @@ async function createMacro(bar, data, slot) {
     game.user.assignHotbarMacro(macro, slot);
 }
 
-function ActorMacro(actor_id)
-{
+function ActorMacro(actor_id) {
     try {
         game.actors.get(actor_id).sheet.render(true);
     }
@@ -205,8 +208,7 @@ function ActorMacro(actor_id)
     }
 }
 
-function ItemMacro(item_id)
-{
+function ItemMacro(item_id) {
     try {
         game.items.get(item_id).sheet.render(true);
     }
@@ -215,8 +217,7 @@ function ItemMacro(item_id)
     }
 }
 
-function OwnedItemMacro(actor_id, item_id)
-{
+function OwnedItemMacro(actor_id, item_id) {
     try {
         game.actors.get(actor_id).getOwnedItem(item_id).use();
     }

@@ -216,6 +216,10 @@ input.formula {
     align-items: center;
 }
 
+.lightbearer .ability .cooldown {
+    color: #808080;
+}
+
 .lightbearer .ability .icon {
     margin: 4px 0px 4px 4px;
     display: flex;

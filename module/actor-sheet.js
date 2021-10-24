@@ -28,6 +28,14 @@ export class LightbearerActorSheet extends ActorSheet {
         data.abilities = [];
         for (let item of data.items) {
             if (item.type === "Ability") {
+                let cooldown_remaining = null;
+                if (actorData.cooldowns !== null) {
+                    cooldown_remaining = actorData.cooldowns[item._id];
+                }
+                if (!cooldown_remaining || cooldown_remaining < 0) {
+                    cooldown_remaining = 0;
+                }
+                item.data.cooldown_remaining = cooldown_remaining;
                 data.abilities.push(item);
             }
         }
@@ -188,6 +196,15 @@ export class LightbearerActorSheet extends ActorSheet {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = this.actor.items.get(li.data("itemId"));
             ability.use();
+        });
+
+        // Reset Ability
+        html.find('.known .ability .control.reset').click(ev => {
+            const li = $(ev.currentTarget).parents(".ability");
+            const ability_id = li.data("itemId");
+            const updates = {};
+            updates[`data.cooldowns.${ability_id}`] = 0;
+            this.actor.update(updates);
         });
 
         // Show Ability

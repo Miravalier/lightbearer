@@ -71,10 +71,23 @@
                     {{/ifneq}}
                     {{/ifneq}}
                     <a class="{{ability.data.actionCost}} name">{{ability.name}}</a>
-
+                    {{#ifeq ability.data.cooldown_remaining 0}}
                     <a class="control use" title="Use Ability">
                         <i class="fas fa-dice-d20"></i>
                     </a>
+                    {{else}}
+                    {{#ifeq ability.data.cooldown_remaining 1}}
+                    <div class="cooldown">On Cooldown: 1 Round</div>
+                    {{/ifeq}}
+                    {{#ifgt ability.data.cooldown_remaining 1}}
+                    <div class="cooldown">On Cooldown: {{ability.data.cooldown_remaining}} Rounds</div>
+                    {{/ifgt}}
+                    <a class="control reset" title="Reset Ability">
+                        <i class="far fa-hourglass"></i>
+                    </a>
+                    {{/ifeq}}
+
+
                     <a class="control edit" title="Edit Ability">
                         <i class="fas fa-edit"></i>
                     </a>
