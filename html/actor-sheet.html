@@ -85,6 +85,7 @@
                 {{/each}}
             </div>
 
+            {{#ifeq data.data.gamemode "standard"}}
             {{#ifneq data.data.category "npc"}}
             <div class="row">
                 {{#unless data.availableHidden}}
@@ -130,6 +131,7 @@
             </div>
             {{/unless}}
             {{/ifneq}}
+            {{/ifeq}}
         </div>
 
         {{!-- Stats Tab --}}
@@ -260,6 +262,8 @@
 
                 <div class="caption">Misc</div>
                 <div class="row">
+                    {{#switchon data.data.gamemode}}
+                    {{#switchcase "standard"}}
                     <div class="field">
                         <div class="label">Category</div>
                         <select name="data.category">
@@ -350,7 +354,20 @@
                         </select>
                     </div>
                     {{/ifneq}}
+                    {{/switchcase}}
 
+                    {{#switchcase "halloween"}}
+                    <div class="field">
+                        <div class="label">Classes</div>
+                        <div>{{data.data.classes}}</div>
+                    </div>
+                    <div class="field">
+                        <div class="label">Races</div>
+                        <div>{{data.data.races}}</div>
+                    </div>
+                    {{/switchcase}}
+
+                    {{/switchon}}
                     <div class="field">
                         <div class="label">Size</div>
                         <select name="data.size">

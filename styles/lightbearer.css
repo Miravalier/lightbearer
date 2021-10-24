@@ -51,22 +51,6 @@ nav.sheet-tabs {
     overflow: hidden;
 }
 
-/*
-.lightbearer .sheet-body .tab {
-    height: 100%;
-    overflow-y: auto;
-}
-.lightbearer .editor {
-    height: 100%;
-}
-.lightbearer .editor-content {
-    height: 100%;
-    background: rgba(0, 0, 0, 0.05);
-    padding: 0px 4px;
-    border-radius: 4px;
-}
-*/
-
 .lightbearer.sheet.actor {
     min-width: 560px;
     min-height: 420px;
@@ -223,7 +207,7 @@ input.formula {
 }
 */
 
-.lightbearer.sheet .ability {
+.lightbearer .ability {
     display: flex;
     flex-flow: row nowrap;
     background: rgba(0, 0, 0, 0.05);
@@ -232,56 +216,56 @@ input.formula {
     align-items: center;
 }
 
-.lightbearer.sheet .ability .icon {
+.lightbearer .ability .icon {
     margin: 4px 0px 4px 4px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.lightbearer.sheet .ability .name {
+.lightbearer .ability .name {
     font-weight: bold;
     flex: 1;
     margin: 4px;
 }
 
-.lightbearer.sheet .ability .passive.name {
+.lightbearer .ability .passive.name {
     font-style: italic;
 }
 
-.lightbearer.sheet .ability .control {
+.lightbearer .ability .control {
     flex: 0;
     margin: 4px;
 }
 
-.lightbearer.sheet .attributes {
+.lightbearer .attributes {
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
 }
 
-.lightbearer.sheet .group {
+.lightbearer .group {
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
     margin: 10px;
 }
 
-.lightbearer.sheet .row {
+.lightbearer .row {
     display: flex;
     flex-flow: row wrap;
     align-items: center;
     justify-content: center;
 }
 
-.lightbearer.sheet .column {
+.lightbearer .column {
     display: flex;
     flex-flow: column nowrap;
     margin: 0px 4px;
 }
 
-.lightbearer.sheet .skill,
-.lightbearer.sheet .attribute {
+.lightbearer .skill,
+.lightbearer .attribute {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
@@ -289,7 +273,7 @@ input.formula {
     margin: 2px;
 }
 
-.lightbearer.sheet .caption {
+.lightbearer .caption {
     min-width: 7em;
     text-align: center;
     height: 24px;
@@ -298,7 +282,7 @@ input.formula {
     font-weight: bold;
 }
 
-.lightbearer.sheet .label {
+.lightbearer .label {
     min-width: 7em;
     text-align: center;
     background: rgba(0,0,0,0.05);
@@ -308,7 +292,7 @@ input.formula {
     margin: 4px;
 }
 
-.lightbearer.sheet .value {
+.lightbearer .value {
     border-radius: 8px;
     margin: 2px;
     height: 24px;
@@ -318,7 +302,7 @@ input.formula {
     background: rgba(0, 0, 0, 0.05);
 }
 
-.lightbearer.sheet .divider {
+.lightbearer .divider {
     flex: 0 0 20px;
 }
 
@@ -591,6 +575,57 @@ a.header-button.configure-sheet {
     font-style: italic;
 }
 
+.lightbearer .description {
+    text-align: center;
+    font-style: italic;
+}
+
+.lightbearer.halloween .selectable {
+    cursor: pointer;
+}
+
+.lightbearer.halloween .selectable:hover {
+    box-shadow: 0 0 2px 2px #ff9600;
+}
+
+.lightbearer.halloween .hero {
+    margin: 4px;
+    padding: 2px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    box-shadow: 2px 2px rgb(0 0 0 / 10%);
+}
+
+.lightbearer.halloween .selected {
+    background: rgb(255 170 60 / 25%);
+}
+
+.lightbearer.halloween .hero .value {
+    min-width: 6em;
+    padding: 0px 4px;
+}
+
+.lightbearer.halloween .hero .label {
+    min-width: 3em;
+    padding: 0px 4px;
+}
+
+.lightbearer.halloween .button {
+    padding: 4px;
+    margin: 4px;
+    background: rgb(255 140 0 / 18%);
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 2px 2px rgb(0 0 0 / 10%);
+    color: #543408;
+}
+
+.lightbearer.halloween .button:hover {
+    box-shadow: 0 0 2px 2px #ff9600;
+    color: #945b0b;
+}
+
 @keyframes pulse {
 	0% {
 		box-shadow: inset 0 0 0 0 rgba(255, 0, 0, 0.7);
@@ -603,7 +638,4 @@ a.header-button.configure-sheet {
 	100% {
 		box-shadow: inset 0 0 0 0 rgba(255, 0, 0, 0);
 	}
-}
-
-#chat-log .chat-message {
 }

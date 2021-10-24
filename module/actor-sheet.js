@@ -1,28 +1,5 @@
+import { getAbilities, getAbility } from "./utilities.js";
 import * as chat from "./chat.js";
-
-function getAbility(folderName, abilityName) {
-    let folder = game.folders.find(f => f.name == folderName && f.type == "Item");
-    if (!folder) return null;
-
-    for (const item of folder.content) {
-        if (item.name == abilityName) {
-            return item;
-        }
-    }
-
-    return null;
-}
-
-function getAbilities(folderName) {
-    let folder = game.folders.find(f => f.name == folderName && f.type == "Item");
-    if (!folder) return [];
-
-    const abilities = [];
-    for (const item of folder.content) {
-        abilities.push(item)
-    }
-    return abilities;
-}
 
 /**
  * Extends the basic ActorSheet.
@@ -196,7 +173,6 @@ export class LightbearerActorSheet extends ActorSheet {
         html.find('.available .ability .control.select').click(ev => {
             const li = $(ev.currentTarget).parents(".ability");
             const ability = getAbility(li.data("source"), li.data("name"));
-
             this.actor.createEmbeddedDocuments(
                 "Item",
                 [{

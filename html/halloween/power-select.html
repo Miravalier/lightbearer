@@ -1,0 +1,33 @@
+<div class="lightbearer halloween power-select">
+    <h1>Select Any 3 Powers</h1>
+    <div class="available abilities column">
+        {{#each available_abilities as |ability|}}
+        <div class="selectable ability {{ability.actionCost}}" data-source={{ability.source}}
+            data-name="{{ability.name}}">
+            {{#ifeq ability.actionCost "action"}}
+            <i class="icon fas fa-circle"></i>
+            {{/ifeq}}
+            {{#ifeq ability.actionCost "reaction"}}
+            <i class="icon fas fa-exclamation-circle"></i>
+            {{/ifeq}}
+            {{#ifeq ability.actionCost "free"}}
+            <i class="icon far fa-circle"></i>
+            {{/ifeq}}
+            {{#ifneq ability.actionCost "passive"}}
+            {{#ifneq ability.cooldown "0"}}
+            <div class="icon">
+                <span>{{ability.cooldown}}</span>
+                <i class="fas fa-hourglass"></i>
+            </div>
+            {{/ifneq}}
+            {{/ifneq}}
+            <div class="{{ability.actionCost}} name">{{ability.source}}: {{ability.name}}</div>
+        </div>
+        <div class="description">{{ability.description}}</div>
+        {{/each}}
+    </div>
+    <div class="buttons row">
+        <div class="button previous" title="Go Back">Go Back</div>
+        <div class="button finish" title="Finish">Finish</div>
+    </div>
+</div>

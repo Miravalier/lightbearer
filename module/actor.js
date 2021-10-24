@@ -105,37 +105,26 @@ export class LightbearerActor extends Actor {
 
     // Called when a new turn starts
     advanceTurn() {
-        const cooldowns = this.data.data.cooldowns;
-        if (cooldowns === null) {
-            return;
-        }
-        for (const [_id, cooldown] of Object.entries(cooldowns)) {
-            cooldowns[_id] = cooldown - 1;
-        }
-        this.update({
-            "data.cooldowns": cooldowns,
-        });
     }
 
     // Called when the turn ending is un-done
     revertTurn() {
-        const cooldowns = this.data.data.cooldowns;
-        if (cooldowns === null) {
-            return;
-        }
-        for (const [_id, cooldown] of Object.entries(cooldowns)) {
-            cooldowns[_id] = cooldown + 1;
-        }
-        this.update({
-            "data.cooldowns": cooldowns,
-        });
     }
 
     // Called when a new round begins
     advanceRound() {
         const data = this.data.data;
 
+        const cooldowns = data.cooldowns;
+        if (cooldowns === null) {
+            cooldowns = {};
+        }
+        for (const [_id, cooldown] of Object.entries(cooldowns)) {
+            cooldowns[_id] = cooldown - 1;
+        }
+
         this.update({
+            "data.cooldowns": cooldowns,
             "data.actions.previous": data.actions.value,
             "data.reactions.previous": data.reactions.value,
             "data.actions.value": data.actions.max,
@@ -147,7 +136,16 @@ export class LightbearerActor extends Actor {
     revertRound() {
         const data = this.data.data;
 
+        const cooldowns = data.cooldowns;
+        if (cooldowns === null) {
+            cooldowns = {};
+        }
+        for (const [_id, cooldown] of Object.entries(cooldowns)) {
+            cooldowns[_id] = cooldown + 1;
+        }
+
         this.update({
+            "data.cooldowns": cooldowns,
             "data.actions.value": data.actions.previous,
             "data.reactions.value": data.reactions.previous,
         });

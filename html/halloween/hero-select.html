@@ -1,0 +1,26 @@
+<div class="lightbearer halloween hero-select">
+    <h1>Select Two Heroes</h1>
+    <div class="description">
+        The lich made you from the corpses of two trespassing heroes.
+        Which two heroes were stitched together to create you?
+    </div>
+    <div class="heroes row">
+        {{#each available_heroes as |hero|}}
+        <div class="selectable hero column" data-id="{{hero.id}}">
+            <div class="race row">
+                <div class="label">Race</div>
+                <div class="value">{{hero.race}}</div>
+            </div>
+            <div class="description">{{hero.race_description}}</div>
+            <div class="class row">
+                <div class="label">Class</div>
+                <div class="value">{{hero.class}}</div>
+            </div>
+            <div class="description">{{hero.class_description}}</div>
+        </div>
+        {{/each}}
+    </div>
+    <div class="buttons row">
+        <div class="button next" title="Next">Next</div>
+    </div>
+</div>

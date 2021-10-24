@@ -1,5 +1,35 @@
 import { getActor } from "./actor.js";
-import * as ui from "./ui.js";
+import { awakenCommand } from "./halloween.js";
+
+const COMMANDS = {
+    // Chat commands
+    "e": emoteCommand,
+    "m": emoteCommand,
+    "em": emoteCommand,
+    "emote": emoteCommand,
+    "me": memoteCommand,
+    "memote": memoteCommand,
+    "o": oocCommand,
+    "oc": oocCommand,
+    "oo": oocCommand,
+    "ooc": oocCommand,
+    "n": narrateCommand,
+    "narrate": narrateCommand,
+    "narration": narrateCommand,
+    "narate": narrateCommand,
+    "naratte": narrateCommand,
+    "desc": storyCommand,
+    "d": storyCommand,
+    "story": storyCommand,
+    "s": storyCommand,
+    "?": helpCommand,
+    "help": helpCommand,
+    "h": helpCommand,
+    "w": whisperCommand,
+    "whisper": whisperCommand,
+    // Action commands
+    "awaken": awakenCommand, // Halloween Event
+};
 
 function spongebobCase(s) {
     let capital = true;
@@ -110,33 +140,6 @@ function sendRegularMessage(message) {
         content: message
     });
 }
-
-const COMMANDS = {
-    "e": emoteCommand,
-    "m": emoteCommand,
-    "em": emoteCommand,
-    "emote": emoteCommand,
-    "me": memoteCommand,
-    "memote": memoteCommand,
-    "o": oocCommand,
-    "oc": oocCommand,
-    "oo": oocCommand,
-    "ooc": oocCommand,
-    "n": narrateCommand,
-    "narrate": narrateCommand,
-    "narration": narrateCommand,
-    "narate": narrateCommand,
-    "naratte": narrateCommand,
-    "desc": storyCommand,
-    "d": storyCommand,
-    "story": storyCommand,
-    "s": storyCommand,
-    "?": helpCommand,
-    "help": helpCommand,
-    "h": helpCommand,
-    "w": whisperCommand,
-    "whisper": whisperCommand
-};
 
 const WHISPER_PATTERN = /^\s*("[^"]*?"|[a-z0-9_-]+)\s*/i;
 function whisperCommand(args) {
@@ -353,6 +356,7 @@ async function onChatTemplateCaptionClicked(ev) {
         title: "Activated Ability",
         content: templateContent,
         label: "Close",
+        rejectClose: false,
         callback: html => { },
         render: html => {
             html.on('click', '.undo', async ev => {
@@ -427,6 +431,7 @@ async function onChatTemplateRollClicked(ev) {
         title: "Roll Results",
         content: templateContent,
         label: "Close",
+        rejectClose: false,
         callback: html => { },
         render: html => {
             html.on('click', '.roll-controls .add', async ev => {

@@ -1,45 +1,37 @@
-export async function preCreateItem(item, data, options, userId)
-{
+export async function preCreateItem(item, data, options, userId) {
     const updates = {};
     updates['permission.default'] = CONST.ENTITY_PERMISSIONS.LIMITED;
     updates['img'] = "systems/lightbearer/resources/unknown-active.png";
     await item.data.update(updates);
 }
 
-export async function preCreateActor(actor, data, options, userId)
-{
+export async function preCreateActor(actor, data, options, userId) {
     const updates = {};
-    if (!actor.img || actor.img == "icons/svg/mystery-man.svg")
-    {
-        updates['img'] =  `Players/${game.user.name}/default_image.svg`;
+    if (!actor.img || actor.img == "icons/svg/mystery-man.svg") {
+        updates['img'] = `Players/${game.user.name}/default_image.svg`;
     }
-    if (userId !== game.lightbearer.gm.id)
-    {
+    if (userId !== game.lightbearer.gm.id) {
         updates['permission.default'] = CONST.ENTITY_PERMISSIONS.LIMITED;
     }
 
     await actor.data.update(updates);
 }
 
-export async function preCreateToken(token, data, options, userId)
-{
+export async function preCreateToken(token, data, options, userId) {
     const updates = {};
     const actor = game.actors.get(data.actorId);
 
     updates.name = actor.name;
     updates.img = actor.img;
-    updates.bar1 = {attribute: "health"};
-    updates.bar2 = {attribute: "armor"};
+    updates.bar1 = { attribute: "health" };
+    updates.bar2 = { attribute: "armor" };
 
-    if (actor.data.data.category !== "npc")
-    {
+    if (actor.data.data.category !== "npc") {
         updates.actorLink = true;
     }
-    else
-    {
+    else {
         updates.actorLink = false;
-        if (actor.data.data.health.formula)
-        {
+        if (actor.data.data.health.formula) {
             const roll = new Roll(actor.data.data.health.formula, actor.getRollData());
             roll.roll();
             updates.actorData = {
@@ -53,8 +45,7 @@ export async function preCreateToken(token, data, options, userId)
         }
     }
 
-    if (actor.hasPlayerOwner)
-    {
+    if (actor.hasPlayerOwner) {
         updates.displayBars = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
         updates.displayName = CONST.TOKEN_DISPLAY_MODES.HOVER;
         updates.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
@@ -62,8 +53,7 @@ export async function preCreateToken(token, data, options, userId)
         updates.brightSight = 100;
         updates.dimSight = 100;
     }
-    else
-    {
+    else {
         updates.displayBars = CONST.TOKEN_DISPLAY_MODES.OWNER;
         updates.displayName = CONST.TOKEN_DISPLAY_MODES.HOVER;
         updates.disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
@@ -71,28 +61,27 @@ export async function preCreateToken(token, data, options, userId)
     }
 
     let size = 1;
-    switch (actor.data.data.size)
-    {
+    switch (actor.data.data.size) {
         case 'Tiny':
-        {
-            size = 0.5;
-        }
-        break;
+            {
+                size = 0.5;
+            }
+            break;
         case 'Large':
-        {
-            size = 2;
-        }
-        break;
+            {
+                size = 2;
+            }
+            break;
         case 'Huge':
-        {
-            size = 3;
-        }
-        break;
+            {
+                size = 3;
+            }
+            break;
         case 'Gargantuan':
-        {
-            size = 4;
-        }
-        break;
+            {
+                size = 4;
+            }
+            break;
     }
     updates.width = size;
     updates.height = size;

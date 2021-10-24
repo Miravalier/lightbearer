@@ -4,6 +4,7 @@
             "Character"
         ],
         "Character": {
+            "gamemode": "standard",
             "category": "single",
             "class": "Assassin",
             "class_one": "Assassin",
