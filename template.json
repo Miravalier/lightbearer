@@ -4,6 +4,7 @@
             "Character"
         ],
         "Character": {
+            "seed": null,
             "gamemode": "standard",
             "category": "single",
             "class": "Assassin",
@@ -13,7 +14,7 @@
             "notes": "",
             "size": "Medium",
             "resources": {
-                "level_ups": 0
+                "level_up": false
             },
             "actions": {
                 "value": 0,

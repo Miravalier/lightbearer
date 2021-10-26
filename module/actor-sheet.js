@@ -150,7 +150,7 @@ export class LightbearerActorSheet extends ActorSheet {
         // Event buttons
         html.find(".level-up.button").click(async ev => {
             await this.actor.update({
-                "data.resources.level_ups": this.actor.data.data.resources.level_ups - 1,
+                "data.resources.level_up": false,
             });
             await halloween.levelup(this.actor);
         });

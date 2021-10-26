@@ -1,5 +1,5 @@
 import { LightbearerActor } from "./actor.js";
-import { shuffle, getAbilities, getAbility } from "./utilities.js";
+import { CharacterRandom, shuffle, getAbilities, getAbility } from "./utilities.js";
 
 const attribute_modifiers = {
     // Classes
@@ -64,43 +64,45 @@ const skill_levels = [
 
 const descriptions = {
     // Classes
-    "Assassin": "Stealthy, melee, single-target damage dealer.",
-    "Bard": "Team-oriented with large AoE buffs and debuffs.",
-    "Berserker": "Frontline brute with risky abilities.",
-    "Cleric": "Healer and ranged support.",
-    "Druid": "Shapeshifting jack of all trades.",
-    "Elementalist": "High-damage ranged powerhouse.",
-    "Guardian": "Melee tank that keeps allies out of danger.",
-    "Necromancer": "Undead-summoning ranged support.",
+    "Assassin": "Stealthy, melee, single-target damage dealer",
+    "Bard": "Team-oriented with large AoE buffs and debuffs",
+    "Berserker": "Frontline brute with risky abilities",
+    "Cleric": "Healer and ranged support",
+    "Druid": "Shapeshifting jack of all trades",
+    "Elementalist": "High-damage ranged powerhouse",
+    "Guardian": "Melee tank that keeps allies out of danger",
+    "Necromancer": "Undead-summoning ranged support",
     // Races
-    "Aarakocra": "Agile and capable of flight.",
-    "Centaur": "Fast and tough.",
-    "Dragonborn": "Scaled and breathes fire.",
-    "Dwarf": "Short and sturdy.",
-    "Elf": "Agile and perceptive.",
-    "Gnome": "Small and weak, but intelligent.",
-    "Goliath": "Massive and strong.",
-    "Halfling": "Small and unassuming.",
-    "Human": "Adaptable.",
-    "Orc": "Athletic and resilient.",
-    "Satyr": "Intelligent and energetic.",
-    "Tabaxi": "Incredibly fast feline humanoid.",
-    "Tiefling": "Cunning half-demon.",
-    "Triton": "Amphibious with natural electricity.",
-    "Warforged": "Automaton created by war mages.",
+    "Aarakocra": "Agile and capable of flight",
+    "Centaur": "Fast and tough",
+    "Dragonborn": "Scaled and breathes fire",
+    "Dwarf": "Short and sturdy",
+    "Elf": "Agile and perceptive",
+    "Gnome": "Small and weak, but intelligent",
+    "Goliath": "Massive and strong",
+    "Halfling": "Small and unassuming",
+    "Human": "Adaptable",
+    "Orc": "Athletic and resilient",
+    "Satyr": "Intelligent and energetic",
+    "Tabaxi": "Nimble feline humanoid",
+    "Tiefling": "Cunning half-demon",
+    "Triton": "Amphibious with natural electricity",
+    "Warforged": "Automaton created by war mages",
 };
 
 function halloweenDialog(data) {
+    if (!data.width) data.width = 600;
     if (!data.buttons) data.buttons = {};
     if (!data.render) data.render = html => { };
     if (!data.close) data.close = html => { };
-    const dialog = new Dialog(data, { width: 600 });
+    const dialog = new Dialog(data, { width: data.width, height: data.height });
     dialog.render(true);
     return dialog;
 }
 
 // On /levelup, open level up dialog
 export async function levelup(character) {
+    const engine = new CharacterRandom(character);
     // Figure out new abilities and stat increases
     const data = {
         available_abilities: [],
@@ -109,6 +111,7 @@ export async function levelup(character) {
         selected_hp_style: null,
         attributes: character.data.data.stats,
         increased_attributes: {},
+        finished: false,
     };
     for (let [attribute, value] of Object.entries(data.attributes)) {
         if (value >= 24) {
@@ -131,7 +134,7 @@ export async function levelup(character) {
             });
         }
     }
-    shuffle(data.available_abilities);
+    engine.shuffle(data.available_abilities);
     data.available_abilities = data.available_abilities.splice(0, 3);
 
     // Load template
@@ -143,6 +146,11 @@ export async function levelup(character) {
     const dialog = halloweenDialog({
         title: `Level Up: ${character.name}`,
         content: templateContent,
+        close: html => {
+            if (!data.finished) {
+                character.update({ "data.resources.level_up": true });
+            }
+        },
         render: html => {
             // Select an hp style
             html.on('click', '.hp-style', ev => {
@@ -208,6 +216,9 @@ export async function levelup(character) {
                         data: data.selected_ability.data.data
                     }
                 ]);
+                // Iterate character seed
+                await engine.finish();
+                data.finished = true;
                 // Close the dialog
                 dialog.close();
             });
@@ -309,6 +320,8 @@ async function heroSelect(data) {
     );
     // Display html in dialog
     const dialog = halloweenDialog({
+        width: 900,
+        height: 602,
         title: "Character Creation: Hero Selection",
         content: templateContent,
         render: html => {
