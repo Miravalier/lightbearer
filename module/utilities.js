@@ -30,6 +30,10 @@ export class CharacterRandom {
         }
     }
 
+    randSelect(array) {
+        return array[this.randInt(array.length)];
+    }
+
     random() {
         return this.engine.random();
     }
@@ -37,6 +41,10 @@ export class CharacterRandom {
     async finish() {
         await this.character.update({ "data.seed": this.engine.int() });
     }
+}
+
+export function randSelect(array) {
+    return array[randInt(array.length)];
 }
 
 export function randInt(max) {

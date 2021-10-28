@@ -21,12 +21,52 @@
 
     {{!-- Sheet Tab Navigation --}}
     <nav class="sheet-tabs tabs" data-group="primary">
+        {{#ifeq data.data.category "npc"}}
+        <a class="item" data-tab="npc">NPC</a>
+        {{/ifeq}}
         <a class="item" data-tab="stats">Stats</a>
         <a class="item" data-tab="abilities">Abilities</a>
     </nav>
 
     {{!-- Sheet Body --}}
     <section class="sheet-body">
+        {{#ifeq data.data.category "npc"}}
+        {{!-- NPC Tab --}}
+        <div class="tab npc" data-group="primary" data-tab="npc">
+            <div class="row">
+                <div class="label">Alignment</div>
+                <select name="data.alignment">
+                    {{#select data.data.alignment}}
+                    <option value="hostile">Hostile</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="friendly">Friendly</option>
+                    {{/select}}
+                </select>
+            </div>
+            <div class="row">
+                <div class="label">Unique</div>
+                <input type="checkbox" name="data.unique" {{checked data.data.unique}} />
+            </div>
+            <div class="row">
+                <div class="label">Randomize Form</div>
+                <input type="checkbox" name="data.randomize_form" {{checked data.data.randomize_form}} />
+            </div>
+            <div class="row">
+                <div class="caption">Forms</div>
+                <a class="new-form label">New Form</a>
+            </div>
+            <div class="forms column">
+                {{#each data.data.forms as |form id|}}
+                <div class="form row" data-id="{{id}}">
+                    <input class="token" type="text" name="data.forms.{{id}}.token" value="{{form.token}}" />
+                    <a class="use-form label"><i class="fas fa-user-circle"></i></a>
+                    <a class="delete-form label"><i class="fas fa-trash"></i></a>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        {{/ifeq}}
+
         {{!-- Abilities Tab --}}
         <div class="tab abilities" data-group="primary" data-tab="abilities">
             <div class="resources row">

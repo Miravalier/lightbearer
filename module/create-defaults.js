@@ -1,3 +1,5 @@
+import * as utilities from "./utilities.js";
+
 export async function preCreateItem(item, data, options, userId) {
     const updates = {};
     updates['permission.default'] = CONST.ENTITY_PERMISSIONS.LIMITED;
@@ -26,7 +28,7 @@ export async function preCreateToken(token, data, options, userId) {
     updates.bar1 = { attribute: "health" };
     updates.bar2 = { attribute: "armor" };
 
-    if (actor.data.data.category !== "npc") {
+    if (actor.data.data.category !== "npc" || actor.data.data.unique) {
         updates.actorLink = true;
     }
     else {
@@ -45,18 +47,29 @@ export async function preCreateToken(token, data, options, userId) {
         }
     }
 
-    if (actor.hasPlayerOwner) {
+    if (actor.data.data.category !== "npc") {
         updates.displayBars = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
         updates.displayName = CONST.TOKEN_DISPLAY_MODES.HOVER;
         updates.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
         updates.vision = true;
-        updates.brightSight = 100;
-        updates.dimSight = 100;
+        updates.brightSight = 30;
+        updates.dimSight = 30;
     }
     else {
-        updates.displayBars = CONST.TOKEN_DISPLAY_MODES.OWNER;
+        if (actor.data.data.randomize_form && actor.data.data.forms) {
+            updates.img = utilities.randSelect(Object.values(actor.data.data.forms)).token;
+        }
+        updates.displayBars = CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER;
         updates.displayName = CONST.TOKEN_DISPLAY_MODES.HOVER;
-        updates.disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+        if (actor.data.data.alignment == "hostile") {
+            updates.disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+        }
+        else if (actor.data.data.alignment == "neutral") {
+            updates.disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+        }
+        else if (actor.data.data.alignment == "friendly") {
+            updates.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+        }
         updates.vision = false;
     }
 

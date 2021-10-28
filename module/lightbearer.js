@@ -14,6 +14,7 @@ import * as combatTracker from "./combat-tracker.js";
 import * as chat from "./chat.js";
 import * as ui from "./ui.js";
 import * as createDefaults from "./create-defaults.js";
+import * as ai from "./ai.js";
 
 
 /* -------------------------------------------- */
@@ -58,7 +59,8 @@ Hooks.once("init", async function () {
             "ranged": iconize("Ranged Combat", "crosshairs"),
             "spellwork": iconize("Spellwork", "hand-sparkles"),
             "stealth": iconize("Stealth", "low-vision"),
-        }
+        },
+        ai,
     };
 
     CONFIG.Combat.initiative = {

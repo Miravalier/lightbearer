@@ -104,20 +104,13 @@ export function findPath(source, destination, maxDistance, maxDepth) {
     return path;
 }
 
-export function autoMove(actorId, tokenId, criterion) {
-    const currentActor = game.actors.get(actorId);
-    const currentToken = currentActor.getActiveTokens().find(token => token.id == tokenId);
-    if (!currentActor || !currentToken) {
-        chat.ErrorMessage("Failed to resolve token or actor.");
-        return;
-    }
-
+export function autoMove(actor, token, criterion) {
     // Find the nearest potential combatant
     const potentialCombatants = Array.from(game.combat.combatants.filter(criterion));
     let closestCombatant = null;
     let leastDistance = null;
     potentialCombatants.forEach(combatant => {
-        const distance = (combatant.token.x - currentToken.x) ** 2 + (combatant.token.y - currentToken.y) ** 2;
+        const distance = (combatant.token.x - token.x) ** 2 + (combatant.token.y - currentToken.y) ** 2;
         if (closestCombatant === null || distance < leastDistance) {
             closestCombatant = combatant;
             leastDistance = distance;
@@ -128,10 +121,10 @@ export function autoMove(actorId, tokenId, criterion) {
         return;
     }
 
-    const path = findPath(currentToken, closestCombatant.token, currentActor.movementRange);
+    const path = findPath(token, closestCombatant.token, actor.movementRange);
 
     // Update token's position
-    currentToken.update({
+    token.update({
         x: path[path.length - 1].x,
         y: path[path.length - 1].y
     });
@@ -150,7 +143,7 @@ export function autoAttack(actorId, itemCriterion, targetCriterion) {
     const potentialTargets = Array.from(game.combat.combatants.filter(targetCriterion));
     let target = null;
     let bestMetric = null;
-    potentialCombatants.forEach(combatant => {
+    potentialTargets.forEach(combatant => {
         const metric = (combatant.token.x - token.x) ** 2 + (combatant.token.y - token.y) ** 2;
         if (target === null || metric < bestMetric) {
             target = combatant;

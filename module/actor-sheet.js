@@ -147,6 +147,43 @@ export class LightbearerActorSheet extends ActorSheet {
          *****************/
         if (!this.options.editable) return;
 
+        // NPC
+        html.find(".new-form").click(async ev => {
+            const updates = {};
+            updates[`data.forms._${randomID(16)}`] = {
+                "token": "",
+            };
+            await this.actor.update(updates);
+        });
+        html.find(".use-form").click(async ev => {
+            const element = $(ev.currentTarget).parent();
+            const form = this.actor.data.data.forms[element.data("id")];
+            for (let token of this.actor.getActiveTokens()) {
+                await token.scene.updateEmbeddedDocuments(
+                    "Token",
+                    [{
+                        "_id": token.id,
+                        "img": form.token,
+                    }]
+                );
+            }
+        });
+        html.find(".delete-form").click(ev => {
+            const element = $(ev.currentTarget).parent();
+            const updates = {};
+            updates[`data.forms.-=${element.data("id")}`] = null;
+
+            Dialog.confirm({
+                title: `Delete Form?`,
+                content: "",
+                yes: html => {
+                    this.actor.update(updates);
+                },
+                no: () => { },
+                defaultYes: false
+            });
+        });
+
         // Event buttons
         html.find(".level-up.button").click(async ev => {
             await this.actor.update({

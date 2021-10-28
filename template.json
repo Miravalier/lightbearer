@@ -4,6 +4,10 @@
             "Character"
         ],
         "Character": {
+            "randomize_form": false,
+            "unique": false,
+            "forms": {},
+            "alignment": "hostile",
             "seed": null,
             "gamemode": "standard",
             "category": "single",
@@ -30,6 +34,7 @@
                 "min": 0,
                 "max": 20
             },
+            "speed": 30,
             "armor": 0,
             "stats": {
                 "agility": 10,

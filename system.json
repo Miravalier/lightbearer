@@ -2,7 +2,7 @@
   "name": "lightbearer",
   "title": "The Lightbearer Ruleset",
   "description": "Miravalier's lightbearer ruleset.",
-  "version": 2.1,
+  "version": 2.2,
   "minimumCoreVersion": "0.8.9",
   "compatibleCoreVersion": "0.8.9",
   "templateVersion": 2,
