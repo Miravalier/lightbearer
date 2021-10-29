@@ -590,6 +590,28 @@ a.header-button.configure-sheet {
     justify-content: space-between;
 }
 
+.lightbearer.halloween .halloween-token {
+    width: 5em;
+    height: 5em;
+    margin: 2px;
+    border: none;
+}
+
+.lightbearer.halloween .halloween-token.taken {
+    cursor: unset;
+    filter: grayscale() !important;
+    opacity: 30%;
+}
+
+.lightbearer.halloween .halloween-token.taken:hover {
+    box-shadow: none !important;
+}
+
+.lightbearer.halloween .halloween-token.selected {
+    background: none !important;
+    filter: drop-shadow(0 0 2px #ff7300);
+}
+
 .lightbearer.halloween .halloween-banner {
     pointer-events: none;
     margin: 0;

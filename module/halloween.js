@@ -266,6 +266,8 @@ export function awakenCommand(_args) {
         "selected_mental": null,
         "available_abilities": [],
         "selected_abilities": {},
+        "selected_token": null,
+        "finished": false,
     };
 
     for (let hero of data.available_heroes) {
@@ -313,6 +315,12 @@ export function awakenCommand(_args) {
 async function heroSelect(data) {
     // Empty selected heroes
     data["selected_heroes"] = {};
+    data["available_tokens"] = {};
+    // Find available tokens
+    const token_store = await game.lightbearer.Store.create("halloween_character_creation_selected_tokens");
+    for (let [token, available] of Object.entries(token_store.data)) {
+        data.available_tokens[token] = available;
+    }
     // Load template
     const templateContent = await renderTemplate(
         "systems/lightbearer/html/halloween/hero-select.html",
@@ -321,10 +329,50 @@ async function heroSelect(data) {
     // Display html in dialog
     const dialog = halloweenDialog({
         width: 900,
-        height: 602,
+        height: 600,
         title: "Character Creation: Hero Selection",
         content: templateContent,
+        close: html => {
+            if (!data.finished && data.selected_token) {
+                token_store.set(data.selected_token, true);
+            }
+            token_store.clear_callbacks();
+        },
         render: html => {
+            // Mark taken tokens as enabled / disabled
+            for (let [token, available] of Object.entries(data.available_tokens)) {
+                if (!available) {
+                    html.find(`.halloween-token.${token}`).addClass("taken");
+                }
+            }
+            // Listen for token disable and enable events
+            token_store.add_callback((token, available) => {
+                console.log(token, available);
+                data.available_tokens[token] = available;
+                if (available) {
+                    html.find(`.halloween-token.${token}`).removeClass("taken");
+                }
+                else {
+                    html.find(`.halloween-token.${token}`).addClass("taken");
+                }
+            })
+            // Add select token event
+            html.on('click', '.halloween-token', ev => {
+                // Make sure this token is available
+                const token = $(ev.currentTarget);
+                const id = token.data('id');
+                if (token.hasClass("taken")) return;
+                // Set the old token to available
+                if (data.selected_token) {
+                    token_store.set(data.selected_token, true);
+                }
+                // Set this token to taken
+                token_store.set(id, false);
+                data.selected_token = id;
+                // Deselect other tokens and select this one
+                html.find(".halloween-token.selected").removeClass("selected");
+                token.toggleClass("selected");
+            });
             html.on('click', '.hero', ev => {
                 const card = $(ev.currentTarget);
                 const hero = data.available_heroes.find(h => h.id === card.data("id"));
@@ -340,10 +388,15 @@ async function heroSelect(data) {
                 card.toggleClass("selected");
             });
             html.on('click', '.next', ev => {
+                if (!data.selected_token) {
+                    ui.notifications.error("You must select a token.");
+                    return;
+                }
                 if (Object.keys(data.selected_heroes).length != 2) {
                     ui.notifications.error("You must select two heroes.");
                     return;
                 }
+                data.finished = true;
                 // Open the attribute-select
                 attributeSelect(data);
                 // Close the dialog
@@ -442,6 +495,7 @@ async function powerSelect(data) {
                     name: `${game.user.name}'s Character`,
                     type: "Character",
                     folder: folder,
+                    img: `Halloween/${data.selected_token}.webp`,
                 });
                 // Add classes, races, attributes and skills
                 const artifice_level = skill_levels[Math.max(...heroes.map(h => h.skills.artifice))];

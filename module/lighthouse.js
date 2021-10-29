@@ -4,9 +4,6 @@ let websocket = null;
 
 function websocket_message_handler(event) {
     const message = JSON.parse(event.data);
-    if (!message.namespace || !message.data) {
-        return;
-    }
 
     if (message.type == "broadcast") {
         const broadcaster = broadcasters[message.namespace];
@@ -30,9 +27,19 @@ function websocket_message_handler(event) {
     else if (message.type == "store-update") {
         const store = stores[message.namespace];
         if (store) {
-            store.data[message.data.key] = message.data.value;
+            store.data[message.key] = message.value;
             for (let callback of store.callbacks) {
-                callback(message.data.key, message.data.value);
+                callback(message.key, message.value);
+            }
+        }
+    }
+
+    else if (message.type == "store-delete") {
+        const store = stores[message.namespace];
+        if (store) {
+            delete store.data[message.key];
+            for (let callback of store.callbacks) {
+                callback(message.key, undefined);
             }
         }
     }
@@ -40,17 +47,15 @@ function websocket_message_handler(event) {
 
 function websocket_error_handler(_event) {
     console.error("An error occured on the lighthouse connection.");
-    reopen_websocket();
 }
 
 function websocket_close_handler(event) {
     console.error("Connection to lighthouse closed!");
-    console.log(event)
     reopen_websocket();
 }
 
 function websocket_open_handler(_event) {
-    console.log("Connection to lighthouse opened!");
+    console.log("Connection to lighthouse opened successfully!");
 }
 
 export function open_websocket() {
@@ -71,7 +76,12 @@ export function open_websocket() {
 }
 
 
-function reopen_websocket() {
+async function reopen_websocket() {
+    websocket = null;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (websocket !== null) {
+        return;
+    }
     console.log("Attempting to re-connect to lighthouse...");
     websocket = new WebSocket('wss://dnd.miramontes.dev/lighthouse');
     websocket.onerror = websocket_error_handler;
@@ -98,6 +108,15 @@ export class Store {
             namespace: this.namespace,
             key,
             value
+        }));
+    }
+
+    delete(key) {
+        delete this.data[key];
+        websocket.send(JSON.stringify({
+            type: "store-delete",
+            namespace: this.namespace,
+            key
         }));
     }
 

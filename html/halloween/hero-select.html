@@ -1,4 +1,15 @@
 <div class="lightbearer halloween hero-select">
+    <h1>Select a Token</h1>
+    <div class="description">
+        Select one of the images below to be your token.
+        Think of it like a monopoly piece, it doesn't have to
+        look anything like your character.
+    </div>
+    <div class="tokens row">
+        {{#each available_tokens as |available token|}}
+        <img class="selectable halloween-token {{token}}" src="Halloween/{{token}}.webp" data-id="{{token}}">
+        {{/each}}
+    </div>
     <h1>Select Two Heroes</h1>
     <div class="description">
         The lich made you from the corpses of two trespassing heroes.

@@ -31,12 +31,11 @@ class WebSocketApplication(aiohttp.web.Application):
                 data = message.json()
                 print("Received Message", data)
                 # Send out this data to everyone on a broadcast type message
-                if data["type"] in ("broadcast", "store-update"):
+                if data["type"] in ("broadcast", "store-update", "store-delete"):
                     for other_websocket in self.active_websockets:
                         if websocket is other_websocket:
                             continue
                         await other_websocket.send_json(data)
-                # Update the store in a store-update
                 if data["type"] == "store-update":
                     # Get namespace
                     if data["namespace"] in shelf:
@@ -48,7 +47,18 @@ class WebSocketApplication(aiohttp.web.Application):
                     namespace[data["key"]] = data["value"]
                     # Sync to disk
                     shelf.sync()
-                # On store-sync request
+                elif data["type"] == "store-delete":
+                    # Get namespace
+                    if data["namespace"] in shelf:
+                        namespace = shelf[data["namespace"]]
+                    else:
+                        namespace = {}
+                        shelf[data["namespace"]] = namespace
+                    # Delete key
+                    if data["key"] in namespace:
+                        del namespace[data["key"]]
+                    # Sync to disk
+                    shelf.sync()
                 elif data["type"] == "store-sync":
                     # Get namespace
                     if data["namespace"] in shelf:
