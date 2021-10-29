@@ -590,6 +590,12 @@ a.header-button.configure-sheet {
     justify-content: space-between;
 }
 
+.lightbearer.halloween .tokens {
+    background: #40165e6e;
+    border-radius: 8px;
+    padding: 2px;
+}
+
 .lightbearer.halloween .halloween-token {
     width: 5em;
     height: 5em;

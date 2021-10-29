@@ -182,7 +182,6 @@ export async function levelup(character) {
 
             // Finish
             html.on('click', '.finish', async ev => {
-                console.log("Data", data);
                 if (!data.selected_hp_style) {
                     ui.notifications.error("You must select an HP increase style.");
                     return;
@@ -267,7 +266,6 @@ export function awakenCommand(_args) {
         "available_abilities": [],
         "selected_abilities": {},
         "selected_token": null,
-        "finished": false,
     };
 
     for (let hero of data.available_heroes) {
@@ -313,11 +311,12 @@ export function awakenCommand(_args) {
 }
 
 async function heroSelect(data) {
+    const token_store = await game.lightbearer.Store.create("halloween_character_creation_selected_tokens");
+    data.hero_select_closed = true;
     // Empty selected heroes
     data["selected_heroes"] = {};
     data["available_tokens"] = {};
     // Find available tokens
-    const token_store = await game.lightbearer.Store.create("halloween_character_creation_selected_tokens");
     for (let [token, available] of Object.entries(token_store.data)) {
         data.available_tokens[token] = available;
     }
@@ -333,7 +332,7 @@ async function heroSelect(data) {
         title: "Character Creation: Hero Selection",
         content: templateContent,
         close: html => {
-            if (!data.finished && data.selected_token) {
+            if (data.hero_select_closed && data.selected_token) {
                 token_store.set(data.selected_token, true);
             }
             token_store.clear_callbacks();
@@ -341,13 +340,15 @@ async function heroSelect(data) {
         render: html => {
             // Mark taken tokens as enabled / disabled
             for (let [token, available] of Object.entries(data.available_tokens)) {
-                if (!available) {
+                if (data.selected_token == token) {
+                    html.find(`.halloween-token.${token}`).addClass("selected");
+                }
+                else if (!available) {
                     html.find(`.halloween-token.${token}`).addClass("taken");
                 }
             }
             // Listen for token disable and enable events
             token_store.add_callback((token, available) => {
-                console.log(token, available);
                 data.available_tokens[token] = available;
                 if (available) {
                     html.find(`.halloween-token.${token}`).removeClass("taken");
@@ -396,7 +397,7 @@ async function heroSelect(data) {
                     ui.notifications.error("You must select two heroes.");
                     return;
                 }
-                data.finished = true;
+                data.hero_select_closed = false;
                 // Open the attribute-select
                 attributeSelect(data);
                 // Close the dialog
@@ -407,6 +408,8 @@ async function heroSelect(data) {
 }
 
 async function attributeSelect(data) {
+    const token_store = await game.lightbearer.Store.create("halloween_character_creation_selected_tokens");
+    data.attribute_select_closed = true;
     data["selected_physical"] = null;
     data["selected_mental"] = null;
     // Load template
@@ -418,6 +421,11 @@ async function attributeSelect(data) {
     const dialog = halloweenDialog({
         title: "Character Creation: Attribute Selection",
         content: templateContent,
+        close: html => {
+            if (data.attribute_select_closed && data.selected_token) {
+                token_store.set(data.selected_token, true);
+            }
+        },
         render: html => {
             html.on('click', '.hero .attributes', ev => {
                 const card = $(ev.currentTarget);
@@ -426,6 +434,7 @@ async function attributeSelect(data) {
                 data[`selected_${card.data("type")}`] = data.selected_heroes[card.parent().data("id")];
             });
             html.on('click', '.next', ev => {
+                data.attribute_select_closed = false;
                 if (!data.selected_mental || !data.selected_physical) {
                     ui.notifications.error("You must select attributes.");
                     return;
@@ -434,6 +443,7 @@ async function attributeSelect(data) {
                 dialog.close();
             });
             html.on('click', '.previous', ev => {
+                data.attribute_select_closed = false;
                 heroSelect(data);
                 dialog.close();
             });
@@ -442,6 +452,8 @@ async function attributeSelect(data) {
 }
 
 async function powerSelect(data) {
+    const token_store = await game.lightbearer.Store.create("halloween_character_creation_selected_tokens");
+    data.power_select_closed = true;
     // Get top three abilities from each selected class
     data.selected_abilities = {};
     data.available_abilities = [];
@@ -466,6 +478,11 @@ async function powerSelect(data) {
     const dialog = halloweenDialog({
         title: "Character Creation: Power Selection",
         content: templateContent,
+        close: html => {
+            if (data.power_select_closed && data.selected_token) {
+                token_store.set(data.selected_token, true);
+            }
+        },
         render: html => {
             html.on('click', '.abilities .ability', ev => {
                 const card = $(ev.currentTarget);
@@ -482,6 +499,7 @@ async function powerSelect(data) {
                 card.toggleClass("selected");
             });
             html.on('click', '.finish', async ev => {
+                data.power_select_closed = false;
                 // Make sure 3 abilities are selected
                 if (Object.keys(data.selected_abilities).length != 3) {
                     ui.notifications.error("You must select three abilities.");
@@ -548,6 +566,7 @@ async function powerSelect(data) {
                 dialog.close();
             });
             html.on('click', '.previous', ev => {
+                data.power_select_closed = false;
                 attributeSelect(data);
                 dialog.close();
             });
