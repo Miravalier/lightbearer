@@ -628,6 +628,22 @@ a.header-button.configure-sheet {
     filter: drop-shadow(0px 0px 4px #8000808f);
 }
 
+.lightbearer .card {
+    background: rgb(0 0 0 / 5%);
+    border-radius: 4px;
+    padding: 4px;
+    margin: 4px;
+    box-shadow: 2px 2px 0 #0000001f;
+}
+
+.lightbearer.select-character .character {
+    background: rgb(0 0 0 / 5%);
+    border-radius: 4px;
+    padding: 4px;
+    margin: 4px;
+    box-shadow: 2px 2px 0 #0000001f;
+}
+
 .lightbearer.halloween .selectable {
     cursor: pointer;
 }

@@ -12,11 +12,16 @@
 
     {{!-- Event Buttons --}}
     {{#ifeq data.data.gamemode "halloween"}}
-    {{#if data.data.resources.level_up}}
+
     <div class="lightbearer halloween events row">
+        {{#if data.data.resources.level_up}}
         <div class="level-up button">Level Up!</div>
+        {{/if}}
+        {{#if data.data.resources.injury}}
+        <div class="injury button">Injury</div>
+        {{/if}}
     </div>
-    {{/if}}
+
     {{/ifeq}}
 
     {{!-- Sheet Tab Navigation --}}

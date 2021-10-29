@@ -1,0 +1,8 @@
+<div class="lightbearer halloween injury">
+    <h1>Select an injury</h1>
+    <div class="column injuries">
+        {{#each injuries as |injury|}}
+        <div class="selectable injury card" data-id={{injury.id}}>{{injury.description}}</div>
+        {{/each}}
+    </div>
+</div>

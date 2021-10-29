@@ -18,7 +18,8 @@
             "notes": "",
             "size": "Medium",
             "resources": {
-                "level_up": false
+                "level_up": false,
+                "injury": false
             },
             "actions": {
                 "value": 0,

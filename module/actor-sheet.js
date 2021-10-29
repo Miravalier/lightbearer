@@ -185,6 +185,13 @@ export class LightbearerActorSheet extends ActorSheet {
         });
 
         // Event buttons
+        html.find(".injury.button").click(async ev => {
+            await this.actor.update({
+                "data.resources.injury": false,
+            });
+            await halloween.injure(this.actor);
+        });
+
         html.find(".level-up.button").click(async ev => {
             await this.actor.update({
                 "data.resources.level_up": false,

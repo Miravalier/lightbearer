@@ -86,7 +86,7 @@ function emoteCommand(args) {
     });
 }
 
-function storyCommand(args) {
+export function storyCommand(args) {
     let speaker = ChatMessage.getSpeaker();
     speaker.alias = game.user.name;
     ChatMessage.create({

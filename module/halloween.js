@@ -100,7 +100,100 @@ function halloweenDialog(data) {
     return dialog;
 }
 
-// On /levelup, open level up dialog
+// Open injury dialog
+export async function injure(character) {
+    const engine = new CharacterRandom(character);
+    const data = {
+        finished: false,
+        injuries: [
+            { id: "ability", description: "Lose a random ability." },
+            { id: "mental", description: "Lose 1 point from each mental attribute." },
+            { id: "reaction", description: "Lose a reaction point." },
+            { id: "physical", description: "Lose 1 point from each physical attribute." },
+            { id: "vulnerability", description: "Gain vulnerability to a random element." },
+            { id: "health", description: "Lose 2d6 maximum health." }
+        ]
+    };
+    engine.shuffle(data.injuries);
+    data.injuries = data.injuries.splice(0, 2);
+
+    // Load template
+    const templateContent = await renderTemplate(
+        "systems/lightbearer/html/halloween/injury.html",
+        data
+    );
+    // Display html in dialog
+    const dialog = halloweenDialog({
+        title: `Injury: ${character.name}`,
+        content: templateContent,
+        close: html => {
+            if (!data.finished) {
+                character.update({ "data.resources.injury": true });
+            }
+        },
+        render: html => {
+            html.on("click", ".injury", async ev => {
+                const card = $(ev.currentTarget);
+                const injury = card.data("id");
+                data.finished = true;
+                dialog.close()
+
+                if (injury == "ability") {
+                    const ability = engine.randSelect(Array.from(character.items));
+                    character.deleteEmbeddedDocuments("Item", [ability.id]);
+                    game.lightbearer.story(`${character.name} has lost the "${ability.name}" ability.`);
+                }
+                else if (injury == "mental") {
+                    character.update({
+                        "data.stats.charisma": character.data.data.stats.charisma - 1,
+                        "data.stats.memory": character.data.data.stats.memory - 1,
+                        "data.stats.perception": character.data.data.stats.perception - 1,
+                    });
+                    game.lightbearer.story(`${character.name} has lost 1 from each mental attribute."`);
+                }
+                else if (injury == "reaction") {
+                    character.update({
+                        "data.reactions.max": character.data.data.reactions.max - 1,
+                    });
+                    game.lightbearer.story(`${character.name} has lost 1 reaction point."`);
+                }
+                else if (injury == "physical") {
+                    character.update({
+                        "data.stats.agility": character.data.data.stats.agility - 1,
+                        "data.stats.endurance": character.data.data.stats.endurance - 1,
+                        "data.stats.power": character.data.data.stats.power - 1,
+                    });
+                    game.lightbearer.story(`${character.name} has lost 1 from each physical attribute."`);
+                }
+                else if (injury == "vulnerability") {
+                    const element = engine.randSelect([
+                        "Physical", "Fire", "Ice", "Lightning",
+                        "Necrotic", "Radiant", "Poison"
+                    ]);
+                    character.createEmbeddedDocuments("Item", [
+                        {
+                            name: `${element} Vulnerability`,
+                            type: "Ability",
+                            data: { actionCost: "passive", description: `Vulnerable to ${element}.` },
+                        }
+                    ]);
+                    game.lightbearer.story(`${character.name} is now vulnerable to ${element} damage."`);
+                }
+                else if (injury == "health") {
+                    const hp = engine.randInt(6) + engine.randInt(6) + 2;
+                    character.update({
+                        "data.health.value": character.data.data.health.value - hp,
+                        "data.health.max": character.data.data.health.max - hp,
+                    });
+                    game.lightbearer.story(`${character.name} has lost ${hp} maximum health.`);
+                }
+                await engine.finish();
+            });
+        }
+    });
+}
+
+// Open level up dialog
 export async function levelup(character) {
     const engine = new CharacterRandom(character);
     // Figure out new abilities and stat increases

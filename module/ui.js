@@ -1,5 +1,36 @@
 import { distance, centerpoint } from "./points.js";
 
+export async function selectPlayerCharacter(reason) {
+    const data = {
+        users: game.users.filter(user => user.character),
+        character: null,
+        reason,
+    }
+    const templateContent = await renderTemplate(
+        "systems/lightbearer/html/select-player.html",
+        data
+    );
+    const promise = new Promise(resolve => {
+        const dialog = new Dialog({
+            title: `Select a Player Character`,
+            content: templateContent,
+            buttons: {},
+            render: html => {
+                html.on('click', '.character', ev => {
+                    const card = $(ev.currentTarget);
+                    data.character = game.actors.get(card.data('id'));
+                    dialog.close();
+                });
+            },
+            close: html => {
+                resolve(data.character);
+            },
+        });
+        dialog.render(true);
+    });
+    return await promise;
+}
+
 export async function createTemplate(data) {
     if (data === undefined) data = {};
     if (data.position === undefined) data.position = { x: 0, y: 0 };

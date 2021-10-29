@@ -1,0 +1,10 @@
+<div class="lightbearer halloween select-character column">
+    <h1>{{reason}}</h1>
+    <div class="characters row">
+        {{#each users as |user|}}
+        <div class="selectable character" data-id="{{user.character.id}}">
+            {{user.name}}: {{user.character.name}}
+        </div>
+        {{/each}}
+    </div>
+</div>

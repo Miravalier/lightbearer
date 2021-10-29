@@ -68,6 +68,7 @@ Hooks.once("init", async function () {
             "stealth": iconize("Stealth", "low-vision"),
         },
         ai,
+        story: chat.storyCommand,
     };
 
     CONFIG.Combat.initiative = {
