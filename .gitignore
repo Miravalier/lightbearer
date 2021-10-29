@@ -1,4 +1,4 @@
-# IDE
+.env
 .idea/
 .vs/
 *.swp

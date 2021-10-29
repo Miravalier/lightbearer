@@ -9,12 +9,14 @@ import { getActor, LightbearerActor } from "./actor.js";
 import { LightbearerItem } from "./item.js";
 import { LightbearerItemSheet } from "./item-sheet.js";
 import { LightbearerActorSheet } from "./actor-sheet.js";
+import { Broadcaster, Store, open_websocket } from "./lighthouse.js";
 
 import * as combatTracker from "./combat-tracker.js";
 import * as chat from "./chat.js";
 import * as ui from "./ui.js";
 import * as createDefaults from "./create-defaults.js";
 import * as ai from "./ai.js";
+
 
 
 /* -------------------------------------------- */
@@ -31,8 +33,13 @@ function iconize(title, name, style) {
 Hooks.once("init", async function () {
     console.log(`Initializing Lightbearer Ruleset`);
 
+    // Connect to lighthouse
+    open_websocket();
+
     // Create lightbearer namespace
     game.lightbearer = {
+        Store,
+        Broadcaster,
         ErrorMessage: chat.ErrorMessage,
         ItemMacro,
         ActorMacro,
