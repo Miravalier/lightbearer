@@ -363,6 +363,8 @@ async function onChatTemplateCaptionClicked(ev) {
                 // Add action back to character
                 if (game.combat && game.combat.combatant) {
                     const updates = {};
+                    // Undo cooldown
+                    updates[`data.cooldowns.${ability.id}`] = 0;
                     // Add action back
                     if (abilityData.actionCost == "action") {
                         updates["data.actions.value"] = Math.min(

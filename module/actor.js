@@ -6,6 +6,10 @@ import * as chat from "./chat.js";
  */
 export class LightbearerActor extends Actor {
 
+    rollInitiative() {
+        // Pass
+    }
+
     getToken() {
         // If this actor has a token, return it
         if (this.token) return this.token;

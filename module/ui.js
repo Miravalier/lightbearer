@@ -47,11 +47,12 @@ export async function createTemplate(data) {
     if (data.offset.y === undefined) data.offset.y = 0;
 
     const scene = game.scenes.get(game.user.viewedScene);
+    const grid = scene.data.grid;
     return await scene.createEmbeddedDocuments("MeasuredTemplate", [{
         t: data.shape,
         user: game.user.id,
-        x: data.position.x + 50 + data.offset.x,
-        y: data.position.y + 50 + data.offset.y,
+        x: data.position.x + (grid / 2) + data.offset.x,
+        y: data.position.y + (grid / 2) + data.offset.y,
         angle: data.angle,
         width: data.width,
         distance: data.length,
@@ -63,15 +64,20 @@ export async function createTemplate(data) {
 }
 
 export async function selectGroup(prompt) {
-    if (!prompt) prompt = "Select any number of tokens, then click the board.";
+    if (!prompt) prompt = "Select any number of tokens, then click the board. (Right-click board to cancel)";
     game.uitools.hoveredToken = null;
     const selectedTokens = new Set();
+    let cancelled = false;
 
     document.body.style.cursor = "crosshair";
     ui.notifications.info(prompt);
     while (true) {
         const token = await new Promise(resolve => {
             Hooks.once("clickToken", resolve);
+            Hooks.once("contextBoard", () => {
+                cancelled = true;
+                resolve(null);
+            });
         });
         if (token) {
             if (selectedTokens.has(token)) {
@@ -90,21 +96,27 @@ export async function selectGroup(prompt) {
         }
     }
     document.body.style.cursor = "";
-
     selectedTokens.forEach(token => {
         token.setTarget(false);
         token.refresh();
     });
-    return Array.from(selectedTokens);
+
+    if (cancelled) {
+        return null;
+    }
+    else {
+        return Array.from(selectedTokens);
+    }
 }
 
 
 export async function selectCreature(prompt) {
-    if (!prompt) prompt = "Click on a token.";
+    if (!prompt) prompt = "Click on a token. (Right-click board to cancel)";
     document.body.style.cursor = "crosshair";
     ui.notifications.info(prompt);
     const token = await new Promise(resolve => {
         Hooks.once("clickToken", resolve);
+        Hooks.once("contextBoard", () => resolve(null));
     });
     document.body.style.cursor = "";
     return token;
@@ -112,11 +124,12 @@ export async function selectCreature(prompt) {
 
 
 export async function selectPosition(prompt) {
-    if (!prompt) prompt = "Click on a square.";
+    if (!prompt) prompt = "Click on a square. (Right-click board to cancel)";
     document.body.style.cursor = "crosshair";
     ui.notifications.info(prompt);
     const pos = await new Promise(resolve => {
         Hooks.once("clickBoard", resolve);
+        Hooks.once("contextBoard", () => resolve(null));
     });
     document.body.style.cursor = "";
     return pos;
@@ -174,6 +187,7 @@ export async function selectFixedShape(data) {
     document.body.style.cursor = "crosshair";
     const position = await new Promise(resolve => {
         Hooks.once("clickBoard", resolve);
+        Hooks.once("contextBoard", () => resolve(null));
     });
     document.body.style.cursor = "";
 
@@ -189,6 +203,9 @@ export async function selectFixedShape(data) {
     await scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.data._id]);
 
     // Return the position and the tokens under the drawn template
+    if (position == null) {
+        return null;
+    }
     if (data.fixed) {
         return { position: data.position, tokens: selected };
     }
@@ -213,6 +230,11 @@ export async function selectShape(data) {
     data.position.x += 50;
     data.position.y += 50;
     data.direction = 0;
+
+    // Cancel early if select was cancelled
+    if (data.position === null) {
+        return null;
+    }
 
     // Find the current scene
     const scene = game.scenes.get(game.user.viewedScene);
@@ -243,6 +265,7 @@ export async function selectShape(data) {
     document.body.style.cursor = "crosshair";
     const position = await new Promise(resolve => {
         Hooks.once("clickBoard", resolve);
+        Hooks.once("contextBoard", () => resolve(null));
     });
     document.body.style.cursor = "";
 
@@ -256,6 +279,9 @@ export async function selectShape(data) {
     await scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.data._id]);
 
     // Return the tokens under the drawn template
+    if (position === null) {
+        return null;
+    }
     return { position: data.position, tokens: selected, direction: data.direction };
 }
 
@@ -272,22 +298,8 @@ function onHoverToken(token, selected) {
 }
 
 
-export function getTokensAtPosition(position) {
-    if (game.combat) {
-        return game.combat.combatants.filter(combatant => {
-            return distance(template.data, { x: combatant.token.x + 50, y: combatant.token.y + 50 }) <= template.distance * 20;
-        });
-    }
-    else {
-        const scene = game.scenes.get(game.user.viewedScene);
-        return scene.getEmbeddedCollection("Token").filter(token => {
-            return distance(template.data, { x: token.x + 50, y: token.y + 50 }) <= template.distance * 20;
-        });
-    }
-}
-
-
 export function getTokensUnderTemplate(scene, template) {
+    const unitScale = scene.data.grid / scene.data.gridDistance;
     if (template.data.t == "circle") {
         if (game.combat) {
             return game.combat.combatants.filter(combatant => {
@@ -295,12 +307,12 @@ export function getTokensUnderTemplate(scene, template) {
                     return false;
                 }
                 const value = distance(template.data, centerpoint(combatant.token.data));
-                return value <= (template.data.distance * 20);
+                return value <= (template.data.distance * unitScale);
             });
         }
         else {
             return scene.getEmbeddedCollection("Token").filter(token => {
-                return distance(template.data, centerpoint(token.data)) <= template.data.distance * 20;
+                return distance(template.data, centerpoint(token.data)) <= (template.data.distance * unitScale);
             });
         }
     }
@@ -362,11 +374,21 @@ Hooks.once("ready", () => {
 
 
 Hooks.on("canvasReady", (canvas) => {
+    const mouse = canvas.app.renderer.plugins.interaction.mouse;
+    canvas.app.view.addEventListener("contextmenu", _ev => {
+        const pos = mouse.getLocalPosition(canvas.app.stage);
+        Hooks.call("contextBoard", pos);
+
+        if (game.uitools.hoveredToken) {
+            Hooks.call("contextToken", game.uitools.hoveredToken);
+        }
+        else {
+            Hooks.call("contextToken", null);
+        }
+    });
+
     canvas.app.stage.addListener('click', ev => {
         const pos = ev.data.getLocalPosition(canvas.app.stage);
-        pos.x = Math.floor(pos.x / 100) * 100;
-        pos.y = Math.floor(pos.y / 100) * 100;
-
         Hooks.call("clickBoard", pos);
 
         if (game.uitools.hoveredToken) {

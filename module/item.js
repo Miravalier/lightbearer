@@ -16,6 +16,10 @@ export class LightbearerItem extends Item {
 
     // Public methods
     async use(usingToken) {
+        // Get the current scene
+        const scene = game.scenes.get(game.user.viewedScene);
+        const grid = scene.data.grid;
+
         // Get the caster actor
         let caster = null;
         if (usingToken)
@@ -39,8 +43,9 @@ export class LightbearerItem extends Item {
             }
             else if (target.type == "Creature") {
                 const creature = await ui.selectCreature();
+                // Quit ability early on cancelled select
                 if (!creature) {
-                    continue;
+                    return;
                 }
                 if (creature.actor) {
                     actors.push(creature.actor);
@@ -51,6 +56,10 @@ export class LightbearerItem extends Item {
             }
             else if (target.type == "Group") {
                 const creatures = await ui.selectGroup();
+                // Quit ability early on cancelled select
+                if (creatures === null) {
+                    return;
+                }
                 for (const creature of creatures) {
                     if (creature.actor) {
                         actors.push(creature.actor);
@@ -67,7 +76,7 @@ export class LightbearerItem extends Item {
                         shape: "ray",
                         width: size,
                         length: size,
-                        offset: { x: -size * 10 }
+                        offset: { x: -size * (grid / 10) }
                     });
                 }
                 else if (target.type == "Sphere") {
@@ -94,7 +103,7 @@ export class LightbearerItem extends Item {
                         shape: "ray",
                         width: size,
                         length: size,
-                        offset: { x: -size * 10 },
+                        offset: { x: -size * (grid / 10) },
                         origin: casterToken.data
                     });
                 }
@@ -119,41 +128,44 @@ export class LightbearerItem extends Item {
                         origin: casterToken.data
                     });
                 }
+                if (template === null) {
+                    return;
+                }
                 if (template && target.criteria != "None") {
-                    template.tokens.forEach(token => {
-                        let actor = getActor(token);
-                        let actorToken = actor.getToken();
+                    for (let token of template.tokens) {
+                        const actor = getActor(token);
+                        const actorToken = actor.getToken();
 
-                        let casterFaction = (caster.data.data.category == "npc");
-                        let otherFaction = (actor.data.data.category == "npc");
+                        const casterFaction = casterToken.data.disposition;
+                        const otherFaction = actorToken.data.disposition;
 
                         if (actorToken.id == casterToken.id &&
                             target.type.startsWith("Close") &&
                             !target.includeSelf)
-                            return;
+                            continue;
 
                         if (target.criteria == "Enemy" && casterFaction == otherFaction)
-                            return;
+                            continue;
 
                         if (target.criteria == "Ally" && casterFaction != otherFaction)
-                            return;
+                            continue;
 
                         actors.push(actor);
-                    });
+                    }
                 }
-                Object.values(target.effects).filter(e => e.type == "Texture").forEach(effect => {
+                for (let effect of Object.values(target.effects).filter(e => e.type == "Texture")) {
                     const templateData = { position: template.position };
                     if (effect.texture) {
                         templateData.texture = `Textures/${effect.texture}.png`;
                     }
-                    templateData.offset = { x: -50, y: -50 };
+                    templateData.offset = { x: -(grid / 2), y: -(grid / 2) };
 
                     if (target.type == "Square") {
                         const size = (target.radius * 2) + 0.5;
                         templateData.shape = "ray";
                         templateData.width = size;
                         templateData.length = size;
-                        templateData.offset = { x: -size * 10 };
+                        templateData.offset = { x: -size * (grid / 10) };
                     }
                     else if (target.type == "Sphere") {
                         templateData.shape = "circle";
@@ -191,7 +203,7 @@ export class LightbearerItem extends Item {
                         templateData.direction = template.direction;
                     }
                     ui.createTemplate(templateData);
-                });
+                }
             }
 
             for (const actor of actors) {

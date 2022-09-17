@@ -171,6 +171,22 @@ Hooks.once("ready", function () {
     Hooks.on("preCreateActor", createDefaults.preCreateActor);
     Hooks.on("preCreateItem", createDefaults.preCreateItem);
     Hooks.on("chatMessage", chat.preChatMessage);
+    /*
+    Hooks.on("updateActor", actor => {
+        for (let token of actor.getActiveTokens()) {
+            const updates = {};
+            if (token.name != actor.name) {
+                updates.name = actor.name;
+            }
+            if (token.data.img != actor.data.img) {
+                updates.img = actor.data.img;
+            }
+            if (Object.keys(updates).length > 0) {
+                token.document.update(updates);
+            }
+        }
+    });
+    */
     // Hook game members
     Messages.prototype.export = chat.onChatExport;
 });
