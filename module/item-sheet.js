@@ -51,7 +51,7 @@ export class LightbearerItemSheet extends ItemSheet {
         const keyPath = `data.targets.${targetKey}`;
         const otherPath = `data.targets.${otherKey}`;
 
-        const targets = this.item.data.data.targets;
+        const targets = this.item.system.targets;
         const updates = {};
 
         for (const [k, v] of Object.entries(targets[targetKey])) {
@@ -84,7 +84,7 @@ export class LightbearerItemSheet extends ItemSheet {
         const keyPath = `data.targets.${targetKey}.effects.${effectKey}`;
         const otherPath = `data.targets.${targetKey}.effects.${otherKey}`;
 
-        const effects = this.item.data.data.targets[targetKey].effects;
+        const effects = this.item.system.targets[targetKey].effects;
         const updates = {};
 
         for (const [k, v] of Object.entries(effects[effectKey])) {

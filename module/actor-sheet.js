@@ -24,7 +24,7 @@ export class LightbearerActorSheet extends ActorSheet {
 
     /** @override */
     getData() {
-        const actorData = this.actor.data.data;
+        const actorData = this.actor.system;
         const data = super.getData();
         data.abilities = [];
         for (let item of data.items) {
@@ -36,7 +36,7 @@ export class LightbearerActorSheet extends ActorSheet {
                 if (!cooldown_remaining || cooldown_remaining < 0) {
                     cooldown_remaining = 0;
                 }
-                item.data.cooldown_remaining = cooldown_remaining;
+                item.system.cooldown_remaining = cooldown_remaining;
                 data.abilities.push(item);
             }
         }
@@ -48,8 +48,8 @@ export class LightbearerActorSheet extends ActorSheet {
                 data.available.push({
                     name: ability.name,
                     source: actorData['class'],
-                    actionCost: ability.data.data.actionCost,
-                    cooldown: ability.data.data.cooldown,
+                    actionCost: ability.system.actionCost,
+                    cooldown: ability.system.cooldown,
                 });
             }
         }
@@ -59,8 +59,8 @@ export class LightbearerActorSheet extends ActorSheet {
                 data.available.push({
                     name: ability.name,
                     source: actorData['class_one'],
-                    actionCost: ability.data.data.actionCost,
-                    cooldown: ability.data.data.cooldown,
+                    actionCost: ability.system.actionCost,
+                    cooldown: ability.system.cooldown,
                 });
             }
             for (let ability of getAbilities(actorData['class_two'])) {
@@ -68,8 +68,8 @@ export class LightbearerActorSheet extends ActorSheet {
                 data.available.push({
                     name: ability.name,
                     source: actorData['class_two'],
-                    actionCost: ability.data.data.actionCost,
-                    cooldown: ability.data.data.cooldown,
+                    actionCost: ability.system.actionCost,
+                    cooldown: ability.system.cooldown,
                 });
             }
         }
@@ -77,8 +77,8 @@ export class LightbearerActorSheet extends ActorSheet {
             data.available.push({
                 name: ability.name,
                 source: actorData['race'],
-                actionCost: ability.data.data.actionCost,
-                cooldown: ability.data.data.cooldown,
+                actionCost: ability.system.actionCost,
+                cooldown: ability.system.cooldown,
             });
         }
 
@@ -157,7 +157,7 @@ export class LightbearerActorSheet extends ActorSheet {
         });
         html.find(".use-form").click(async ev => {
             const element = $(ev.currentTarget).parent();
-            const form = this.actor.data.data.forms[element.data("id")];
+            const form = this.actor.system.forms[element.data("id")];
             for (let token of this.actor.getActiveTokens()) {
                 await token.scene.updateEmbeddedDocuments(
                     "Token",
@@ -240,7 +240,7 @@ export class LightbearerActorSheet extends ActorSheet {
                 [{
                     name: ability.name,
                     type: "Ability",
-                    data: ability.data.data
+                    data: ability.system
                 }]
             );
         });

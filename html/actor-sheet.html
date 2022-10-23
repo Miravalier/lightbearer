@@ -11,13 +11,13 @@
     </header>
 
     {{!-- Event Buttons --}}
-    {{#ifeq data.data.gamemode "halloween"}}
+    {{#ifeq data.system.gamemode "halloween"}}
 
     <div class="lightbearer halloween events row">
-        {{#if data.data.resources.level_up}}
+        {{#if data.system.resources.level_up}}
         <div class="level-up button">Level Up!</div>
         {{/if}}
-        {{#if data.data.resources.injury}}
+        {{#if data.system.resources.injury}}
         <div class="injury button">Injury</div>
         {{/if}}
     </div>
@@ -26,7 +26,7 @@
 
     {{!-- Sheet Tab Navigation --}}
     <nav class="sheet-tabs tabs" data-group="primary">
-        {{#ifeq data.data.category "npc"}}
+        {{#ifeq data.system.category "npc"}}
         <a class="item" data-tab="npc">NPC</a>
         {{/ifeq}}
         <a class="item" data-tab="stats">Stats</a>
@@ -35,13 +35,13 @@
 
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-        {{#ifeq data.data.category "npc"}}
+        {{#ifeq data.system.category "npc"}}
         {{!-- NPC Tab --}}
         <div class="tab npc" data-group="primary" data-tab="npc">
             <div class="row">
                 <div class="label">Alignment</div>
                 <select name="data.alignment">
-                    {{#select data.data.alignment}}
+                    {{#select data.system.alignment}}
                     <option value="hostile">Hostile</option>
                     <option value="neutral">Neutral</option>
                     <option value="friendly">Friendly</option>
@@ -50,18 +50,18 @@
             </div>
             <div class="row">
                 <div class="label">Unique</div>
-                <input type="checkbox" name="data.unique" {{checked data.data.unique}} />
+                <input type="checkbox" name="data.unique" {{checked data.system.unique}} />
             </div>
             <div class="row">
                 <div class="label">Randomize Form</div>
-                <input type="checkbox" name="data.randomize_form" {{checked data.data.randomize_form}} />
+                <input type="checkbox" name="data.randomize_form" {{checked data.system.randomize_form}} />
             </div>
             <div class="row">
                 <div class="caption">Forms</div>
                 <a class="new-form label">New Form</a>
             </div>
             <div class="forms column">
-                {{#each data.data.forms as |form id|}}
+                {{#each data.system.forms as |form id|}}
                 <div class="form row" data-id="{{id}}">
                     <input class="token" type="text" name="data.forms.{{id}}.token" value="{{form.token}}" />
                     <a class="use-form label"><i class="fas fa-user-circle"></i></a>
@@ -77,24 +77,24 @@
             <div class="resources row">
                 <div class="row hp">
                     <div class="caption label"><i class="fas fa-plus-square"></i></div>
-                    <input class="value" type="number" name="data.health.value" value="{{data.data.health.value}}" />
+                    <input class="value" type="number" name="data.health.value" value="{{data.system.health.value}}" />
                     <span>/</span>
-                    <input class="value" type="number" name="data.health.max" value="{{data.data.health.max}}" />
+                    <input class="value" type="number" name="data.health.max" value="{{data.system.health.max}}" />
                 </div>
 
                 <div class="row actions">
                     <div class="caption label"><i class="fas fa-circle"></i></div>
-                    <input class="value" type="number" name="data.actions.value" value="{{data.data.actions.value}}" />
+                    <input class="value" type="number" name="data.actions.value" value="{{data.system.actions.value}}" />
                     <span>/</span>
-                    <input class="value" type="number" name="data.actions.max" value="{{data.data.actions.max}}" />
+                    <input class="value" type="number" name="data.actions.max" value="{{data.system.actions.max}}" />
                 </div>
 
                 <div class="row reactions">
                     <div class="caption label"><i class="fas fa-exclamation-circle"></i></div>
                     <input class="value" type="number" name="data.reactions.value"
-                        value="{{data.data.reactions.value}}" />
+                        value="{{data.system.reactions.value}}" />
                     <span>/</span>
-                    <input class="value" type="number" name="data.reactions.max" value="{{data.data.reactions.max}}" />
+                    <input class="value" type="number" name="data.reactions.max" value="{{data.system.reactions.max}}" />
                 </div>
 
                 <a class="new-ability label">
@@ -106,35 +106,35 @@
 
             <div class="known abilities column">
                 {{#each abilities as |ability id|}}
-                <div class="ability {{ability.data.actionCost}}" data-item-id="{{ability._id}}">
-                    {{#ifeq ability.data.actionCost "action"}}
+                <div class="ability {{ability.system.actionCost}}" data-item-id="{{ability._id}}">
+                    {{#ifeq ability.system.actionCost "action"}}
                     <i class="icon fas fa-circle"></i>
                     {{/ifeq}}
-                    {{#ifeq ability.data.actionCost "reaction"}}
+                    {{#ifeq ability.system.actionCost "reaction"}}
                     <i class="icon fas fa-exclamation-circle"></i>
                     {{/ifeq}}
-                    {{#ifeq ability.data.actionCost "free"}}
+                    {{#ifeq ability.system.actionCost "free"}}
                     <i class="icon far fa-circle"></i>
                     {{/ifeq}}
-                    {{#ifneq ability.data.actionCost "passive"}}
-                    {{#ifneq ability.data.cooldown "0"}}
+                    {{#ifneq ability.system.actionCost "passive"}}
+                    {{#ifneq ability.system.cooldown "0"}}
                     <div class="icon">
-                        <span>{{ability.data.cooldown}}</span>
+                        <span>{{ability.system.cooldown}}</span>
                         <i class="fas fa-hourglass"></i>
                     </div>
                     {{/ifneq}}
                     {{/ifneq}}
-                    <a class="{{ability.data.actionCost}} name">{{ability.name}}</a>
-                    {{#ifeq ability.data.cooldown_remaining 0}}
+                    <a class="{{ability.system.actionCost}} name">{{ability.name}}</a>
+                    {{#ifeq ability.system.cooldown_remaining 0}}
                     <a class="control use" title="Use Ability">
                         <i class="fas fa-dice-d20"></i>
                     </a>
                     {{else}}
-                    {{#ifeq ability.data.cooldown_remaining 1}}
+                    {{#ifeq ability.system.cooldown_remaining 1}}
                     <div class="cooldown">On Cooldown: 1 Round</div>
                     {{/ifeq}}
-                    {{#ifgt ability.data.cooldown_remaining 1}}
-                    <div class="cooldown">On Cooldown: {{ability.data.cooldown_remaining}} Rounds</div>
+                    {{#ifgt ability.system.cooldown_remaining 1}}
+                    <div class="cooldown">On Cooldown: {{ability.system.cooldown_remaining}} Rounds</div>
                     {{/ifgt}}
                     <a class="control reset" title="Reset Ability">
                         <i class="far fa-hourglass"></i>
@@ -152,8 +152,8 @@
                 {{/each}}
             </div>
 
-            {{#ifeq data.data.gamemode "standard"}}
-            {{#ifneq data.data.category "npc"}}
+            {{#ifeq data.system.gamemode "standard"}}
+            {{#ifneq data.system.category "npc"}}
             <div class="row">
                 {{#unless data.availableHidden}}
                 <span class="caption row">Available Abilities</span>
@@ -230,7 +230,7 @@
                                 </a>
                                 <div class="label">Agility</div>
                                 <input class="value" type="number" name="data.stats.agility"
-                                    value="{{data.data.stats.agility}}" />
+                                    value="{{data.system.stats.agility}}" />
                             </div>
 
                             <div class="attribute" data-key="endurance" data-label="Endurance">
@@ -239,7 +239,7 @@
                                 </a>
                                 <div class="label">Endurance</div>
                                 <input class="value" type="number" name="data.stats.endurance"
-                                    value="{{data.data.stats.endurance}}" />
+                                    value="{{data.system.stats.endurance}}" />
                             </div>
 
                             <div class="attribute" data-key="power" data-label="Power">
@@ -248,7 +248,7 @@
                                 </a>
                                 <div class="label">Power</div>
                                 <input class="value" type="number" name="data.stats.power"
-                                    value="{{data.data.stats.power}}" />
+                                    value="{{data.system.stats.power}}" />
                             </div>
                         </div>
                     </div>
@@ -269,7 +269,7 @@
                                 </a>
                                 <div class="label">Charisma</div>
                                 <input class="value" type="number" name="data.stats.charisma"
-                                    value="{{data.data.stats.charisma}}" />
+                                    value="{{data.system.stats.charisma}}" />
                             </div>
 
                             <div class="attribute" data-key="memory" data-label="Memory">
@@ -278,7 +278,7 @@
                                 </a>
                                 <div class="label">Memory</div>
                                 <input class="value" type="number" name="data.stats.memory"
-                                    value="{{data.data.stats.memory}}" />
+                                    value="{{data.system.stats.memory}}" />
                             </div>
 
                             <div class="attribute" data-key="perception" data-label="Perception">
@@ -287,7 +287,7 @@
                                 </a>
                                 <div class="label">Perception</div>
                                 <input class="value" type="number" name="data.stats.perception"
-                                    value="{{data.data.stats.perception}}" />
+                                    value="{{data.system.stats.perception}}" />
                             </div>
                         </div>
                     </div>
@@ -305,7 +305,7 @@
                     {{/ifgt}}
                 </div>
                 <div class="column">
-                    {{#each actor.data.data.skills as |skill key|}}
+                    {{#each actor.system.skills as |skill key|}}
                     <div class="skill" data-key="{{key}}" data-label="{{label}}" data-stat="{{stat}}">
                         <a class="roll-skill" title="Roll {{label}}">
                             <i class="fas fa-dice-d20"></i>
@@ -329,12 +329,12 @@
 
                 <div class="caption">Misc</div>
                 <div class="row">
-                    {{#switchon data.data.gamemode}}
+                    {{#switchon data.system.gamemode}}
                     {{#switchcase "standard"}}
                     <div class="field">
                         <div class="label">Category</div>
                         <select name="data.category">
-                            {{#select data.data.category}}
+                            {{#select data.system.category}}
                             <option value="single">Single Class</option>
                             <option value="dual">Dual Class</option>
                             <option value="npc">NPC</option>
@@ -342,12 +342,12 @@
                         </select>
                     </div>
 
-                    {{#switchon data.data.category}}
+                    {{#switchon data.system.category}}
                     {{#switchcase "single"}}
                     <div class="field">
                         <div class="label">Class</div>
                         <select name="data.class">
-                            {{#select data.data.class}}
+                            {{#select data.system.class}}
                             <option value="Assassin">Assassin</option>
                             <option value="Bard">Bard</option>
                             <option value="Berserker">Berserker</option>
@@ -365,7 +365,7 @@
                     <div class="field">
                         <div class="label">First Class</div>
                         <select name="data.class_one">
-                            {{#select data.data.class_one}}
+                            {{#select data.system.class_one}}
                             <option value="Assassin">Assassin</option>
                             <option value="Bard">Bard</option>
                             <option value="Berserker">Berserker</option>
@@ -381,7 +381,7 @@
                     <div class="field">
                         <div class="label">Second Class</div>
                         <select name="data.class_two">
-                            {{#select data.data.class_two}}
+                            {{#select data.system.class_two}}
                             <option value="Assassin">Assassin</option>
                             <option value="Bard">Bard</option>
                             <option value="Berserker">Berserker</option>
@@ -397,11 +397,11 @@
                     {{/switchcase}}
                     {{/switchon}}
 
-                    {{#ifneq data.data.category "npc"}}
+                    {{#ifneq data.system.category "npc"}}
                     <div class="field">
                         <div class="label">Race</div>
                         <select name="data.race">
-                            {{#select data.data.race}}
+                            {{#select data.system.race}}
                             <option value="Aarakocra">Aarakocra</option>
                             <option value="Centaur">Centaur</option>
                             <option value="Dragonborn">Dragonborn</option>
@@ -426,11 +426,11 @@
                     {{#switchcase "halloween"}}
                     <div class="field">
                         <div class="label">Classes</div>
-                        <div>{{data.data.classes}}</div>
+                        <div>{{data.system.classes}}</div>
                     </div>
                     <div class="field">
                         <div class="label">Races</div>
-                        <div>{{data.data.races}}</div>
+                        <div>{{data.system.races}}</div>
                     </div>
                     {{/switchcase}}
 
@@ -438,7 +438,7 @@
                     <div class="field">
                         <div class="label">Size</div>
                         <select name="data.size">
-                            {{#select data.data.size}}
+                            {{#select data.system.size}}
                             <option value="Tiny">Tiny</option>
                             <option value="Small">Small</option>
                             <option value="Medium">Medium</option>

@@ -403,7 +403,7 @@ async function onChatTemplateRollClicked(ev) {
         rollItem.closest(".chat-message").data("messageId")
     );
     // Get message's contents
-    const content = $("<div>" + message.data.content + "</div>");
+    const content = $("<div>" + message.content + "</div>");
     // Find roll total element
     const roll = content.find(".chat-template .item").filter(function () {
         return $(this).data("rowId") == rowId;
@@ -539,7 +539,7 @@ export function templateDescription(description) {
 
 
 export function templateUsage(source, targetNames) {
-    const templates = Object.values(source.data.data.usage_phrases);
+    const templates = Object.values(source.system.usage_phrases);
     if (templates.length == 0) return "";
     const template = templates[Math.floor(Math.random() * templates.length)];
     const targetString = oxfordList(Array.from(targetNames));
@@ -548,12 +548,12 @@ export function templateUsage(source, targetNames) {
         ITEM_NAME: source.name,
         CHARACTER: source.actor.name,
         CHARACTER_NAME: source.actor.name,
-        CHARACTER_POSSESSIVE_PRONOUN: source.actor.data.data.possessive_pronoun,
-        CHARACTER_SUBJECTIVE_PRONOUN: source.actor.data.data.subjective_pronoun,
-        POSSESSIVE_PRONOUN: source.actor.data.data.possessive_pronoun,
-        SUBJECTIVE_PRONOUN: source.actor.data.data.subjective_pronoun,
-        POSSESSIVE: source.actor.data.data.possessive_pronoun,
-        SUBJECTIVE: source.actor.data.data.subjective_pronoun,
+        CHARACTER_POSSESSIVE_PRONOUN: source.actor.system.possessive_pronoun,
+        CHARACTER_SUBJECTIVE_PRONOUN: source.actor.system.subjective_pronoun,
+        POSSESSIVE_PRONOUN: source.actor.system.possessive_pronoun,
+        SUBJECTIVE_PRONOUN: source.actor.system.subjective_pronoun,
+        POSSESSIVE: source.actor.system.possessive_pronoun,
+        SUBJECTIVE: source.actor.system.subjective_pronoun,
         TARGET: targetString,
         TARGETS: targetString,
         TARGET_NAME: targetString,

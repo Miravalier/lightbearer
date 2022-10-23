@@ -18,7 +18,8 @@ export class LightbearerItem extends Item {
     async use(usingToken) {
         // Get the current scene
         const scene = game.scenes.get(game.user.viewedScene);
-        const grid = scene.data.grid;
+        const pixelsPerFoot = scene.grid.size / scene.grid.distance;
+        const pixelsPerSquare = scene.grid.size;
 
         // Get the caster actor
         let caster = null;
@@ -29,12 +30,14 @@ export class LightbearerItem extends Item {
 
         // Get the caster token
         const casterToken = caster.getToken();
+        console.log("Caster Token", casterToken);
+        console.log("Center", casterToken.center);
 
         const items = [];
         const results = {};
 
         // For each target
-        const targets = Object.values(this.data.data.targets);
+        const targets = Object.values(this.system.targets);
         for (const target of targets) {
             let template = null;
             const actors = [];
@@ -71,12 +74,12 @@ export class LightbearerItem extends Item {
             }
             else {
                 if (target.type == "Square") {
-                    const size = (target.radius * 2) + 0.5;
+                    const diameterFeet = (target.radius * 2) + 0.5;
                     template = await ui.selectFixedShape({
                         shape: "ray",
-                        width: size,
-                        length: size,
-                        offset: { x: -size * (grid / 10) }
+                        width: diameterFeet,
+                        length: diameterFeet,
+                        offset: { x: -(diameterFeet/2) * pixelsPerFoot },
                     });
                 }
                 else if (target.type == "Sphere") {
@@ -98,34 +101,34 @@ export class LightbearerItem extends Item {
                     });
                 }
                 else if (target.type == "Close Square") {
-                    const size = (target.radius * 2) + 0.5;
+                    const diameterFeet = (target.radius * 2) + 0.5;
                     template = await ui.selectFixedShape({
                         shape: "ray",
-                        width: size,
-                        length: size,
-                        offset: { x: -size * (grid / 10) },
-                        origin: casterToken.data
+                        width: diameterFeet,
+                        length: diameterFeet,
+                        offset: { x: -(diameterFeet/2) * pixelsPerFoot },
+                        origin: casterToken.center
                     });
                 }
                 else if (target.type == "Close Sphere") {
                     template = await ui.selectFixedShape({
                         shape: "circle",
                         length: target.radius + 0.5,
-                        origin: casterToken.data
+                        origin: casterToken.center
                     });
                 }
                 else if (target.type == "Close Ray") {
                     template = await ui.selectShape({
                         shape: "ray",
                         length: target.length + 0.5,
-                        origin: casterToken.data
+                        origin: casterToken.center
                     });
                 }
                 else if (target.type == "Close Cone") {
                     template = await ui.selectShape({
                         shape: "cone",
                         length: target.length + 0.5,
-                        origin: casterToken.data
+                        origin: casterToken.center
                     });
                 }
                 if (template === null) {
@@ -136,8 +139,8 @@ export class LightbearerItem extends Item {
                         const actor = getActor(token);
                         const actorToken = actor.getToken();
 
-                        const casterFaction = casterToken.data.disposition;
-                        const otherFaction = actorToken.data.disposition;
+                        const casterFaction = casterToken.disposition;
+                        const otherFaction = actorToken.disposition;
 
                         if (actorToken.id == casterToken.id &&
                             target.type.startsWith("Close") &&
@@ -158,14 +161,14 @@ export class LightbearerItem extends Item {
                     if (effect.texture) {
                         templateData.texture = `Textures/${effect.texture}.png`;
                     }
-                    templateData.offset = { x: -(grid / 2), y: -(grid / 2) };
+                    templateData.offset = { x: -(pixelsPerSquare / 2), y: -(pixelsPerSquare / 2) };
 
                     if (target.type == "Square") {
-                        const size = (target.radius * 2) + 0.5;
+                        const sizeFeet = (target.radius * 2) + 0.5;
                         templateData.shape = "ray";
-                        templateData.width = size;
-                        templateData.length = size;
-                        templateData.offset = { x: -size * (grid / 10) };
+                        templateData.width = sizeFeet;
+                        templateData.length = sizeFeet;
+                        templateData.offset = { x: -size * pixelsPerFoot };
                     }
                     else if (target.type == "Sphere") {
                         templateData.shape = "circle";
@@ -183,10 +186,10 @@ export class LightbearerItem extends Item {
                         templateData.direction = template.direction;
                     }
                     else if (target.type == "Close Square") {
-                        const size = (target.radius * 2) + 0.5;
+                        const sizeFeet = (target.radius * 2) + 0.5;
                         templateData.shape = "ray";
-                        templateData.width = size;
-                        templateData.length = size;
+                        templateData.width = sizeFeet;
+                        templateData.length = sizeFeet;
                     }
                     else if (target.type == "Close Sphere") {
                         templateData.shape = "circle";

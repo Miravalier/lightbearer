@@ -4,7 +4,12 @@ export function distance(a, b) {
 
 export function centerpoint(data) {
     const scene = game.scenes.get(game.user.viewedScene);
-    const halfSquare = scene.data.grid / 2;
+    const halfSquare = scene.grid.size / 2;
+    console.log("Getting Center Point of:", data);
+    console.log("Center Point Result:", {
+        x: data.x + data.width * halfSquare,
+        y: data.y + data.height * halfSquare,
+    });
     return {
         x: data.x + data.width * halfSquare,
         y: data.y + data.height * halfSquare,

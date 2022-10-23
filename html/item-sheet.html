@@ -9,12 +9,12 @@
 
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-        <textarea class="paragraph" name="data.description">{{data.data.description}}</textarea>
+        <textarea class="paragraph" name="data.description">{{data.system.description}}</textarea>
 
         <div class="row">
             <span class="label">Action Type</span>
             <select name="data.actionCost">
-                {{#select data.data.actionCost}}
+                {{#select data.system.actionCost}}
                 <option value="passive">Passive</option>
                 <option value="free">Free</option>
                 <option value="action">Action</option>
@@ -22,12 +22,12 @@
                 {{/select}}
             </select>
 
-            {{#ifneq data.data.actionCost "passive"}}
+            {{#ifneq data.system.actionCost "passive"}}
             <div class="divider"></div>
 
             <span class="label">Cooldown</span>
             <select name="data.cooldown">
-                {{#select data.data.cooldown}}
+                {{#select data.system.cooldown}}
                 <option value="0">None</option>
                 <option value="1">1 Round</option>
                 <option value="2">2 Rounds</option>
@@ -44,7 +44,7 @@
         </div>
 
         <div class="target-list">
-            {{#each data.data.targets as |target tkey|}}
+            {{#each data.system.targets as |target tkey|}}
             <div class="target" data-key="{{tkey}}">
                 <div class="column">
                     <a class="target-up"><i class="fas fa-arrow-up"></i></a>

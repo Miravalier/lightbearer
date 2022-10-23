@@ -2,9 +2,9 @@ import * as utilities from "./utilities.js";
 
 export async function preCreateItem(item, data, options, userId) {
     const updates = {};
-    updates['permission.default'] = CONST.ENTITY_PERMISSIONS.LIMITED;
+    updates['permission.default'] = CONST.DOCUMENT_PERMISSION_LEVELS.LIMITED;
     updates['img'] = "systems/lightbearer/resources/unknown-active.png";
-    await item.data.update(updates);
+    await item.updateSource(updates);
 }
 
 export async function preCreateActor(actor, data, options, userId) {
@@ -13,10 +13,10 @@ export async function preCreateActor(actor, data, options, userId) {
         updates['img'] = `Players/${game.user.name}/default_image.svg`;
     }
     if (userId !== game.lightbearer.gm.id) {
-        updates['permission.default'] = CONST.ENTITY_PERMISSIONS.LIMITED;
+        updates['permission.default'] = CONST.DOCUMENT_PERMISSION_LEVELS.LIMITED;
     }
 
-    await actor.data.update(updates);
+    await actor.updateSource(updates);
 }
 
 export async function preCreateToken(token, data, options, userId) {
@@ -28,13 +28,13 @@ export async function preCreateToken(token, data, options, userId) {
     updates.bar1 = { attribute: "health" };
     updates.bar2 = { attribute: "armor" };
 
-    if (actor.data.data.category !== "npc" || actor.data.data.unique) {
+    if (actor.system.category !== "npc" || actor.system.unique) {
         updates.actorLink = true;
     }
     else {
         updates.actorLink = false;
-        if (actor.data.data.health.formula) {
-            const roll = new Roll(actor.data.data.health.formula, actor.getRollData());
+        if (actor.system.health.formula) {
+            const roll = new Roll(actor.system.health.formula, actor.getRollData());
             roll.roll();
             updates.actorData = {
                 data: {
@@ -47,7 +47,7 @@ export async function preCreateToken(token, data, options, userId) {
         }
     }
 
-    if (actor.data.data.category !== "npc") {
+    if (actor.system.category !== "npc") {
         updates.displayBars = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
         updates.displayName = CONST.TOKEN_DISPLAY_MODES.HOVER;
         updates.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
@@ -56,25 +56,25 @@ export async function preCreateToken(token, data, options, userId) {
         updates.dimSight = 30;
     }
     else {
-        if (actor.data.data.randomize_form && actor.data.data.forms) {
-            updates.img = utilities.randSelect(Object.values(actor.data.data.forms)).token;
+        if (actor.system.randomize_form && actor.system.forms) {
+            updates.img = utilities.randSelect(Object.values(actor.system.forms)).token;
         }
         updates.displayBars = CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER;
         updates.displayName = CONST.TOKEN_DISPLAY_MODES.HOVER;
-        if (actor.data.data.alignment == "hostile") {
+        if (actor.system.alignment == "hostile") {
             updates.disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
         }
-        else if (actor.data.data.alignment == "neutral") {
+        else if (actor.system.alignment == "neutral") {
             updates.disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
         }
-        else if (actor.data.data.alignment == "friendly") {
+        else if (actor.system.alignment == "friendly") {
             updates.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
         }
         updates.vision = false;
     }
 
     let size = 1;
-    switch (actor.data.data.size) {
+    switch (actor.system.size) {
         case 'Tiny':
             {
                 size = 0.5;
@@ -99,5 +99,5 @@ export async function preCreateToken(token, data, options, userId) {
     updates.width = size;
     updates.height = size;
 
-    await token.data.update(updates);
+    await token.updateSource(updates);
 }

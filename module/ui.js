@@ -47,12 +47,12 @@ export async function createTemplate(data) {
     if (data.offset.y === undefined) data.offset.y = 0;
 
     const scene = game.scenes.get(game.user.viewedScene);
-    const grid = scene.data.grid;
+    const grid = scene.grid.size;
     return await scene.createEmbeddedDocuments("MeasuredTemplate", [{
         t: data.shape,
         user: game.user.id,
-        x: data.position.x + (grid / 2) + data.offset.x,
-        y: data.position.y + (grid / 2) + data.offset.y,
+        x: Math.round(data.position.x + (grid / 2) + data.offset.x),
+        y: Math.round(data.position.y + (grid / 2) + data.offset.y),
         angle: data.angle,
         width: data.width,
         distance: data.length,
@@ -124,7 +124,6 @@ export async function selectCreature(prompt) {
 
 
 export async function selectPosition(prompt) {
-    console.log("DBG: Select Position");
     if (!prompt) prompt = "Click on a square. (Right-click board to cancel)";
     document.body.style.cursor = "crosshair";
     ui.notifications.info(prompt);
@@ -151,20 +150,20 @@ export async function selectFixedShape(data) {
         data.fixed = true;
         data.position = { x: data.origin.x, y: data.origin.y };
     }
-    data.position.x += data.offset.x + 50;
-    data.position.y += data.offset.y + 50;
-
-    console.log("DBG: Select Fixed Shape");
 
     // Find the current scene
     const scene = game.scenes.get(game.user.viewedScene);
+
+    // Apply offset
+    data.position.x += data.offset.x
+    data.position.y += data.offset.y
 
     // Create shape template
     const templates = await scene.createEmbeddedDocuments("MeasuredTemplate", [{
         t: data.shape,
         user: game.user.id,
-        x: data.position.x,
-        y: data.position.y,
+        x: Math.round(data.position.x),
+        y: Math.round(data.position.y),
         angle: 360,
         distance: data.length,
         width: data.width,
@@ -203,7 +202,7 @@ export async function selectFixedShape(data) {
     const selected = getTokensUnderTemplate(scene, template);
 
     // Delete template
-    await scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.data._id]);
+    await scene.deleteEmbeddedDocuments("MeasuredTemplate", [template._id]);
 
     // Return the position and the tokens under the drawn template
     if (position == null) {
@@ -219,8 +218,6 @@ export async function selectFixedShape(data) {
 
 
 export async function selectShape(data) {
-    console.log("DBG: Select Shape");
-
     // Get default parameters set up
     if (data.shape == "cone" && data.angle == undefined) data.angle = 100;
     if (data.shape == "ray" && data.width == undefined) data.width = 5;
@@ -232,8 +229,6 @@ export async function selectShape(data) {
     else {
         data.position = { x: data.origin.x, y: data.origin.y };
     }
-    data.position.x += 50;
-    data.position.y += 50;
     data.direction = 0;
 
     // Cancel early if select was cancelled
@@ -248,8 +243,8 @@ export async function selectShape(data) {
     const templates = await scene.createEmbeddedDocuments("MeasuredTemplate", [{
         t: data.shape,
         user: game.user.id,
-        x: data.position.x,
-        y: data.position.y,
+        x: Math.round(data.position.x),
+        y: Math.round(data.position.y),
         angle: data.angle,
         distance: data.length,
         width: data.width,
@@ -281,7 +276,7 @@ export async function selectShape(data) {
     const selected = getTokensUnderTemplate(scene, template);
 
     // Delete template
-    await scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.data._id]);
+    await scene.deleteEmbeddedDocuments("MeasuredTemplate", [template._id]);
 
     // Return the tokens under the drawn template
     if (position === null) {
@@ -304,43 +299,43 @@ function onHoverToken(token, selected) {
 
 
 export function getTokensUnderTemplate(scene, template) {
-    const unitScale = scene.data.grid / scene.data.gridDistance;
-    if (template.data.t == "circle") {
+    const unitScale = scene.grid.size / scene.grid.distance;
+    if (template.t == "circle") {
         if (game.combat) {
             return game.combat.combatants.filter(combatant => {
                 if (!combatant.token) {
                     return false;
                 }
-                const value = distance(template.data, centerpoint(combatant.token.data));
-                return value <= (template.data.distance * unitScale);
+                const value = distance(template, centerpoint(combatant.token.data));
+                return value <= (template.distance * unitScale);
             });
         }
         else {
             return scene.getEmbeddedCollection("Token").filter(token => {
-                return distance(template.data, centerpoint(token.data)) <= (template.data.distance * unitScale);
+                return distance(template, centerpoint(token)) <= (template.distance * unitScale);
             });
         }
     }
 
-    const bounds = canvas.templates.get(template.data._id).shape;
+    const bounds = canvas.templates.get(template._id).shape;
     if (game.combat) {
         return game.combat.combatants.filter(combatant => {
             if (!combatant.token) {
                 return false;
             }
-            const token_centerpoint = centerpoint(combatant.token.data);
+            const token_centerpoint = centerpoint(combatant.token);
             return bounds.contains(
-                token_centerpoint.x - template.data.x,
-                token_centerpoint.y - template.data.y
+                token_centerpoint.x - template.x,
+                token_centerpoint.y - template.y
             );
         });
     }
     else {
         return scene.getEmbeddedCollection("Token").filter(token => {
-            const token_centerpoint = centerpoint(token.data);
+            const token_centerpoint = centerpoint(token);
             return bounds.contains(
-                token_centerpoint.x - template.data.x,
-                token_centerpoint.y - template.data.y
+                token_centerpoint.x - template.x,
+                token_centerpoint.y - template.y
             );
         });
     }
@@ -349,17 +344,17 @@ export function getTokensUnderTemplate(scene, template) {
 
 async function moveTemplateToPosition(scene, template, point) {
     await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
-        _id: template.data._id,
-        x: point.x,
-        y: point.y
+        _id: template._id,
+        x: Math.round(point.x),
+        y: Math.round(point.y)
     }]);
 }
 
 
 async function rotateTemplateToFace(scene, template, point) {
-    const rotation = Math.atan2(point.y - template.data.y, point.x - template.data.x) * 180 / Math.PI;
+    const rotation = Math.atan2(point.y - template.y, point.x - template.x) * 180 / Math.PI;
     await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
-        _id: template.data._id,
+        _id: template._id,
         direction: rotation
     }]);
     return rotation;

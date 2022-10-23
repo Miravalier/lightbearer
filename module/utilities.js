@@ -64,7 +64,7 @@ export function getAbility(folderName, abilityName) {
     let folder = game.folders.find(f => f.name == folderName && f.type == "Item");
     if (!folder) return null;
 
-    for (const item of folder.content) {
+    for (const item of folder.contents) {
         if (item.name == abilityName) {
             return item;
         }
@@ -78,7 +78,7 @@ export function getAbilities(folderName) {
     if (!folder) return [];
 
     const abilities = [];
-    for (const item of folder.content) {
+    for (const item of folder.contents) {
         abilities.push(item)
     }
     return abilities;

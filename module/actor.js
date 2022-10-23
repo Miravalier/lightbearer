@@ -32,7 +32,7 @@ export class LightbearerActor extends Actor {
 
     /** @override */
     getRollData() {
-        const actorData = this.data.data;
+        const actorData = this.system;
         const data = super.getRollData();
         const rollData = {};
 
