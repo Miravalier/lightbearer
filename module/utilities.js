@@ -1,7 +1,7 @@
 export class CharacterRandom {
     constructor(character) {
         this.character = character;
-        let seed = this.character.data.data.seed;
+        let seed = this.character.system.seed;
         if (seed === null) {
             seed = new MersenneTwister().int()
             this.character.update({ "data.seed": seed });

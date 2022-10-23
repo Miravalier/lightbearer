@@ -294,12 +294,12 @@ export function onChatExport() {
         output += `<div class="message-header flexrow">`;
         output += `<h4 class="message-sender">${message.alias}</h4>`;
         output += `<span class="message-metadata">`;
-        output += `<time class="message-timestamp">${new Date(message.data.timestamp)}</time>`;
+        output += `<time class="message-timestamp">${new Date(message.timestamp)}</time>`;
         output += `</span>`;
         output += `</div>`;
 
         output += `<div class="message-content">`;
-        output += message.data.content;
+        output += message.content;
         output += `</div>`;
 
         output += `</li>`;
@@ -368,14 +368,14 @@ async function onChatTemplateCaptionClicked(ev) {
                     // Add action back
                     if (abilityData.actionCost == "action") {
                         updates["data.actions.value"] = Math.min(
-                            actor.data.data.actions.value + 1,
-                            actor.data.data.actions.max
+                            actor.system.actions.value + 1,
+                            actor.system.actions.max
                         );
                     }
                     else if (abilityData.actionCost == "reaction") {
                         updates["data.reactions.value"] = Math.min(
-                            actor.data.data.reactions.value + 1,
-                            actor.data.data.reactions.max
+                            actor.system.reactions.value + 1,
+                            actor.system.reactions.max
                         );
                     }
                     // Perform update

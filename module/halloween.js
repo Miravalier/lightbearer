@@ -145,23 +145,23 @@ export async function injure(character) {
                 }
                 else if (injury == "mental") {
                     character.update({
-                        "data.stats.charisma": character.data.data.stats.charisma - 1,
-                        "data.stats.memory": character.data.data.stats.memory - 1,
-                        "data.stats.perception": character.data.data.stats.perception - 1,
+                        "data.stats.charisma": character.system.stats.charisma - 1,
+                        "data.stats.memory": character.system.stats.memory - 1,
+                        "data.stats.perception": character.system.stats.perception - 1,
                     });
                     game.lightbearer.story(`${character.name} has lost 1 from each mental attribute."`);
                 }
                 else if (injury == "reaction") {
                     character.update({
-                        "data.reactions.max": character.data.data.reactions.max - 1,
+                        "data.reactions.max": character.system.reactions.max - 1,
                     });
                     game.lightbearer.story(`${character.name} has lost 1 reaction point."`);
                 }
                 else if (injury == "physical") {
                     character.update({
-                        "data.stats.agility": character.data.data.stats.agility - 1,
-                        "data.stats.endurance": character.data.data.stats.endurance - 1,
-                        "data.stats.power": character.data.data.stats.power - 1,
+                        "data.stats.agility": character.system.stats.agility - 1,
+                        "data.stats.endurance": character.system.stats.endurance - 1,
+                        "data.stats.power": character.system.stats.power - 1,
                     });
                     game.lightbearer.story(`${character.name} has lost 1 from each physical attribute."`);
                 }
@@ -182,8 +182,8 @@ export async function injure(character) {
                 else if (injury == "health") {
                     const hp = engine.randInt(6) + engine.randInt(6) + 2;
                     character.update({
-                        "data.health.value": character.data.data.health.value - hp,
-                        "data.health.max": character.data.data.health.max - hp,
+                        "data.health.value": character.system.health.value - hp,
+                        "data.health.max": character.system.health.max - hp,
                     });
                     game.lightbearer.story(`${character.name} has lost ${hp} maximum health.`);
                 }
@@ -202,7 +202,7 @@ export async function levelup(character) {
         selected_ability: null,
         selected_stat: null,
         selected_hp_style: null,
-        attributes: character.data.data.stats,
+        attributes: character.system.stats,
         increased_attributes: {},
         finished: false,
     };
@@ -214,16 +214,16 @@ export async function levelup(character) {
             data.increased_attributes[attribute] = value + 2;
         }
     }
-    for (let _class of character.data.data.classes.split('/')) {
+    for (let _class of character.system.classes.split('/')) {
         for (let ability of getAbilities(_class)) {
             if (ability.name.endsWith("+")) continue;
             if (character.items.find(item => item.name === ability.name)) continue;
             data.available_abilities.push({
                 name: ability.name,
                 source: _class,
-                actionCost: ability.data.data.actionCost,
-                cooldown: ability.data.data.cooldown,
-                description: ability.data.data.description,
+                actionCost: ability.system.actionCost,
+                cooldown: ability.system.cooldown,
+                description: ability.system.description,
             });
         }
     }
@@ -296,8 +296,8 @@ export async function levelup(character) {
                     hp_increase = roll.total;
                     ui.notifications.info(`You gain ${hp_increase} max health.`);
                 }
-                updates["data.health.max"] = character.data.data.health.max + hp_increase;
-                updates["data.health.value"] = character.data.data.health.value + hp_increase;
+                updates["data.health.max"] = character.system.health.max + hp_increase;
+                updates["data.health.value"] = character.system.health.value + hp_increase;
                 updates[`data.stats.${data.selected_stat}`] = data.increased_attributes[data.selected_stat];
                 await character.update(updates);
                 // Add new ability
@@ -305,7 +305,7 @@ export async function levelup(character) {
                     {
                         name: data.selected_ability.name,
                         type: "Ability",
-                        data: data.selected_ability.data.data
+                        data: data.selected_ability.system
                     }
                 ]);
                 // Iterate character seed
@@ -556,9 +556,9 @@ async function powerSelect(data) {
             data.available_abilities.push({
                 name: ability.name,
                 source: hero.class,
-                actionCost: ability.data.data.actionCost,
-                cooldown: ability.data.data.cooldown,
-                description: ability.data.data.description,
+                actionCost: ability.system.actionCost,
+                cooldown: ability.system.cooldown,
+                description: ability.system.description,
             });
         }
     }
@@ -641,7 +641,7 @@ async function powerSelect(data) {
                         abilities.push({
                             name: ability.name,
                             type: "Ability",
-                            data: ability.data.data
+                            data: ability.system
                         });
                     }
                 }
@@ -649,7 +649,7 @@ async function powerSelect(data) {
                     abilities.push({
                         name: ability.name,
                         type: "Ability",
-                        data: ability.data.data
+                        data: ability.system
                     });
                 }
                 await actor.createEmbeddedDocuments("Item", abilities);

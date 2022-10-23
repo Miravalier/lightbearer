@@ -81,7 +81,7 @@ export class LightbearerActor extends Actor {
     // Public extensions
     get player() {
         if (this.hasPlayerOwner) {
-            return game.users.get(Object.keys(this.data.permission).find(p => p !== "default"));
+            return game.users.get(Object.keys(this.permission).find(p => p !== "default"));
         }
         else {
             return game.lightbearer.gm;
@@ -96,7 +96,7 @@ export class LightbearerActor extends Actor {
     }
 
     startCombat() {
-        const data = this.data.data;
+        const data = this.system;
 
         this.update({
             "data.actions.previous": data.actions.value,
@@ -117,7 +117,7 @@ export class LightbearerActor extends Actor {
 
     // Called when a new round begins
     advanceRound() {
-        const data = this.data.data;
+        const data = this.system;
 
         let cooldowns = data.cooldowns;
         if (cooldowns === null) {
@@ -138,7 +138,7 @@ export class LightbearerActor extends Actor {
 
     // Called when a round is reset
     revertRound() {
-        const data = this.data.data;
+        const data = this.system;
 
         const cooldowns = data.cooldowns;
         if (cooldowns === null) {

@@ -291,16 +291,16 @@ export class LightbearerItem extends Item {
             const updates = {};
 
             // Use action / reaction
-            if (this.data.data.actionCost == "action") {
-                updates["data.actions.value"] = caster.data.data.actions.value - 1;
+            if (this.system.actionCost == "action") {
+                updates["data.actions.value"] = caster.system.actions.value - 1;
             }
-            else if (this.data.data.actionCost == "reaction") {
-                updates["data.reactions.value"] = caster.data.data.reactions.value - 1;
+            else if (this.system.actionCost == "reaction") {
+                updates["data.reactions.value"] = caster.system.reactions.value - 1;
             }
             // Activate cooldown
-            const cooldown = parseInt(this.data.data.cooldown);
+            const cooldown = parseInt(this.system.cooldown);
             if (cooldown > 0) {
-                if (caster.data.data.cooldowns === null) {
+                if (caster.system.cooldowns === null) {
                     const cd_update = {};
                     cd_update[this.id] = cooldown;
                     updates["data.cooldowns"] = cd_update;

@@ -125,7 +125,7 @@ export function onUpdateCombat(combat, update, options, userId) {
     if (!combat.combatant) return;
     if (update.flags) return;
 
-    const data = game.combat.data || {};
+    const data = game.combat || {};
 
     // Set previous defaults
     if (!data.previousTurn) data.previousTurn = 0;
@@ -166,7 +166,7 @@ export function SetNPCNames() {
     const updates = {};
     canvas.tokens.ownedTokens.forEach(t => {
         let actor = getActor(t.actor);
-        if (actor.data.data.category != "npc") return;
+        if (actor.system.category != "npc") return;
         let token = actor.getToken();
 
         let i = counts[actor.name];
