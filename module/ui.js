@@ -124,6 +124,7 @@ export async function selectCreature(prompt) {
 
 
 export async function selectPosition(prompt) {
+    console.log("DBG: Select Position");
     if (!prompt) prompt = "Click on a square. (Right-click board to cancel)";
     document.body.style.cursor = "crosshair";
     ui.notifications.info(prompt);
@@ -152,6 +153,8 @@ export async function selectFixedShape(data) {
     }
     data.position.x += data.offset.x + 50;
     data.position.y += data.offset.y + 50;
+
+    console.log("DBG: Select Fixed Shape");
 
     // Find the current scene
     const scene = game.scenes.get(game.user.viewedScene);
@@ -216,6 +219,8 @@ export async function selectFixedShape(data) {
 
 
 export async function selectShape(data) {
+    console.log("DBG: Select Shape");
+
     // Get default parameters set up
     if (data.shape == "cone" && data.angle == undefined) data.angle = 100;
     if (data.shape == "ray" && data.width == undefined) data.width = 5;
