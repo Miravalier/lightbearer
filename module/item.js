@@ -30,8 +30,6 @@ export class LightbearerItem extends Item {
 
         // Get the caster token
         const casterToken = caster.getToken();
-        console.log("Caster Token", casterToken);
-        console.log("Center", casterToken.center);
 
         const items = [];
         const results = {};
