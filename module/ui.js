@@ -182,7 +182,7 @@ export async function selectFixedShape(data) {
             mousePosition.x += data.offset.x;
             mousePosition.y += data.offset.y;
             moveTemplateToPosition(scene, template, mousePosition);
-        }, 50);
+        }, 150);
     }
 
     // Wait for user to click, locking in their shape selection
@@ -212,6 +212,9 @@ export async function selectFixedShape(data) {
         return { position: data.position, tokens: selected };
     }
     else {
+        const pixelsPerHalfSquare = scene.grid.size / 2;
+        position.x = Math.round(position.x / pixelsPerHalfSquare) * pixelsPerHalfSquare
+        position.y = Math.round(position.y / pixelsPerHalfSquare) * pixelsPerHalfSquare
         return { position: position, tokens: selected };
     }
 }
@@ -259,7 +262,7 @@ export async function selectShape(data) {
     const rotateInterval = setInterval(async function () {
         const mousePosition = mouse.getLocalPosition(canvas.app.stage);
         data.direction = await rotateTemplateToFace(scene, template, mousePosition);
-    }, 50);
+    }, 150);
 
     // Wait for user to click, locking in their shape selection
     document.body.style.cursor = "crosshair";
@@ -343,20 +346,33 @@ export function getTokensUnderTemplate(scene, template) {
 
 
 async function moveTemplateToPosition(scene, template, point) {
-    await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
-        _id: template._id,
-        x: Math.round(point.x),
-        y: Math.round(point.y)
-    }]);
+    const pixelsPerHalfSquare = scene.grid.size / 2;
+    point.x = Math.round(point.x / pixelsPerHalfSquare) * pixelsPerHalfSquare
+    point.y = Math.round(point.y / pixelsPerHalfSquare) * pixelsPerHalfSquare
+    if (template.x != point.x || template.y != point.y)
+    {
+        await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
+            _id: template._id,
+            x: Math.round(point.x),
+            y: Math.round(point.y)
+        }]);
+    }
 }
 
 
 async function rotateTemplateToFace(scene, template, point) {
-    const rotation = Math.atan2(point.y - template.y, point.x - template.x) * 180 / Math.PI;
-    await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
-        _id: template._id,
-        direction: rotation
-    }]);
+    // Get exact rotation
+    let rotation = Math.atan2(point.y - template.y, point.x - template.x) * 180 / Math.PI;
+    // Simplify to nearest 15 degrees
+    rotation = Math.round(rotation / 15) * 15;
+    // Only update if it has changed
+    if (rotation != template.direction)
+    {
+        await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
+            _id: template._id,
+            direction: rotation
+        }]);
+    }
     return rotation;
 }
 
