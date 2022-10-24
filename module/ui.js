@@ -302,7 +302,7 @@ function onHoverToken(token, selected) {
 
 
 export function getTokensUnderTemplate(scene, template) {
-    const unitScale = scene.grid.size / scene.grid.distance;
+    const pixelsPerFoot = scene.grid.size / scene.grid.distance;
     if (template.t == "circle") {
         if (game.combat) {
             return game.combat.combatants.filter(combatant => {
@@ -310,12 +310,12 @@ export function getTokensUnderTemplate(scene, template) {
                     return false;
                 }
                 const value = distance(template, centerpoint(combatant.token.data));
-                return value <= (template.distance * unitScale);
+                return value <= (template.distance * pixelsPerFoot);
             });
         }
         else {
             return scene.getEmbeddedCollection("Token").filter(token => {
-                return distance(template, centerpoint(token)) <= (template.distance * unitScale);
+                return distance(template, centerpoint(token)) <= (template.distance * pixelsPerFoot);
             });
         }
     }

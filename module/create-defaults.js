@@ -99,5 +99,7 @@ export async function preCreateToken(token, data, options, userId) {
     updates.width = size;
     updates.height = size;
 
+    updates.texture = { src: updates.img };
+
     await token.updateSource(updates);
 }
