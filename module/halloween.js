@@ -427,11 +427,9 @@ async function character_creation_1(data) {
             class_store.add_callback((class_name, available) => {
                 data.available_classes[class_name] = available;
                 if (available) {
-                    console.log("DBG Remove Disabled");
                     html.find(`.class-picker .${class_name}`).removeAttr('disabled');
                 }
                 else {
-                    console.log("DBG Add Disabled");
                     html.find(`.class-picker .${class_name}`).attr('disabled', 'disabled');
                 }
             });

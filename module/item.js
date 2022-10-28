@@ -137,14 +137,8 @@ export class LightbearerItem extends Item {
                         const actor = getActor(token);
                         const actorToken = actor.getToken();
 
-                        console.log("Caster", casterToken);
-                        console.log("Other", actorToken);
-
                         const casterFaction = casterToken.document.disposition;
                         const otherFaction = actorToken.document.disposition;
-
-                        console.log("Caster Faction", casterFaction);
-                        console.log("Other Faction", casterFaction);
 
                         if (actorToken.id == casterToken.id &&
                             target.type.startsWith("Close") &&

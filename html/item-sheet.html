@@ -9,11 +9,11 @@
 
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-        <textarea class="paragraph" name="data.description">{{data.system.description}}</textarea>
+        <textarea class="paragraph" name="system.description">{{data.system.description}}</textarea>
 
         <div class="row">
             <span class="label">Action Type</span>
-            <select name="data.actionCost">
+            <select name="system.actionCost">
                 {{#select data.system.actionCost}}
                 <option value="passive">Passive</option>
                 <option value="free">Free</option>
@@ -26,7 +26,7 @@
             <div class="divider"></div>
 
             <span class="label">Cooldown</span>
-            <select name="data.cooldown">
+            <select name="system.cooldown">
                 {{#select data.system.cooldown}}
                 <option value="0">None</option>
                 <option value="1">1 Round</option>
@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="field">
-                    <select name="data.targets.{{tkey}}.type">
+                    <select name="system.targets.{{tkey}}.type">
                         {{#select target.type}}
                         <option value="None">Self</option>
                         <option value="Creature">Creature</option>
@@ -72,19 +72,21 @@
                 {{#ifoneof target.type "Sphere,Close Sphere,Square,Close Square"}}
                 <div class="field">
                     <span>Size</span>
-                    <input class="radius" type="number" name="data.targets.{{tkey}}.radius" value="{{target.radius}}" />
+                    <input class="radius" type="number" name="system.targets.{{tkey}}.radius"
+                        value="{{target.radius}}" />
                 </div>
                 {{/ifoneof}}
                 {{#ifoneof target.type "Ray,Cone,Close Ray,Close Cone"}}
                 <div class="field">
                     <span>Size</span>
-                    <input class="length" type="number" name="data.targets.{{tkey}}.length" value="{{target.length}}" />
+                    <input class="length" type="number" name="system.targets.{{tkey}}.length"
+                        value="{{target.length}}" />
                 </div>
                 {{/ifoneof}}
 
                 {{#ifnoneof target.type "None,Creature,Group"}}
                 <div class="field">
-                    <select name="data.targets.{{tkey}}.criteria">
+                    <select name="system.targets.{{tkey}}.criteria">
                         {{#select target.criteria}}
                         <option value="Any">Any</option>
                         <option value="Ally">Ally</option>
@@ -99,7 +101,7 @@
                 {{#ifnoneof target.criteria "Enemy,None"}}
                 <div class="field">
                     <span>Self</span>
-                    <input type="checkbox" name="data.targets.{{tkey}}.includeSelf" {{checked target.includeSelf}} />
+                    <input type="checkbox" name="system.targets.{{tkey}}.includeSelf" {{checked target.includeSelf}} />
                 </div>
                 {{/ifnoneof}}
                 {{/ifoneof}}
@@ -115,7 +117,7 @@
                         <a class="effect-down"><i class="fas fa-arrow-down"></i></a>
                     </div>
 
-                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.type">
+                    <select name="system.targets.{{tkey}}.effects.{{ekey}}.type">
                         {{#select effect.type}}
                         <option value="Text">Text</option>
                         <option value="Check">Check</option>
@@ -129,7 +131,7 @@
                     </select>
 
                     {{#ifoneof effect.type "Check,Opposed Check"}}
-                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.stat">
+                    <select name="system.targets.{{tkey}}.effects.{{ekey}}.stat">
                         {{#select effect.stat}}
                         <option value="physique">Physique</option>
                         <option value="agility">Agility</option>
@@ -150,19 +152,19 @@
                     {{else}}
                     {{#switchon effect.type}}
                     {{#switchcase "Texture"}}
-                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.texture"
+                    <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.texture"
                         value="{{effect.texture}}" />
                     {{/switchcase}}
                     {{#switchcase "Text"}}
-                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.text"
+                    <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.text"
                         value="{{effect.text}}" />
                     {{/switchcase}}
                     {{#switchcase "Table"}}
-                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.label"
+                    <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.label"
                         value="{{effect.label}}" />
-                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.choices"
+                    <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.choices"
                         value="{{effect.choices}}" />
-                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.color">
+                    <select name="system.targets.{{tkey}}.effects.{{ekey}}.color">
                         {{#select effect.color}}
                         <option value="">None</option>
                         <option value="yellow">Yellow</option>
@@ -175,11 +177,11 @@
                     </select>
                     {{/switchcase}}
                     {{#switchcase "Amount"}}
-                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.label"
+                    <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.label"
                         value="{{effect.label}}" />
-                    <input class="formula" type="text" name="data.targets.{{tkey}}.effects.{{ekey}}.formula"
+                    <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.formula"
                         value="{{effect.formula}}" />
-                    <select name="data.targets.{{tkey}}.effects.{{ekey}}.color">
+                    <select name="system.targets.{{tkey}}.effects.{{ekey}}.color">
                         {{#select effect.color}}
                         <option value="">None</option>
                         <option value="yellow">Yellow</option>

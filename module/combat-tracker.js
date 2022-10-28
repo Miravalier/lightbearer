@@ -58,8 +58,6 @@ function revertTurn(combat, turn) {
 
 
 export function onUpdateCombat(combat, update, options, userId) {
-    console.log("Ehhh??", combat, update, options, userId);
-
     if (!game.user.isGM) return;
     if (!combat.combatant) return;
 

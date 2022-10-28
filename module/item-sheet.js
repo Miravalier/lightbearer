@@ -48,8 +48,8 @@ export class LightbearerItemSheet extends ItemSheet {
         if (!targetKey || !otherKey)
             return;
 
-        const keyPath = `data.targets.${targetKey}`;
-        const otherPath = `data.targets.${otherKey}`;
+        const keyPath = `system.targets.${targetKey}`;
+        const otherPath = `system.targets.${otherKey}`;
 
         const targets = this.item.system.targets;
         const updates = {};
@@ -81,8 +81,8 @@ export class LightbearerItemSheet extends ItemSheet {
         if (!targetKey || !effectKey || !otherKey)
             return;
 
-        const keyPath = `data.targets.${targetKey}.effects.${effectKey}`;
-        const otherPath = `data.targets.${targetKey}.effects.${otherKey}`;
+        const keyPath = `system.targets.${targetKey}.effects.${effectKey}`;
+        const otherPath = `system.targets.${targetKey}.effects.${otherKey}`;
 
         const effects = this.item.system.targets[targetKey].effects;
         const updates = {};
@@ -107,7 +107,7 @@ export class LightbearerItemSheet extends ItemSheet {
 
         html.find(".add-target-button").click(async ev => {
             const updates = {};
-            updates[`data.targets._${randomID(16)}`] = {
+            updates[`system.targets._${randomID(16)}`] = {
                 "type": "None",
                 "includeSelf": false,
                 effects: {}
@@ -154,14 +154,13 @@ export class LightbearerItemSheet extends ItemSheet {
 
         html.find(".remove-target-button").click(async ev => {
             const target = ev.target.closest(".target");
-            this.deleteValue("data.targets", target.dataset.key);
-            //target.parentElement.removeChild(target);
+            this.deleteValue("system.targets", target.dataset.key);
         });
 
         html.find(".add-effect-button").click(async ev => {
             const target = ev.target.closest(".target");
             const updates = {};
-            updates[`data.targets.${target.dataset.key}.effects._${randomID(16)}`] = {
+            updates[`system.targets.${target.dataset.key}.effects._${randomID(16)}`] = {
                 "type": "Text"
             };
             this.object.update(updates)
@@ -171,21 +170,11 @@ export class LightbearerItemSheet extends ItemSheet {
             const effectList = ev.target.closest(".effect-list");
             const effect = ev.target.closest(".effect");
             this.deleteValue(
-                `data.targets.${effectList.dataset.parentKey}.effects`,
+                `system.targets.${effectList.dataset.parentKey}.effects`,
                 effect.dataset.key
             );
-            //effect.parentElement.removeChild(effect);
         });
     }
-
-    /* -------------------------------------------- */
-
-    /** @override */
-    /*
-    _updateObject(event, formData) {
-        return this.object.update(formData);
-    }
-    */
 
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
