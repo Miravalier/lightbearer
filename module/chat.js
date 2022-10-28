@@ -1,5 +1,5 @@
 import { getActor } from "./actor.js";
-import { awakenCommand } from "./halloween.js";
+import { createCommand } from "./halloween.js";
 
 const COMMANDS = {
     // Chat commands
@@ -28,7 +28,7 @@ const COMMANDS = {
     "w": whisperCommand,
     "whisper": whisperCommand,
     // Action commands
-    "awaken": awakenCommand, // Halloween Event
+    "create": createCommand, // Halloween Event
 };
 
 function spongebobCase(s) {

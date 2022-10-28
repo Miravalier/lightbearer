@@ -84,7 +84,8 @@
 
                 <div class="row actions">
                     <div class="caption label"><i class="fas fa-circle"></i></div>
-                    <input class="value" type="number" name="data.actions.value" value="{{data.system.actions.value}}" />
+                    <input class="value" type="number" name="data.actions.value"
+                        value="{{data.system.actions.value}}" />
                     <span>/</span>
                     <input class="value" type="number" name="data.actions.max" value="{{data.system.actions.max}}" />
                 </div>
@@ -94,7 +95,8 @@
                     <input class="value" type="number" name="data.reactions.value"
                         value="{{data.system.reactions.value}}" />
                     <span>/</span>
-                    <input class="value" type="number" name="data.reactions.max" value="{{data.system.reactions.max}}" />
+                    <input class="value" type="number" name="data.reactions.max"
+                        value="{{data.system.reactions.max}}" />
                 </div>
 
                 <a class="new-ability label">
@@ -425,12 +427,12 @@
 
                     {{#switchcase "halloween"}}
                     <div class="field">
-                        <div class="label">Classes</div>
-                        <div>{{data.system.classes}}</div>
+                        <div class="label">Class</div>
+                        <div>{{data.system.class}}</div>
                     </div>
                     <div class="field">
-                        <div class="label">Races</div>
-                        <div>{{data.system.races}}</div>
+                        <div class="label">Race</div>
+                        <div>{{data.system.race}}</div>
                     </div>
                     {{/switchcase}}
 

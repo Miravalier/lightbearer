@@ -38,6 +38,7 @@
             <div class="value">{{increased_attributes.perception}}</div>
         </div>
     </div>
+
     <div class="divider"></div>
     <h1>Select an HP increase strategy.</h1>
     <div class="hp-styles row">
@@ -48,6 +49,8 @@
             Gain 2d4 Health
         </div>
     </div>
+
+    {{#if available_abilities.length}}
     <div class="divider"></div>
     <h1>Select a new power.</h1>
     <div class="abilities column">
@@ -76,6 +79,8 @@
         <div class="description">{{ability.description}}</div>
         {{/each}}
     </div>
+    {{/if}}
+
     <div class="buttons row">
         <div class="button finish" title="Finish">Finish</div>
     </div>

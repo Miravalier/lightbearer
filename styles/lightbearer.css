@@ -2,6 +2,7 @@ nav.sheet-tabs {
     line-height: 40px;
     height: 40px;
 }
+
 .sheet .lightbearer.sheet-header img {
     flex: 0 0 64px;
     height: 64px;
@@ -9,21 +10,25 @@ nav.sheet-tabs {
     margin: 0px;
     border: none;
 }
+
 .item.sheet .lightbearer.sheet-header h1.charname input {
     height: 36px;
     width: 100%;
     margin: 4px 0px;
 }
+
 .actor.sheet .lightbearer.sheet-header h1.charname input {
     width: calc(100% - 4px);
     margin: 0px 4px;
 }
+
 .sheet .lightbearer.sheet-header .row {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-around;
     align-items: center;
 }
+
 .sheet .field {
     display: flex;
     flex-flow: row nowrap;
@@ -31,22 +36,27 @@ nav.sheet-tabs {
     align-items: center;
     margin: 0px 10px;
 }
+
 .sheet .lightbearer.sheet-header .sheet-type {
     font-weight: bold;
 }
+
 .lightbearer .tabs {
     line-height: 40px;
     height: 40px;
     border-top: 1px solid #AAA;
     border-bottom: 1px solid #AAA;
 }
+
 .lightbearer .tabs .item {
     font-weight: bold;
 }
+
 .lightbearer .tabs .item.active {
     text-decoration: underline;
     text-shadow: none;
 }
+
 .lightbearer .sheet-body {
     overflow: hidden;
 }
@@ -55,28 +65,33 @@ nav.sheet-tabs {
     min-width: 560px;
     min-height: 420px;
 }
+
 .lightbearer.sheet.item {
     min-width: 460px;
     min-height: 400px;
 }
+
 .lightbearer h4 {
     margin-block-start: 0;
     margin-block-end: 0;
     margin: 0;
     font-weight: bold;
 }
+
 div.lightbearer.error {
     color: white;
     background: rgba(180, 0, 0, 1);
     padding: 2px;
     border-radius: 4px;
 }
+
 div.lightbearer.system {
     color: #000000;
     background-color: rgba(100, 100, 100, 0.5);
     padding: 2px;
     border-radius: 4px;
 }
+
 div.lightbearer.turn-update {
     text-align: center;
     font-size: 36px;
@@ -87,38 +102,45 @@ div.lightbearer.turn-update {
     text-shadow: 1px 1px 0 black;
     box-shadow: 2px 2px 1px black;
 }
+
 div.lightbearer.round-update {
     text-align: center;
     font-size: 24px;
     color: grey;
 }
+
 div.lightbearer.emote,
 div.lightbearer.narrate {
     color: green;
     font-style: italic;
 }
+
 div.lightbearer.story {
     color: crimson;
     text-shadow: 1px 1px 0 black;
 }
+
 div.lightbearer.ooc {
     color: grey;
     background: lightgrey;
     border-radius: 4px;
     padding: 2px;
 }
+
 img.inline-img {
     display: inline;
     margin: 0 5px;
     vertical-align: middle;
     border: none;
 }
+
 img.lightbearer.emoji {
     display: inline;
     margin: 2px;
     vertical-align: middle;
     border: none;
 }
+
 #chat-controls .roll-type-select,
 #chat-controls .chat-control-icon {
     display: none;
@@ -289,7 +311,7 @@ input.formula {
 .lightbearer .label {
     min-width: 7em;
     text-align: center;
-    background: rgba(0,0,0,0.05);
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 7px;
     height: 24px;
     line-height: 24px;
@@ -338,36 +360,47 @@ input.formula {
 .chat-template .item.yellow .label {
     background: rgba(255, 255, 0, 0.1);
 }
+
 .chat-template .item.red .label {
     background: rgba(255, 0, 0, 0.1);
 }
+
 .chat-template .item.blue .label {
     background: rgba(0, 64, 255, 0.1);
 }
+
 .chat-template .item.green .label {
     background: rgba(0, 200, 0, 0.1);
 }
+
 .chat-template .item.orange .label {
     background: rgba(255, 128, 0, 0.1);
 }
+
 .chat-template .item.purple .label {
     background: rgba(157, 0, 255, 0.1);
 }
+
 .chat-template .item.yellow .roll {
     background: rgba(255, 255, 0, 0.07);
 }
+
 .chat-template .item.red .roll {
     background: rgba(255, 0, 0, 0.07);
 }
+
 .chat-template .item.blue .roll {
     background: rgba(0, 64, 255, 0.07);
 }
+
 .chat-template .item.green .roll {
     background: rgba(0, 200, 0, 0.07);
 }
+
 .chat-template .item.orange .roll {
     background: rgba(255, 128, 0, 0.07);
 }
+
 .chat-template .item.purple .roll {
     background: rgba(157, 0, 255, 0.07);
 }
@@ -381,20 +414,24 @@ input.formula {
     margin: 2px;
     padding: 4px;
 }
+
 .chat-template .actor .name {
     font-weight: bold;
     text-align: center;
 }
+
 .chat-template .label {
     margin: 3px;
     padding: 3px;
     text-align: center;
     border-radius: 4px;
 }
+
 .chat-template .description {
     text-align: center;
     font-style: italic;
 }
+
 .chat-template .roll {
     margin: 3px;
     padding: 3px;
@@ -500,9 +537,11 @@ input.formula {
     justify-content: center;
     align-items: center;
 }
+
 .roll-controls a {
     padding: 6px;
 }
+
 .roll-controls span {
     margin: 6px;
 }
@@ -526,6 +565,7 @@ a.header-button.configure-sheet {
     align-items: space-evenly;
     justify-content: space-evenly;
 }
+
 .sheet .sheet-body .tab.abilities .resources .label {
     min-width: fit-content;
     padding: 4px;
@@ -534,9 +574,11 @@ a.header-button.configure-sheet {
     align-items: center;
     text-align: center;
 }
+
 .sheet .sheet-body .tab.abilities .resources .value {
     width: 2em;
 }
+
 .sheet .sheet-body .tab.abilities .resources .hp .value {
     width: 2.75em;
 }
@@ -544,21 +586,26 @@ a.header-button.configure-sheet {
 .lightbearer.sheet .known .ability.action {
     order: 0;
 }
+
 .lightbearer.sheet .known .ability.reaction {
     order: 1;
 }
+
 .lightbearer.sheet .known .ability.none {
     order: 2;
 }
+
 .lightbearer .circle {
     background: rgba(0, 0, 0, 0.075);
     border-radius: 50%;
     padding: 2px;
     display: flex;
 }
+
 .lightbearer .grey {
     color: #6d6d6d;
 }
+
 .lightbearer .effect-list .effect .arrows {
     display: flex;
     flex-flow: column nowrap;
@@ -574,6 +621,7 @@ a.header-button.configure-sheet {
     font-weight: bold;
     width: fit-content;
 }
+
 .activated-ability .description {
     text-align: center;
     font-style: italic;
@@ -584,48 +632,17 @@ a.header-button.configure-sheet {
     font-style: italic;
 }
 
-.lightbearer.halloween.hero-select {
+.lightbearer.halloween.page1 {
     display: flex;
     flex-flow: column nowrap;
     justify-content: space-between;
 }
 
-.lightbearer.halloween .tokens {
-    background: #40165e6e;
-    border-radius: 8px;
-    padding: 2px;
-}
-
-.lightbearer.halloween .halloween-token {
+.lightbearer.halloween .class.icon {
     width: 5em;
     height: 5em;
     margin: 2px;
     border: none;
-}
-
-.lightbearer.halloween .halloween-token.taken {
-    cursor: unset;
-    filter: grayscale() !important;
-    opacity: 30%;
-}
-
-.lightbearer.halloween .halloween-token.taken:hover {
-    box-shadow: none !important;
-}
-
-.lightbearer.halloween .halloween-token.selected {
-    background: none !important;
-    filter: drop-shadow(0 0 2px #ff7300);
-}
-
-.lightbearer.halloween .halloween-banner {
-    pointer-events: none;
-    margin: 0;
-    padding: 0;
-    margin-top: -100px;
-    border: none;
-    width: 600px;
-    filter: drop-shadow(0px 0px 4px #8000808f);
 }
 
 .lightbearer .card {
@@ -660,27 +677,8 @@ a.header-button.configure-sheet {
     box-shadow: 2px 2px rgb(0 0 0 / 10%);
 }
 
-.lightbearer.halloween .hero {
-    margin: 4px;
-    padding: 2px;
-    background: rgba(0, 0, 0, 0.03);
-    border-radius: 8px;
-    box-shadow: 2px 2px rgb(0 0 0 / 10%);
-    width: 280px;
-}
-
 .lightbearer.halloween .selected {
     background: rgb(255 170 60 / 25%) !important;
-}
-
-.lightbearer.halloween .hero .value {
-    min-width: 6em;
-    padding: 0px 4px;
-}
-
-.lightbearer.halloween .hero .label {
-    min-width: 3em;
-    padding: 0px 4px;
 }
 
 .lightbearer.halloween .button {
@@ -700,15 +698,15 @@ a.header-button.configure-sheet {
 }
 
 @keyframes pulse {
-	0% {
-		box-shadow: inset 0 0 0 0 rgba(255, 0, 0, 0.7);
-	}
+    0% {
+        box-shadow: inset 0 0 0 0 rgba(255, 0, 0, 0.7);
+    }
 
-	70% {
-		box-shadow: inset 0 0 0 10px rgba(255, 0, 0, 0);
-	}
+    70% {
+        box-shadow: inset 0 0 0 10px rgba(255, 0, 0, 0);
+    }
 
-	100% {
-		box-shadow: inset 0 0 0 0 rgba(255, 0, 0, 0);
-	}
+    100% {
+        box-shadow: inset 0 0 0 0 rgba(255, 0, 0, 0);
+    }
 }

@@ -1,0 +1,27 @@
+<div class="lightbearer halloween page1">
+
+    <h1>Select a Race</h1>
+    <select class="race-picker">
+        {{#each available_races as |race|}}
+        <option value="{{race.name}}">{{race.name}}</option>
+        {{/each}}
+    </select>
+
+    <div class="race description"></div>
+
+    <h1>Select a Class</h1>
+    <select class="class-picker">
+        <option value="">Unselected</option>
+        {{#each available_classes as |class|}}
+        <option class="{{class.name}}" value="{{class.name}}">
+            {{class.name}}
+        </option>
+        {{/each}}
+    </select>
+
+    <div class="class details"></div>
+
+    <div class="buttons row">
+        <div class="button next" title="Next">Next</div>
+    </div>
+</div>
