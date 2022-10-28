@@ -77,7 +77,7 @@ export class LightbearerItem extends Item {
                         shape: "ray",
                         width: diameterFeet,
                         length: diameterFeet,
-                        offset: { x: -(diameterFeet/2) * pixelsPerFoot },
+                        offset: { x: -(diameterFeet / 2) * pixelsPerFoot },
                     });
                 }
                 else if (target.type == "Sphere") {
@@ -104,7 +104,7 @@ export class LightbearerItem extends Item {
                         shape: "ray",
                         width: diameterFeet,
                         length: diameterFeet,
-                        offset: { x: -(diameterFeet/2) * pixelsPerFoot },
+                        offset: { x: -(diameterFeet / 2) * pixelsPerFoot },
                         origin: casterToken.center
                     });
                 }
@@ -137,8 +137,14 @@ export class LightbearerItem extends Item {
                         const actor = getActor(token);
                         const actorToken = actor.getToken();
 
-                        const casterFaction = casterToken.disposition;
-                        const otherFaction = actorToken.disposition;
+                        console.log("Caster", casterToken);
+                        console.log("Other", actorToken);
+
+                        const casterFaction = casterToken.document.disposition;
+                        const otherFaction = actorToken.document.disposition;
+
+                        console.log("Caster Faction", casterFaction);
+                        console.log("Other Faction", casterFaction);
 
                         if (actorToken.id == casterToken.id &&
                             target.type.startsWith("Close") &&
@@ -290,10 +296,10 @@ export class LightbearerItem extends Item {
 
             // Use action / reaction
             if (this.system.actionCost == "action") {
-                updates["data.actions.value"] = caster.system.actions.value - 1;
+                updates["system.actions.value"] = caster.system.actions.value - 1;
             }
             else if (this.system.actionCost == "reaction") {
-                updates["data.reactions.value"] = caster.system.reactions.value - 1;
+                updates["system.reactions.value"] = caster.system.reactions.value - 1;
             }
             // Activate cooldown
             const cooldown = parseInt(this.system.cooldown);
@@ -301,10 +307,10 @@ export class LightbearerItem extends Item {
                 if (caster.system.cooldowns === null) {
                     const cd_update = {};
                     cd_update[this.id] = cooldown;
-                    updates["data.cooldowns"] = cd_update;
+                    updates["system.cooldowns"] = cd_update;
                 }
                 else {
-                    updates[`data.cooldowns.${this.id}`] = cooldown;
+                    updates[`system.cooldowns.${this.id}`] = cooldown;
                 }
             }
 

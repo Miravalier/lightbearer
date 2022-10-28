@@ -326,7 +326,7 @@ export function createCommand(_args) {
     ChatMessage.create({
         user: game.user.id,
         speaker: speaker,
-        content: `<div class="lightbearer story">${game.user.name}'s is creating their character!</div>`
+        content: `<div class="lightbearer story">${game.user.name} is creating their character!</div>`
     });
 
     const classes = [
@@ -425,7 +425,7 @@ async function character_creation_1(data) {
             }
             // Listen for class disable and enable events
             class_store.add_callback((class_name, available) => {
-                data.available_tokens[class_name] = available;
+                data.available_classes[class_name] = available;
                 if (available) {
                     console.log("DBG Remove Disabled");
                     html.find(`.class-picker .${class_name}`).removeAttr('disabled');

@@ -1,5 +1,23 @@
 import * as chat from "./chat.js";
 
+function EnsureNotTokenDocument(token) {
+    if (token.object) {
+        return token.object;
+    }
+    else {
+        return token;
+    }
+}
+
+function EnsureTokenDocument() {
+    if (token.document) {
+        return token.document;
+    }
+    else {
+        return token;
+    }
+}
+
 /**
  * Base Actor class
  * @extends {Actor}
@@ -12,14 +30,14 @@ export class LightbearerActor extends Actor {
 
     getToken() {
         // If this actor has a token, return it
-        if (this.token) return this.token;
+        if (this.token) return EnsureNotTokenDocument(this.token);
 
         // If one of the controlled tokens represents this actor,
         // use that token.
         let token = canvas.tokens.controlled.find(token => {
             return token.actor.id == this.id
         });
-        if (token) return token;
+        if (token) return EnsureNotTokenDocument(token);
 
         // If the active scene has any tokens representing this actor,
         // use one of those.
@@ -27,7 +45,9 @@ export class LightbearerActor extends Actor {
         token = this.getActiveTokens().find(token => {
             return token.scene.id == scene.id
         });
-        if (token) return token;
+        if (token) return EnsureNotTokenDocument(token);
+
+        return null;
     }
 
     /** @override */
@@ -99,11 +119,11 @@ export class LightbearerActor extends Actor {
         const data = this.system;
 
         this.update({
-            "data.actions.previous": data.actions.value,
-            "data.reactions.previous": data.reactions.value,
-            "data.actions.value": data.actions.max,
-            "data.reactions.value": data.reactions.max,
-            "data.cooldowns": null,
+            "system.actions.previous": data.actions.value,
+            "system.reactions.previous": data.reactions.value,
+            "system.actions.value": data.actions.max,
+            "system.reactions.value": data.reactions.max,
+            "system.cooldowns": null,
         });
     }
 
@@ -128,11 +148,11 @@ export class LightbearerActor extends Actor {
         }
 
         this.update({
-            "data.cooldowns": cooldowns,
-            "data.actions.previous": data.actions.value,
-            "data.reactions.previous": data.reactions.value,
-            "data.actions.value": data.actions.max,
-            "data.reactions.value": data.reactions.max,
+            "system.cooldowns": cooldowns,
+            "system.actions.previous": data.actions.value,
+            "system.reactions.previous": data.reactions.value,
+            "system.actions.value": data.actions.max,
+            "system.reactions.value": data.reactions.max,
         });
     }
 
@@ -149,9 +169,9 @@ export class LightbearerActor extends Actor {
         }
 
         this.update({
-            "data.cooldowns": cooldowns,
-            "data.actions.value": data.actions.previous,
-            "data.reactions.value": data.reactions.previous,
+            "system.cooldowns": cooldowns,
+            "system.actions.value": data.actions.previous,
+            "system.reactions.value": data.reactions.previous,
         });
     }
 
@@ -227,6 +247,9 @@ export function getActor(entity) {
         // Should be unreachable, tokens have actors
         console.error("Token does not have actor.");
         return null;
+    }
+    else if (entity.constructor.name === "Combatant") {
+        return entity.actor;
     }
     // Generic Data Objects
     else {

@@ -309,7 +309,7 @@ export function getTokensUnderTemplate(scene, template) {
                 if (!combatant.token) {
                     return false;
                 }
-                const value = distance(template, centerpoint(combatant.token.data));
+                const value = distance(template, centerpoint(combatant.token));
                 return value <= (template.distance * pixelsPerFoot);
             });
         }
@@ -349,8 +349,7 @@ async function moveTemplateToPosition(scene, template, point) {
     const pixelsPerHalfSquare = scene.grid.size / 2;
     point.x = Math.round(point.x / pixelsPerHalfSquare) * pixelsPerHalfSquare
     point.y = Math.round(point.y / pixelsPerHalfSquare) * pixelsPerHalfSquare
-    if (template.x != point.x || template.y != point.y)
-    {
+    if (template.x != point.x || template.y != point.y) {
         await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
             _id: template._id,
             x: Math.round(point.x),
@@ -366,8 +365,7 @@ async function rotateTemplateToFace(scene, template, point) {
     // Simplify to nearest 15 degrees
     rotation = Math.round(rotation / 15) * 15;
     // Only update if it has changed
-    if (rotation != template.direction)
-    {
+    if (rotation != template.direction) {
         await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
             _id: template._id,
             direction: rotation

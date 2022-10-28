@@ -8,6 +8,7 @@ export async function preCreateItem(item, data, options, userId) {
 }
 
 export async function preCreateActor(actor, data, options, userId) {
+    // token.sight.enabled
     const updates = {};
     if (!actor.img || actor.img == "icons/svg/mystery-man.svg") {
         updates['img'] = `Players/${game.user.name}/default_image.svg`;
