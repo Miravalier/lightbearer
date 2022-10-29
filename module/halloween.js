@@ -60,7 +60,7 @@ const skill_modifiers = {
 const skill_levels = [
     "Untrained", "Novice", "Skilled",
     "Expert", "Master", "Legend"
-]
+];
 
 const descriptions = {
     // Classes
@@ -90,6 +90,17 @@ const descriptions = {
     "Warforged": "Automaton created by war mages",
 };
 
+const weapons = {
+    "Assassin": ["Dagger", "Shortsword", "Rapier", "Hand Crossbow"],
+    "Bard": ["Rapier", "Scimitar", "Longbow"],
+    "Berserker": ["Greataxe", "Greatclub", "Halberd", "Maul", "Javelin"],
+    "Cleric": ["Club", "Light Hammer", "Mace", "Buckler"],
+    "Druid": ["Quarterstaff", "Shortbow", "Sling"],
+    "Elementalist": ["Battleaxe", "Spear", "Quarterstaff", "Crossbow"],
+    "Guardian": ["Flail", "Handaxe", "Longsword", "Spear", "Shield"],
+    "Necromancer": ["Dagger", "Longsword", "Whip"],
+};
+
 function halloweenDialog(data) {
     if (!data.width) data.width = 600;
     if (!data.buttons) data.buttons = {};
@@ -98,7 +109,7 @@ function halloweenDialog(data) {
     const dialog = new Dialog(data, { width: data.width, height: data.height });
     dialog.render(true);
     return dialog;
-}
+};
 
 // Open injury dialog
 export async function injure(character) {
@@ -608,6 +619,19 @@ async function finish_character(data) {
     for (let skill of skill_modifiers[data.selected_class]) {
         skills[skill] += 2;
     }
+    // Figure out weapons
+    const all_items = {};
+    const items_folder = game.folders.find(f => f.name === "Items" && f.type === "Item");
+    for (let subfolder of items_folder.children) {
+        for (let item of subfolder.documents) {
+            all_items[item.name] = item;
+        }
+    }
+    const selected_items = [];
+    for (let item_name of weapons[data.selected_class]) {
+        selected_items.push(all_items[item_name]);
+    }
+
     // Create an actor
     const folder = game.folders.find(f => f.name === "Players" && f.type === "Actor");
     const actor = await LightbearerActor.create({
@@ -636,23 +660,30 @@ async function finish_character(data) {
         "data.skills.ranged.level": skill_levels[skills.ranged],
         "data.skills.stealth.level": skill_levels[skills.stealth],
     });
-    // Add race and class abilities
-    const abilities = [];
+    // Add race and class abilities and items
+    const abilities_and_items = [];
     for (let ability of getAbilities(data.selected_race)) {
-        abilities.push({
+        abilities_and_items.push({
             name: ability.name,
             type: "Ability",
             data: ability.system
         });
     }
     for (let ability of Object.values(data.selected_abilities)) {
-        abilities.push({
+        abilities_and_items.push({
             name: ability.name,
             type: "Ability",
             data: ability.system
         });
     }
-    await actor.createEmbeddedDocuments("Item", abilities);
+    for (let item of selected_items) {
+        abilities_and_items.push({
+            name: item.name,
+            type: "Ability",
+            data: item.system
+        });
+    }
+    await actor.createEmbeddedDocuments("Item", abilities_and_items);
     // Set actor as selected character
     game.user.update({ "character": actor.id });
 }
