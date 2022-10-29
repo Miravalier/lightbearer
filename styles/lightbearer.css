@@ -638,6 +638,10 @@ a.header-button.configure-sheet {
     justify-content: space-between;
 }
 
+.lightbearer.halloween.page1 .column {
+    align-items: center;
+}
+
 .lightbearer.halloween .class.icon {
     width: 5em;
     height: 5em;

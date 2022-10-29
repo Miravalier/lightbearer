@@ -375,19 +375,100 @@ export function createCommand(_args) {
 }
 
 function fill_class_details(html, data) {
-    html.find(`.class.details`).html(`
-        <div class="column">
+    if (data.selected_class) {
+        // Figure out available abilities
+        data.available_abilities = [];
+        data.selected_abilities = {};
+        for (let ability of getAbilities(data.selected_class).filter(a => !a.name.endsWith("+"))) {
+            data.available_abilities.push({
+                id: randomID(),
+                name: ability.name,
+                source: data.selected_class,
+                actionCost: ability.system.actionCost,
+                cooldown: ability.system.cooldown,
+                description: ability.system.description,
+            });
+        }
+        // Figure out attributes and skills
+        data.attributes = {
+            "agility": 13,
+            "endurance": 13,
+            "power": 13,
+            "charisma": 13,
+            "memory": 13,
+            "perception": 13,
+        };
+        data.skills = {
+            "artifice": 0,
+            "tracking": 0,
+            "spellwork": 0,
+            "melee": 0,
+            "ranged": 0,
+            "stealth": 0,
+        };
+        for (let [attribute, amount] of Object.entries(attribute_modifiers[data.selected_race])) {
+            data.attributes[attribute] += amount;
+        }
+        for (let [attribute, amount] of Object.entries(attribute_modifiers[data.selected_class])) {
+            data.attributes[attribute] += amount;
+        }
+        for (let skill of skill_modifiers[data.selected_race]) {
+            data.skills[skill] += 1;
+        }
+        for (let skill of skill_modifiers[data.selected_class]) {
+            data.skills[skill] += 2;
+        }
+        // Determine starting HP
+        data.hp = 18 + (data.attributes.endurance - 10) * 2;
+        // Fill out class details
+        html.find(`.class.details`).html(`
             <div class="row">
-                <div class="label">Icon</div>
-                <img class="class icon" src="Halloween/${data.selected_class}.svg">
+                <div class="column">
+                    <div class="label">Icon</div>
+                    <img class="class icon" src="Halloween/${data.selected_class}.svg">
+                </div>
+                <div class="column">
+                    <div class="label">Description</div>
+                    <p>${descriptions[data.selected_class]}</p>
+                </div>
             </div>
-
             <div class="row">
-                <div class="label">Description</div>
-                <p>${descriptions[data.selected_class]}</p>
+                <div class="column">
+                    <div class="label">HP</div>
+                    <p>${data.hp}</p>
+                </div>
+                <div class="column">
+                    <div class="label">Agility</div>
+                    <p>${data.attributes.agility}</p>
+                </div>
+                <div class="column">
+                    <div class="label">Endurance</div>
+                    <p>${data.attributes.endurance}</p>
+                </div>
+                <div class="column">
+                    <div class="label">Power</div>
+                    <p>${data.attributes.power}</p>
+                </div>
             </div>
-        </div>
-    `);
+            <div class="row">
+                <div class="column">
+                    <div class="label">Charisma</div>
+                    <p>${data.attributes.charisma}</p>
+                </div>
+                <div class="column">
+                    <div class="label">Memory</div>
+                    <p>${data.attributes.memory}</p>
+                </div>
+                <div class="column">
+                    <div class="label">Perception</div>
+                    <p>${data.attributes.perception}</p>
+                </div>
+            </div>
+        `);
+    }
+    else {
+        html.find(`.class.details`).html("");
+    }
 }
 
 async function character_creation_1(data) {
@@ -450,6 +531,7 @@ async function character_creation_1(data) {
                 const race_name = race_picker.val();
                 data.selected_race = race_name;
                 html.find(`.race.description`).html(`<p>${descriptions[data.selected_race]}</p>`);
+                fill_class_details(html, data);
             });
             // Add select class event
             html.on('change', '.class-picker', ev => {
@@ -464,23 +546,9 @@ async function character_creation_1(data) {
                 data.selected_class = class_name;
                 if (data.selected_class) {
                     class_store.set(class_name, false);
-                    fill_class_details(html, data);
-                    data.available_abilities = [];
-                    data.selected_abilities = {};
-                    for (let ability of getAbilities(data.selected_class).filter(a => !a.name.endsWith("+"))) {
-                        data.available_abilities.push({
-                            id: randomID(),
-                            name: ability.name,
-                            source: data.selected_class,
-                            actionCost: ability.system.actionCost,
-                            cooldown: ability.system.cooldown,
-                            description: ability.system.description,
-                        });
-                    }
                 }
-                else {
-                    html.find(`.class.details`).html("");
-                }
+                // Display class details
+                fill_class_details(html, data);
             });
             html.on('click', '.next', ev => {
                 if (!data.selected_race) {
@@ -555,70 +623,9 @@ async function character_creation_2(data) {
     });
 }
 
-async function character_creation_3(data) {
-    const token_store = await game.lightbearer.Store.create("halloween_character_creation_selected_classes");
-    data.closed = true;
-
-    // Load template
-    const templateContent = await renderTemplate(
-        "systems/lightbearer/html/halloween/character-creation-3.html",
-        data
-    );
-    // Display html in dialog
-    const dialog = halloweenDialog({
-        title: "Character Creation: (3 of 3)",
-        content: templateContent,
-        close: html => {
-            if (data.closed && data.selected_class) {
-                token_store.set(data.selected_class, true);
-            }
-        },
-        render: html => {
-            html.on('click', '.previous', ev => {
-                data.closed = false;
-                character_creation_2(data);
-                dialog.close();
-            });
-            html.on('click', '.next', async ev => {
-                data.closed = false;
-                finish_character(data);
-                dialog.close();
-            });
-        },
-    });
-}
 
 async function finish_character(data) {
     ui.notifications.info("Creating your character ...");
-    // Figure out attributes and skills
-    const attributes = {
-        "agility": 13,
-        "endurance": 13,
-        "power": 13,
-        "charisma": 13,
-        "memory": 13,
-        "perception": 13,
-    };
-    const skills = {
-        "artifice": 0,
-        "tracking": 0,
-        "spellwork": 0,
-        "melee": 0,
-        "ranged": 0,
-        "stealth": 0,
-    };
-    for (let [attribute, amount] of Object.entries(attribute_modifiers[data.selected_race])) {
-        attributes[attribute] += amount;
-    }
-    for (let [attribute, amount] of Object.entries(attribute_modifiers[data.selected_class])) {
-        attributes[attribute] += amount;
-    }
-    for (let skill of skill_modifiers[data.selected_race]) {
-        skills[skill] += 1;
-    }
-    for (let skill of skill_modifiers[data.selected_class]) {
-        skills[skill] += 2;
-    }
     // Figure out weapons
     const all_items = {};
     const items_folder = game.folders.find(f => f.name === "Items" && f.type === "Item");
@@ -631,7 +638,6 @@ async function finish_character(data) {
     for (let item_name of weapons[data.selected_class]) {
         selected_items.push(all_items[item_name]);
     }
-
     // Create an actor
     const folder = game.folders.find(f => f.name === "Players" && f.type === "Actor");
     const actor = await LightbearerActor.create({
@@ -642,23 +648,24 @@ async function finish_character(data) {
     });
     // Add classes, races, attributes and skills
     await actor.update({
-        "data.gamemode": "halloween",
-        "data.class": data.selected_class,
-        "data.race": data.selected_race,
+        "system.gamemode": "halloween",
+        "system.class": data.selected_class,
+        "system.race": data.selected_race,
+        "system.health": { value: data.hp, min: 0, max: data.hp },
         // Attributes
-        "data.stats.agility": attributes.agility,
-        "data.stats.endurance": attributes.endurance,
-        "data.stats.power": attributes.power,
-        "data.stats.charisma": attributes.charisma,
-        "data.stats.memory": attributes.memory,
-        "data.stats.perception": attributes.perception,
+        "system.stats.agility": data.attributes.agility,
+        "system.stats.endurance": data.attributes.endurance,
+        "system.stats.power": data.attributes.power,
+        "system.stats.charisma": data.attributes.charisma,
+        "system.stats.memory": data.attributes.memory,
+        "system.stats.perception": data.attributes.perception,
         // Skills
-        "data.skills.artifice.level": skill_levels[skills.artifice],
-        "data.skills.tracking.level": skill_levels[skills.tracking],
-        "data.skills.spellwork.level": skill_levels[skills.spellwork],
-        "data.skills.melee.level": skill_levels[skills.melee],
-        "data.skills.ranged.level": skill_levels[skills.ranged],
-        "data.skills.stealth.level": skill_levels[skills.stealth],
+        "system.skills.artifice.level": skill_levels[data.skills.artifice],
+        "system.skills.tracking.level": skill_levels[data.skills.tracking],
+        "system.skills.spellwork.level": skill_levels[data.skills.spellwork],
+        "system.skills.melee.level": skill_levels[data.skills.melee],
+        "system.skills.ranged.level": skill_levels[data.skills.ranged],
+        "system.skills.stealth.level": skill_levels[data.skills.stealth],
     });
     // Add race and class abilities and items
     const abilities_and_items = [];
