@@ -394,6 +394,29 @@ async function onChatTemplateCaptionClicked(ev) {
 async function onChatTemplateRollClicked(ev) {
     const rollItem = $(ev.currentTarget);
     const rowId = rollItem.closest(".chat-template .item").data("rowId");
+    if (rollItem.data("results")) {
+        rollResultsDialog(rollItem, rowId);
+    }
+    else if (rollItem.data("formula")) {
+        activateRollable(rollItem, rowId);
+    }
+}
+
+
+async function activateRollable(rollItem, rowId) {
+    const source = rollItem.data("source");
+    const label = rollItem.data("label");
+    const formula = rollItem.data("formula");
+    const color = rollItem.data("color");
+
+    await send(dedent(`
+        <div class="caption">${source}</div>
+        ${await templateRow(label, formula, color, {})}
+    `));
+}
+
+
+async function rollResultsDialog(rollItem, rowId) {
     const resultData = JSON.parse(atob(rollItem.data("results")));
     resultData.modified = rollItem.data("modified");
     resultData.isGM = game.user.isGM;
@@ -602,6 +625,27 @@ export function templateActor(actor, content, displayName) {
         <div class="${tags}">
             <div class="name">${displayName}</div>
             ${content}
+        </div>
+    `);
+}
+
+
+export async function templateRollableRow(source, label, formula, color, rollData) {
+    if (rollData === undefined)
+        rollData = {};
+    if (color === undefined)
+        color = "";
+
+    if (!Roll.validate(formula))
+        return templateTextRow(label, formula, color);
+
+    return dedent(`
+        <div class="item ${color}" data-row-id="${randomID(16)}">
+            <div class="label">${label}</div>
+            <div class="roll" data-formula="${formula}" data-color="${color}"
+                    data-label="${label}" data-source="${source}">
+                <i class="fas fa-dice-d20"></i> ${formula}
+            </div>
         </div>
     `);
 }

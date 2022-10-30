@@ -268,6 +268,15 @@ export class LightbearerItem extends Item {
                     else if (effect.type == "Field") {
                         // Handled elsewhere.
                     }
+                    else if (effect.type == "Rollable") {
+                        subitems.push(await chat.templateRollableRow(
+                            this.name,
+                            effect.label,
+                            effect.formula,
+                            effect.color,
+                            actor.getRollData(),
+                        ));
+                    }
                     else {
                         subitems.push(chat.templateDescription("Unrecognized effect: " + effect.type));
                     }

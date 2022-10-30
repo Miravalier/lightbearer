@@ -127,6 +127,7 @@
                         <option value="Field">Field</option>
                         {{/ifnoneof}}
                         <option value="Table">Table</option>
+                        <option value="Rollable">Rollable</option>
                         {{/select}}
                     </select>
 
@@ -195,10 +196,25 @@
                         {{/select}}
                     </select>
                     {{/switchcase}}
+                    {{#switchcase "Rollable"}}
+                    <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.label"
+                        value="{{effect.label}}" />
+                    <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.formula"
+                        value="{{effect.formula}}" />
+                    <select name="system.targets.{{tkey}}.effects.{{ekey}}.color">
+                        {{#select effect.color}}
+                        <option value="">None</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="red">Red</option>
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                        <option value="orange">Orange</option>
+                        <option value="purple">Purple</option>
+                        {{/select}}
+                    </select>
+                    {{/switchcase}}
                     {{/switchon}}
                     {{/ifoneof}}
-
-
                     <a class="remove-effect-button"><i class="fas fa-trash"></i></a>
                 </div>
                 {{/each}}
