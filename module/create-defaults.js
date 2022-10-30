@@ -52,9 +52,10 @@ export async function preCreateToken(token, data, options, userId) {
         updates.displayBars = CONST.TOKEN_DISPLAY_MODES.ALWAYS;
         updates.displayName = CONST.TOKEN_DISPLAY_MODES.HOVER;
         updates.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-        updates.vision = true;
-        updates.brightSight = 30;
-        updates.dimSight = 30;
+        updates.sight = {
+            enabled: true,
+            range: 30,
+        };
     }
     else {
         if (actor.system.randomize_form && actor.system.forms) {
@@ -71,7 +72,7 @@ export async function preCreateToken(token, data, options, userId) {
         else if (actor.system.alignment == "friendly") {
             updates.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
         }
-        updates.vision = false;
+        updates.sight = { enabled: false };
     }
 
     let size = 1;

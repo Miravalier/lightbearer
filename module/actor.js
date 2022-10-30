@@ -127,6 +127,23 @@ export class LightbearerActor extends Actor {
         });
     }
 
+    onUpdate(change, options, userId) {
+        let tokenChange = false;
+        const updates = {};
+
+        if (change.name) {
+            updates["name"] = change.name;
+            tokenChange = true;
+        }
+        if (change.img) {
+            updates["img"] = change.img;
+            tokenChange = true;
+        }
+        for (let token of this.getActiveTokens(true)) {
+            token.document.update(updates);
+        }
+    }
+
     // Called when a new turn starts
     advanceTurn() {
     }
