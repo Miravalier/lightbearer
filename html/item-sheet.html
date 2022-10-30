@@ -124,7 +124,7 @@
                         <option value="Opposed Check">Opposed</option>
                         <option value="Amount">Amount</option>
                         {{#ifnoneof target.type "None,Creature,Group"}}
-                        <option value="Texture">Texture</option>
+                        <option value="Field">Field</option>
                         {{/ifnoneof}}
                         <option value="Table">Table</option>
                         {{/select}}
@@ -151,9 +151,11 @@
                     </select>
                     {{else}}
                     {{#switchon effect.type}}
-                    {{#switchcase "Texture"}}
-                    <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.texture"
-                        value="{{effect.texture}}" />
+                    {{#switchcase "Field"}}
+                    <!--input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.texture"
+                        value="{{effect.texture}}" /-->
+                    <input class="formula" type="color" name="system.targets.{{tkey}}.effects.{{ekey}}.field"
+                        value="{{effect.field}}" />
                     {{/switchcase}}
                     {{#switchcase "Text"}}
                     <input class="formula" type="text" name="system.targets.{{tkey}}.effects.{{ekey}}.text"

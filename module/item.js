@@ -154,10 +154,10 @@ export class LightbearerItem extends Item {
                         actors.push(actor);
                     }
                 }
-                for (let effect of Object.values(target.effects).filter(e => e.type == "Texture")) {
+                for (let effect of Object.values(target.effects).filter(e => e.type == "Field")) {
                     const templateData = { position: template.position };
-                    if (effect.texture) {
-                        templateData.texture = `Textures/${effect.texture}.png`;
+                    if (effect.field) {
+                        templateData.color = effect.field;
                     }
                     templateData.offset = { x: -(pixelsPerSquare / 2), y: -(pixelsPerSquare / 2) };
 
@@ -166,12 +166,14 @@ export class LightbearerItem extends Item {
                         templateData.shape = "ray";
                         templateData.width = sizeFeet;
                         templateData.length = sizeFeet;
-                        templateData.offset = { x: -size * pixelsPerFoot };
+                        templateData.offset = {
+                            x: -(sizeFeet * pixelsPerFoot) / 2 - (pixelsPerSquare / 2),
+                            y: -(pixelsPerSquare / 2),
+                        };
                     }
                     else if (target.type == "Sphere") {
                         templateData.shape = "circle";
                         templateData.length = target.radius + 0.5;
-                        templateData.offset = { x: 0, y: 0 };
                     }
                     else if (target.type == "Ray") {
                         templateData.shape = "ray";
@@ -263,7 +265,7 @@ export class LightbearerItem extends Item {
                     else if (effect.type == "Text") {
                         subitems.push(chat.templateDescription(effect.text));
                     }
-                    else if (effect.type == "Texture") {
+                    else if (effect.type == "Field") {
                         // Handled elsewhere.
                     }
                     else {

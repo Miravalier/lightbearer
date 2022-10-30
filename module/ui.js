@@ -57,9 +57,8 @@ export async function createTemplate(data) {
         width: data.width,
         distance: data.length,
         direction: data.direction,
-        borderColor: "#000000",
+        borderColor: game.user.color,
         fillColor: data.color,
-        texture: data.texture,
     }]);
 }
 
@@ -153,6 +152,7 @@ export async function selectFixedShape(data) {
 
     // Find the current scene
     const scene = game.scenes.get(game.user.viewedScene);
+    const pixelsPerHalfSquare = scene.grid.size / 2;
 
     // Apply offset
     data.position.x += data.offset.x
@@ -179,6 +179,8 @@ export async function selectFixedShape(data) {
         const mouse = canvas.app.renderer.plugins.interaction.mouse;
         moveInterval = setInterval(function () {
             const mousePosition = mouse.getLocalPosition(canvas.app.stage);
+            mousePosition.x = Math.round(mousePosition.x / pixelsPerHalfSquare) * pixelsPerHalfSquare
+            mousePosition.y = Math.round(mousePosition.y / pixelsPerHalfSquare) * pixelsPerHalfSquare
             mousePosition.x += data.offset.x;
             mousePosition.y += data.offset.y;
             moveTemplateToPosition(scene, template, mousePosition);
@@ -212,7 +214,6 @@ export async function selectFixedShape(data) {
         return { position: data.position, tokens: selected };
     }
     else {
-        const pixelsPerHalfSquare = scene.grid.size / 2;
         position.x = Math.round(position.x / pixelsPerHalfSquare) * pixelsPerHalfSquare
         position.y = Math.round(position.y / pixelsPerHalfSquare) * pixelsPerHalfSquare
         return { position: position, tokens: selected };
@@ -221,6 +222,9 @@ export async function selectFixedShape(data) {
 
 
 export async function selectShape(data) {
+    // Find the current scene
+    const scene = game.scenes.get(game.user.viewedScene);
+
     // Get default parameters set up
     if (data.shape == "cone" && data.angle == undefined) data.angle = 100;
     if (data.shape == "ray" && data.width == undefined) data.width = 5;
@@ -228,6 +232,9 @@ export async function selectShape(data) {
     if (data.color == undefined) data.color = game.user.color;
     if (data.origin == undefined) {
         data.position = await selectPosition(`Place the ${data.shape}'s origin.`);
+        const pixelsPerHalfSquare = scene.grid.size / 2;
+        data.position.x = Math.round(data.position.x / pixelsPerHalfSquare) * pixelsPerHalfSquare
+        data.position.y = Math.round(data.position.y / pixelsPerHalfSquare) * pixelsPerHalfSquare
     }
     else {
         data.position = { x: data.origin.x, y: data.origin.y };
@@ -239,8 +246,7 @@ export async function selectShape(data) {
         return null;
     }
 
-    // Find the current scene
-    const scene = game.scenes.get(game.user.viewedScene);
+
 
     // Create shape template
     const templates = await scene.createEmbeddedDocuments("MeasuredTemplate", [{
@@ -346,9 +352,6 @@ export function getTokensUnderTemplate(scene, template) {
 
 
 async function moveTemplateToPosition(scene, template, point) {
-    const pixelsPerHalfSquare = scene.grid.size / 2;
-    point.x = Math.round(point.x / pixelsPerHalfSquare) * pixelsPerHalfSquare
-    point.y = Math.round(point.y / pixelsPerHalfSquare) * pixelsPerHalfSquare
     if (template.x != point.x || template.y != point.y) {
         await scene.updateEmbeddedDocuments("MeasuredTemplate", [{
             _id: template._id,
