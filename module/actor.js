@@ -128,6 +128,8 @@ export class LightbearerActor extends Actor {
     }
 
     onUpdate(change, options, userId) {
+        if (!game.user.isGM) return;
+
         let tokenChange = false;
         const updates = {};
 
