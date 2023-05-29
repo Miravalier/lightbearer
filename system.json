@@ -2,11 +2,10 @@
   "id": "lightbearer",
   "title": "The Lightbearer Ruleset",
   "description": "Miravalier's lightbearer ruleset.",
-  "version": 3.0,
+  "version": 3.1,
   "compatibility": {
-    "minimum": 10,
-    "verified": 10,
-    "maximum": 10
+    "minimum": 11,
+    "verified": 11
   },
   "url": "https://github.com/Miravalier/lightbearer",
   "manifest": "",
@@ -29,9 +28,9 @@
   "languages": [],
   "media": [],
   "socket": true,
-  "gridDistance": 5,
-  "gridUnits": "ft",
+  "gridDistance": 1,
+  "gridUnits": "m",
   "license": "LICENSE.txt",
-  "primaryTokenAttribute": null,
+  "primaryTokenAttribute": "health",
   "secondaryTokenAttribute": null
 }
